@@ -1,13 +1,13 @@
-# 🧪 Taller 1 - Hello Android
+# Taller 1 - Hello Android
 
-## 📘 Información del Estudiante
+## Información del Estudiante
 - **Nombre:** Cristofer Danilo Muñoz Luna  
 - **Código:** *(agrega tu código estudiantil aquí)*  
 - **Fecha:** 24/02/2026  
 
 ---
 
-## 📝 Respuestas
+## Respuestas
 
 ### **1. Función del AndroidManifest.xml**
 El archivo **`AndroidManifest.xml`** es el archivo principal de configuración de una aplicación Android.  
