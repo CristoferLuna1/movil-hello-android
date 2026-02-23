@@ -1,31 +1,56 @@
-Taller 1 - Hello Wordl
-Cristofer Danilo Muñoz Luna
+# 🧪 Taller 1 - Hello Android
 
-24/02/2026
-1. ¿Cuál es la función del archivo AndroidManifest.xml?
-    Es el archivo principal de configuracion de una app de android. Su funcion principal es decirle al sistema android
-   como es y debe funcionar la aplicacion, en este se definen permisos, nombre, version minima, la actividad principal
-   que se abre al iniciar, sin este archivo la app no puede ejecutarse.
-2. ¿Que diferencia existe entre activity_main.xml y MainActivity.kt?
-     La mayor diferencia es que uno se encarga del diseño visual, es decir, los botones, los textos, layouts etc,
-     mientras el otro contiene la logica del programa, es decir, eventos, acciones y codigo de los elementos.
-     Un  ejemplo de este seria el XML crea un boton, si queremos que cada vez que se oprima el boton aumente un contador en 1,
-     esa parte logica se realiza en el archivo .kt.
-3. ¿Como maneja Android los recursos limitados del dispositivo movil?
-      Andorid maneja los recursos(memoria, bateria,CPU) meidante:
-   *Ciclo de vida de actividades
-     Cierra o pausa actividades inactivas.
-   *Liberacion automatica de memoria
-   *Apps en segundo plano controladas
-   *Optimizacion de bateria
-      Limita procesos inncesarios
-     -Doze Mode: Android detecta cuando el telefono esta quieto, la pantalla apagada y sin usarse,
-                 esto permite detener tareas, bloquea sincronizaciones, limita acceso a red.
-   *Prioridad de procesos
-     La app visible tiene mayor prioridad que las que estan en segundo plano.
-   Esto evita que el telefono se vuelva lento o se quede sin bateria rapido.
-4.  Mencione 3 aplicaciones famosas que utilizan Kotlin
-    Algunas aplicaciones muy conocidad desarrolladas toal o parcialmente con kotil son:
-    -Instragram
-    -Pinterest
-    -Trello 
+## 📘 Información del Estudiante
+- **Nombre:** Cristofer Danilo Muñoz Luna  
+- **Código:** *(agrega tu código estudiantil aquí)*  
+- **Fecha:** 24/02/2026  
+
+---
+
+## 📝 Respuestas
+
+### **1. Función del AndroidManifest.xml**
+El archivo **`AndroidManifest.xml`** es el archivo principal de configuración de una aplicación Android.  
+Su función principal es indicarle al sistema Android **cómo es y cómo debe funcionar la aplicación**.
+
+En este archivo se definen aspectos como:
+- Los **permisos** de la aplicación  
+- El **nombre del paquete**  
+- La **versión mínima de Android**  
+- La **actividad principal** que se ejecuta al iniciar la app  
+
+Sin este archivo, **la aplicación no puede ejecutarse**.
+
+---
+
+### **2. Diferencia entre `activity_main.xml` y `MainActivity.kt`**
+La diferencia principal es la función que cumple cada archivo:
+
+- **`activity_main.xml`** se encarga del **diseño visual** de la aplicación, como botones, textos y layouts.
+- **`MainActivity.kt`** contiene la **lógica del programa**, es decir, las acciones, eventos y el comportamiento de los elementos.
+
+**Ejemplo:**  
+El archivo XML puede crear un botón, pero si se desea que al presionarlo aumente un contador en 1, esa lógica se programa en el archivo `.kt`.
+
+---
+
+### **3. Gestión de recursos en Android**
+Android maneja los recursos limitados del dispositivo móvil (memoria, batería y CPU) mediante diferentes mecanismos, entre ellos:
+
+- **Ciclo de vida de las actividades:** pausa o cierra aplicaciones inactivas.  
+- **Liberación automática de memoria.**  
+- **Control de aplicaciones en segundo plano.**  
+- **Optimización de batería:** limita procesos innecesarios.  
+  - **Doze Mode:** se activa cuando el teléfono está quieto, con la pantalla apagada y sin uso, restringiendo tareas, sincronizaciones y acceso a red.  
+- **Prioridad de procesos:** las aplicaciones visibles tienen mayor prioridad que las que están en segundo plano.
+
+Esto permite que el dispositivo funcione de forma eficiente y que la batería dure más tiempo.
+
+---
+
+### **4. Aplicaciones famosas que usan Kotlin**
+Algunas aplicaciones muy conocidas desarrolladas total o parcialmente con Kotlin son:
+
+- **Instagram**  
+- **Pinterest**  
+- **Trello**
