@@ -28,5 +28,11 @@ class UserViewModel : ViewModel() {
         // Cargar usuarios al inicializar el ViewModel
         loadUsers()
     }
+
     
- ¿
+    // Cargar lista de usuarios
+    fun loadUsers() {
+        _isLoading.value = true
+
+    
+}
