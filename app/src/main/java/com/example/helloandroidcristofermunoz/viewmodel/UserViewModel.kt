@@ -34,28 +34,25 @@ class UserViewModel : ViewModel() {
 
         // Simular retardo de carga (como si fuera una llamada de red)
         Handler(Looper.getMainLooper()).postDelayed({
-            _users.value = localUsers.toList()
+            _users.value = repository.getAllUsers()
             _isLoading.value = false
         }, 500)
     }
-
-    // Lista local para simular CRUD (ya que repository no tiene persistencia)
-    private val localUsers = mutableListOf<User>().also { it.addAll(repository.getUsers()) }
 
     fun selectUser(user: User) {
         _selectedUser.value = user
     }
 
     fun addUser(name: String, email: String, age: Int) {
-        val newId = (localUsers.maxOfOrNull { it.id } ?: 0) + 1
+        val newId = (repository.getAllUsers().maxOfOrNull { it.id } ?: 0) + 1
         val newUser = User(newId, name, email, age)
-        localUsers.add(newUser)
-        _users.value = localUsers.toList()
+        repository.addUser(newUser)
+        loadUsers() // Refrescar lista
     }
 
     fun deleteUser(userId: Int) {
-        localUsers.removeAll { it.id == userId }
-        _users.value = localUsers.toList()
+        repository.deleteUser(userId)
+        loadUsers() // Refrescar lista
     }
 
 }
