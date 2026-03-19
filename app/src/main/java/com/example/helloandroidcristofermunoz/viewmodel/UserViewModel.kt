@@ -1,5 +1,7 @@
 package com.example.helloandroidcristofermunoz.viewmodel
 
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -19,12 +21,22 @@ class UserViewModel : ViewModel() {
     private val _selectedUser = MutableLiveData<User?>()
     val selectedUser: LiveData<User?> = _selectedUser
 
+    // LiveData para estado de carga (ProgressBar)
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
     init {
         loadUsers()
     }
 
     fun loadUsers() {
-        _users.value = repository.getUsers()
+        _isLoading.value = true
+
+        // Simular retardo de carga (como si fuera una llamada de red)
+        Handler(Looper.getMainLooper()).postDelayed({
+            _users.value = localUsers.toList()
+            _isLoading.value = false
+        }, 500)
     }
 
     // Lista local para simular CRUD (ya que repository no tiene persistencia)
