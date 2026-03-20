@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.example.helloandroidcristofermunoz.R
+import androidx.navigation.fragment.navArgs
 import com.example.helloandroidcristofermunoz.databinding.FragmentUserDetailBinding
 import com.example.helloandroidcristofermunoz.viewmodel.UserViewModel
 
@@ -19,10 +19,8 @@ class UserDetailFragment : Fragment() {
 
     private val viewModel: UserViewModel by activityViewModels()
     
-    // Obtener argumentos de navegación
-    private val userId: Int by lazy {
-        arguments?.getInt("userId") ?: 0
-    }
+    // Recibir argumentos con Safe Args - ¡Type safe!
+    private val args: UserDetailFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,6 +34,9 @@ class UserDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Obtener el userId de forma segura con Safe Args
+        val userId = args.userId
+        
         // Buscar el usuario por ID
         val user = viewModel.users.value?.find { it.id == userId }
         

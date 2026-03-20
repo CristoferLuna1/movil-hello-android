@@ -17,7 +17,12 @@
             
         <action
             android:id="@+id/action_list_to_detail"
-            app:destination="@id/userDetailFragment" />
+            app:destination="@id/userDetailFragment">
+            <!-- Argumento para pasar el userId -->
+            <argument
+                android:name="userId"
+                app:argType="integer" />
+        </action>
     </fragment>
 
     <fragment
@@ -30,6 +35,11 @@
         android:id="@+id/userDetailFragment"
         android:name="com.example.helloandroidcristofermunoz.ui.UserDetailFragment"
         android:label="Detalle de Usuario"
-        tools:layout="@layout/fragment_user_detail" />
+        tools:layout="@layout/fragment_user_detail">
+        
+        <argument
+            android:name="userId"
+            app:argType="integer" />
+    </fragment>
 
 </navigation>

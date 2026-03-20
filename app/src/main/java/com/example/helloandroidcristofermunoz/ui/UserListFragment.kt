@@ -7,9 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.databinding.FragmentUserListBinding
 import com.example.helloandroidcristofermunoz.viewmodel.UserViewModel
+import com.example.helloandroidcristofermunoz.R
 
 class UserListFragment : Fragment() {
 
@@ -55,17 +55,17 @@ class UserListFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.buttonAddUser.setOnClickListener {
+            // Navegar a AddUserFragment
             findNavController().navigate(R.id.action_list_to_add)
         }
         
-        // Hacer click en la lista para ver detalle
+        // Hacer click en la lista para ver detalle con Safe Args
         binding.textViewUserList.setOnClickListener {
-            val currentUser = viewModel.users.value?.firstOrNull()
-            currentUser?.let { user ->
-                val bundle = Bundle().apply {
-                    putInt("userId", user.id)
-                }
-                findNavController().navigate(R.id.action_list_to_detail, bundle)
+            // Obtener el primer usuario como ejemplo
+            viewModel.users.value?.firstOrNull()?.let { user ->
+                // Usar Safe Args generado automáticamente
+                val action = UserListFragmentDirections.actionListToDetail(user.id)
+                findNavController().navigate(action)
             }
         }
     }
