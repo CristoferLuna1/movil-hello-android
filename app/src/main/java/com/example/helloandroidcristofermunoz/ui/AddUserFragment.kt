@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.example.helloandroidcristofermunoz.MainActivity
+import androidx.navigation.fragment.findNavController
 import com.example.helloandroidcristofermunoz.databinding.FragmentAddUserBinding
 import com.example.helloandroidcristofermunoz.viewmodel.UserViewModel
 
@@ -31,12 +31,12 @@ class AddUserFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonSaveUser.setOnClickListener {
-            val nombre = binding.editTextName.text.toString().trim()
+            val name = binding.editTextName.text.toString().trim()
             val email = binding.editTextEmail.text.toString().trim()
-            val edadText = binding.editTextAge.text.toString().trim()
+            val ageText = binding.editTextAge.text.toString().trim()
 
             when {
-                nombre.isEmpty() -> {
+                name.isEmpty() -> {
                     binding.editTextName.error = "Ingrese el nombre"
                     return@setOnClickListener
                 }
@@ -48,29 +48,24 @@ class AddUserFragment : Fragment() {
                     binding.editTextEmail.error = "Correo inválido"
                     return@setOnClickListener
                 }
-                edadText.isEmpty() -> {
+                ageText.isEmpty() -> {
                     binding.editTextAge.error = "Ingrese la edad"
                     return@setOnClickListener
                 }
-                edadText.toIntOrNull() == null -> {
+                ageText.toIntOrNull() == null -> {
                     binding.editTextAge.error = "Edad inválida"
                     return@setOnClickListener
                 }
             }
 
-            val edad = edadText.toInt()
-            
-            // Agregar usuario - esto actualizará automáticamente el LiveData
-            viewModel.addUser(nombre, email, edad)
-            
+            val age = ageText.toInt()
+            viewModel.addUser(name, email, age)
             Toast.makeText(requireContext(), "Usuario agregado correctamente", Toast.LENGTH_SHORT).show()
-            
-            // Cerrar el formulario
-            (activity as? MainActivity)?.hideAddUserFragment()
+            findNavController().popBackStack()
         }
 
         binding.buttonCancel.setOnClickListener {
-            (activity as? MainActivity)?.hideAddUserFragment()
+            findNavController().popBackStack()
         }
     }
 

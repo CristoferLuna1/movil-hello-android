@@ -6,7 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.example.helloandroidcristofermunoz.MainActivity
+import androidx.navigation.fragment.findNavController
+import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.databinding.FragmentUserListBinding
 import com.example.helloandroidcristofermunoz.viewmodel.UserViewModel
 
@@ -36,10 +37,15 @@ class UserListFragment : Fragment() {
     private fun setupObservers() {
         viewModel.users.observe(viewLifecycleOwner) { userList ->
             binding.textViewUserCount.text = "Total usuarios: ${userList.size}"
-
-            // CORREGIDO: it.name → it.nombre (según tu modelo User)
-            val userNames = userList.joinToString("\n") { "${it.name} - ${it.email}" }
-            binding.textViewUserList.text = userNames.ifEmpty { "No hay usuarios registrados" }
+            
+            if (userList.isEmpty()) {
+                binding.textViewUserList.text = "No hay usuarios registrados"
+            } else {
+                val userListText = userList.joinToString("\n") { user ->
+                    "• ${user.name} (${user.age} años) - ${user.email}"
+                }
+                binding.textViewUserList.text = userListText
+            }
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
@@ -49,8 +55,18 @@ class UserListFragment : Fragment() {
 
     private fun setupClickListeners() {
         binding.buttonAddUser.setOnClickListener {
-            // CORREGIDO: Llamar a MainActivity para mostrar el formulario
-            (activity as? MainActivity)?.showAddUserFragment()
+            findNavController().navigate(R.id.action_list_to_add)
+        }
+        
+        // Hacer click en la lista para ver detalle
+        binding.textViewUserList.setOnClickListener {
+            val currentUser = viewModel.users.value?.firstOrNull()
+            currentUser?.let { user ->
+                val bundle = Bundle().apply {
+                    putInt("userId", user.id)
+                }
+                findNavController().navigate(R.id.action_list_to_detail, bundle)
+            }
         }
     }
 
