@@ -43,22 +43,47 @@ class MainActivity : AppCompatActivity() {
 package com.example.helloandroidcristofermunoz
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.example.helloandroidcristofermunoz.databinding.ActivityMainBinding
+import com.example.helloandroidcristofermunoz.ui.AddUserFragment
+import com.example.helloandroidcristofermunoz.ui.UserListFragment
 import com.example.helloandroidcristofermunoz.viewmodel.UserViewModel
-import com.example.helloandroidcristofermunoz.R
-
 
 class MainActivity : AppCompatActivity() {
+    
+    private lateinit var binding: ActivityMainBinding
     
     // ViewModel a nivel de Activity (compartido con fragments)
     private val viewModel: UserViewModel by viewModels()
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         
-        // El Fragment se carga automáticamente desde el XML
-        // El ViewModel está disponible para todos los fragments
+        // Cargar el fragment principal (lista de usuarios)
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .add(R.id.container_main, UserListFragment())
+                .commit()
+        }
+    }
+    
+    fun showAddUserFragment() {
+        // Mostrar el overlay y agregar el fragment
+        binding.containerOverlay.visibility = View.VISIBLE
+        
+        supportFragmentManager.beginTransaction()
+            .add(R.id.container_overlay, AddUserFragment())
+            .addToBackStack(null)
+            .commit()
+    }
+    
+    fun hideAddUserFragment() {
+        // Ocultar el overlay y remover el fragment
+        supportFragmentManager.popBackStack()
+        binding.containerOverlay.visibility = View.GONE
     }
 }
