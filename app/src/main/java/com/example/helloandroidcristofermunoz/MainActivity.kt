@@ -1,4 +1,4 @@
-package com.example.helloandroidcristofermunoz
+/* package com.example.helloandroidcristofermunoz
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
@@ -36,5 +36,29 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+    }
+} */
+
+
+package com.example.helloandroidcristofermunoz
+
+import android.os.Bundle
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import com.example.helloandroidcristofermunoz.viewmodel.UserViewModel
+import com.example.helloandroidcristofermunoz.R
+
+
+class MainActivity : AppCompatActivity() {
+    
+    // ViewModel a nivel de Activity (compartido con fragments)
+    private val viewModel: UserViewModel by viewModels()
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        
+        // El Fragment se carga automáticamente desde el XML
+        // El ViewModel está disponible para todos los fragments
     }
 }
