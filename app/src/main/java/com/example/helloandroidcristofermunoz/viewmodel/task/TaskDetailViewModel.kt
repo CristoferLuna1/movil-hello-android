@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.helloandroidcristofermunoz.model.task.Task
 import com.example.helloandroidcristofermunoz.repository.task.TaskRepository
+import com.example.helloandroidcristofermunoz.utils.AlarmUtils
 import kotlinx.coroutines.launch
 
 class TaskDetailViewModel(application: Application) : AndroidViewModel(application) {
@@ -35,7 +36,20 @@ class TaskDetailViewModel(application: Application) : AndroidViewModel(applicati
     fun createTask(title: String, description: String, hasReminder: Boolean) {
         viewModelScope.launch {
             try {
-                repository.createTask(title, description, hasReminder)
+                val task = repository.createTask(title, description, hasReminder)
+                
+                // Programar recordatorio si está activado
+                if (hasReminder) {
+                    val reminderTime = System.currentTimeMillis() + (30 * 1000) // 30 segundos para prueba
+                    AlarmUtils.scheduleTaskReminder(
+                        getApplication(),
+                        task.id,
+                        task.title,
+                        task.description,
+                        reminderTime
+                    )
+                }
+                
                 _taskSaved.value = true
             } catch (e: Exception) {
                 _error.value = "Error al crear la tarea: ${e.message}"
@@ -48,12 +62,31 @@ class TaskDetailViewModel(application: Application) : AndroidViewModel(applicati
             try {
                 val existingTask = repository.getTaskById(taskId)
                 existingTask?.let {
+                    // Cancelar recordatorio anterior si existía
+                    if (it.hasReminder) {
+                        AlarmUtils.cancelTaskReminder(getApplication(), taskId)
+                    }
+                    
                     val updatedTask = it.copy(
                         title = title,
                         description = description,
                         hasReminder = hasReminder
                     )
+                    
                     repository.updateTask(updatedTask)
+                    
+                    // Programar nuevo recordatorio si está activado
+                    if (hasReminder) {
+                        val reminderTime = System.currentTimeMillis() + (30 * 1000) // 30 segundos para prueba
+                        AlarmUtils.scheduleTaskReminder(
+                            getApplication(),
+                            taskId,
+                            title,
+                            description,
+                            reminderTime
+                        )
+                    }
+                    
                     _taskSaved.value = true
                 }
             } catch (e: Exception) {
