@@ -1,11 +1,14 @@
 package com.example.helloandroidcristofermunoz.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.helloandroidcristofermunoz.databinding.ItemTaskBinding
+import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.model.task.Task
 
 class TaskAdapter(
@@ -13,34 +16,29 @@ class TaskAdapter(
 ) : ListAdapter<Task, TaskAdapter.TaskViewHolder>(TaskDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-        val binding = ItemTaskBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-        return TaskViewHolder(binding)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_task, parent, false)
+        return TaskViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
-    inner class TaskViewHolder(private val binding: ItemTaskBinding) : 
-        RecyclerView.ViewHolder(binding.root) {
+    inner class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val titleView: TextView = itemView.findViewById(R.id.textViewTitle)
+        private val descriptionView: TextView = itemView.findViewById(R.id.textViewDescription)
+        private val reminderView: ImageView = itemView.findViewById(R.id.imageViewReminder)
         
         fun bind(task: Task) {
-            binding.textViewTitle.text = task.title
-            binding.textViewDescription.text = task.description
+            titleView.text = task.title
+            descriptionView.text = task.description
             
             // Mostrar indicador de recordatorio
-            if (task.hasReminder) {
-                binding.imageViewReminder.visibility = android.view.View.VISIBLE
-            } else {
-                binding.imageViewReminder.visibility = android.view.View.GONE
-            }
+            reminderView.visibility = if (task.hasReminder) View.VISIBLE else View.GONE
             
             // Configurar click listener
-            binding.root.setOnClickListener {
+            itemView.setOnClickListener {
                 onTaskClick(task)
             }
         }

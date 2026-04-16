@@ -4,32 +4,46 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Switch
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.helloandroidcristofermunoz.R
-import com.example.helloandroidcristofermunoz.databinding.FragmentTaskDetailBinding
 import com.example.helloandroidcristofermunoz.viewmodel.task.TaskDetailViewModel
 
 class TaskDetailFragment : Fragment() {
     
-    private var _binding: FragmentTaskDetailBinding? = null
-    private val binding get() = _binding!!
-    
     private lateinit var viewModel: TaskDetailViewModel
+    
+    private lateinit var titleView: TextView
+    private lateinit var titleEdit: EditText
+    private lateinit var descriptionEdit: EditText
+    private lateinit var reminderSwitch: Switch
+    private lateinit var saveButton: Button
+    private lateinit var cancelButton: Button
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentTaskDetailBinding.inflate(inflater, container, false)
-        return binding.root
+        return inflater.inflate(R.layout.fragment_task_detail, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        // Inicializar vistas
+        titleView = view.findViewById(R.id.textViewTitle)
+        titleEdit = view.findViewById(R.id.editTextTitle)
+        descriptionEdit = view.findViewById(R.id.editTextDescription)
+        reminderSwitch = view.findViewById(R.id.switchReminder)
+        saveButton = view.findViewById(R.id.buttonSave)
+        cancelButton = view.findViewById(R.id.buttonCancel)
         
         viewModel = ViewModelProvider(this)[TaskDetailViewModel::class.java]
         
@@ -40,21 +54,21 @@ class TaskDetailFragment : Fragment() {
         val taskId = arguments?.getInt("taskId") ?: -1
         if (taskId != -1) {
             viewModel.loadTask(taskId)
-            binding.editTextTitle.setText(arguments?.getString("taskTitle") ?: "")
-            binding.editTextDescription.setText(arguments?.getString("taskDescription") ?: "")
-            binding.switchReminder.isChecked = arguments?.getBoolean("taskHasReminder") ?: false
+            titleEdit.setText(arguments?.getString("taskTitle") ?: "")
+            descriptionEdit.setText(arguments?.getString("taskDescription") ?: "")
+            reminderSwitch.isChecked = arguments?.getBoolean("taskHasReminder") ?: false
         } else {
             // Modo creación
-            binding.textViewTitle.text = "Nueva Tarea"
+            titleView.text = "Nueva Tarea"
         }
     }
 
     private fun setupClickListeners() {
-        binding.buttonSave.setOnClickListener {
+        saveButton.setOnClickListener {
             saveTask()
         }
         
-        binding.buttonCancel.setOnClickListener {
+        cancelButton.setOnClickListener {
             findNavController().navigateUp()
         }
     }
@@ -75,9 +89,9 @@ class TaskDetailFragment : Fragment() {
     }
 
     private fun saveTask() {
-        val title = binding.editTextTitle.text.toString().trim()
-        val description = binding.editTextDescription.text.toString().trim()
-        val hasReminder = binding.switchReminder.isChecked
+        val title = titleEdit.text.toString().trim()
+        val description = descriptionEdit.text.toString().trim()
+        val hasReminder = reminderSwitch.isChecked
 
         if (title.isEmpty()) {
             Toast.makeText(context, "El título es obligatorio", Toast.LENGTH_SHORT).show()
@@ -92,10 +106,5 @@ class TaskDetailFragment : Fragment() {
             // Modo creación
             viewModel.createTask(title, description, hasReminder)
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }

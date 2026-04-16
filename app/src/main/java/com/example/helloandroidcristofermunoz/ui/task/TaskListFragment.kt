@@ -4,34 +4,42 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.helloandroidcristofermunoz.R
-import com.example.helloandroidcristofermunoz.databinding.FragmentTaskListBinding
+import com.example.helloandroidcristofermunoz.adapter.TaskAdapter
 import com.example.helloandroidcristofermunoz.viewmodel.task.TaskListViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class TaskListFragment : Fragment() {
     
-    private var _binding: FragmentTaskListBinding? = null
-    private val binding get() = _binding!!
-    
     private lateinit var viewModel: TaskListViewModel
     private lateinit var taskAdapter: TaskAdapter
+    
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var emptyView: TextView
+    private lateinit var fabAdd: FloatingActionButton
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentTaskListBinding.inflate(inflater, container, false)
-        return binding.root
+        return inflater.inflate(R.layout.fragment_task_list, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
+        // Inicializar vistas
+        recyclerView = view.findViewById(R.id.recyclerViewTasks)
+        emptyView = view.findViewById(R.id.textViewEmpty)
+        fabAdd = view.findViewById(R.id.fabAddTask)
         
         viewModel = ViewModelProvider(this)[TaskListViewModel::class.java]
         
@@ -55,7 +63,7 @@ class TaskListFragment : Fragment() {
             findNavController().navigate(R.id.action_taskListFragment_to_taskDetailFragment, bundle)
         }
         
-        binding.recyclerViewTasks.apply {
+        recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = taskAdapter
         }
@@ -67,11 +75,11 @@ class TaskListFragment : Fragment() {
             
             // Mostrar mensaje si no hay tareas
             if (tasks.isEmpty()) {
-                binding.textViewEmpty.visibility = View.VISIBLE
-                binding.recyclerViewTasks.visibility = View.GONE
+                emptyView.visibility = View.VISIBLE
+                recyclerView.visibility = View.GONE
             } else {
-                binding.textViewEmpty.visibility = View.GONE
-                binding.recyclerViewTasks.visibility = View.VISIBLE
+                emptyView.visibility = View.GONE
+                recyclerView.visibility = View.VISIBLE
             }
         }
 
@@ -83,7 +91,7 @@ class TaskListFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        binding.fabAddTask.setOnClickListener {
+        fabAdd.setOnClickListener {
             // Navegar a crear nueva tarea
             val bundle = Bundle().apply {
                 putInt("taskId", -1)
@@ -93,10 +101,5 @@ class TaskListFragment : Fragment() {
             }
             findNavController().navigate(R.id.action_taskListFragment_to_taskDetailFragment, bundle)
         }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
     }
 }
