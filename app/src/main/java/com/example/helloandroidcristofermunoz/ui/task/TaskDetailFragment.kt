@@ -8,7 +8,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
+import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.databinding.FragmentTaskDetailBinding
 import com.example.helloandroidcristofermunoz.viewmodel.task.TaskDetailViewModel
 
@@ -18,7 +18,6 @@ class TaskDetailFragment : Fragment() {
     private val binding get() = _binding!!
     
     private lateinit var viewModel: TaskDetailViewModel
-    private val args: TaskDetailFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -38,12 +37,12 @@ class TaskDetailFragment : Fragment() {
         setupObservers()
         
         // Cargar tarea si estamos en modo edición
-        val taskId = args.taskId
+        val taskId = arguments?.getInt("taskId") ?: -1
         if (taskId != -1) {
             viewModel.loadTask(taskId)
-            binding.editTextTitle.setText(args.taskTitle)
-            binding.editTextDescription.setText(args.taskDescription)
-            binding.switchReminder.isChecked = args.taskHasReminder
+            binding.editTextTitle.setText(arguments?.getString("taskTitle") ?: "")
+            binding.editTextDescription.setText(arguments?.getString("taskDescription") ?: "")
+            binding.switchReminder.isChecked = arguments?.getBoolean("taskHasReminder") ?: false
         } else {
             // Modo creación
             binding.textViewTitle.text = "Nueva Tarea"
@@ -85,7 +84,7 @@ class TaskDetailFragment : Fragment() {
             return
         }
 
-        val taskId = args.taskId
+        val taskId = arguments?.getInt("taskId") ?: -1
         if (taskId != -1) {
             // Modo edición
             viewModel.updateTask(taskId, title, description, hasReminder)

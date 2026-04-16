@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.databinding.FragmentTaskListBinding
 import com.example.helloandroidcristofermunoz.viewmodel.task.TaskListViewModel
 
@@ -45,8 +46,13 @@ class TaskListFragment : Fragment() {
     private fun setupRecyclerView() {
         taskAdapter = TaskAdapter { task ->
             // Navegar al detalle de la tarea
-            val action = TaskListFragmentDirections.actionTaskListFragmentToTaskDetailFragment(task.id)
-            findNavController().navigate(action)
+            val bundle = Bundle().apply {
+                putInt("taskId", task.id)
+                putString("taskTitle", task.title)
+                putString("taskDescription", task.description)
+                putBoolean("taskHasReminder", task.hasReminder)
+            }
+            findNavController().navigate(R.id.action_taskListFragment_to_taskDetailFragment, bundle)
         }
         
         binding.recyclerViewTasks.apply {
@@ -79,8 +85,13 @@ class TaskListFragment : Fragment() {
     private fun setupClickListeners() {
         binding.fabAddTask.setOnClickListener {
             // Navegar a crear nueva tarea
-            val action = TaskListFragmentDirections.actionTaskListFragmentToTaskDetailFragment(-1)
-            findNavController().navigate(action)
+            val bundle = Bundle().apply {
+                putInt("taskId", -1)
+                putString("taskTitle", "")
+                putString("taskDescription", "")
+                putBoolean("taskHasReminder", false)
+            }
+            findNavController().navigate(R.id.action_taskListFragment_to_taskDetailFragment, bundle)
         }
     }
 
