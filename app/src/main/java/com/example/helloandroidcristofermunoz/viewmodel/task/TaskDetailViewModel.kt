@@ -93,4 +93,9 @@ class TaskDetailViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
     }
+    
+    /** Resetea el estado de taskSaved */
+    fun resetTaskSaved() {
+        _taskSaved.value = false
+    }
 }

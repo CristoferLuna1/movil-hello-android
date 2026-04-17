@@ -115,6 +115,8 @@ class TaskDetailFragment : Fragment() {
             if (saved) {
                 Toast.makeText(context, "Tarea guardada exitosamente", Toast.LENGTH_SHORT).show()
                 findNavController().navigateUp()
+                // Resetear el estado para la próxima vez
+                viewModel.resetTaskSaved()
             }
         }
 

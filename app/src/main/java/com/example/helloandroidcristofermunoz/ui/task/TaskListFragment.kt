@@ -55,8 +55,14 @@ class TaskListFragment : Fragment() {
     
     override fun onResume() {
         super.onResume()
-        // Recargar tareas cada vez que el fragment se vuelve visible
+        // Forzar recarga de tareas cada vez que el fragment se vuelve visible
         viewModel.loadTasks()
+        
+        // Forzar actualización del adapter
+        val currentTasks = viewModel.tasks.value
+        if (currentTasks != null) {
+            taskAdapter.submitList(currentTasks)
+        }
     }
 
     private fun setupRecyclerView() {
