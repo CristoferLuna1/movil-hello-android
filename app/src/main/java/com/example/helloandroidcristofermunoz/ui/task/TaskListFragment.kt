@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.adapter.TaskAdapter
+import com.example.helloandroidcristofermunoz.model.task.Task
 import com.example.helloandroidcristofermunoz.viewmodel.task.TaskListViewModel
 import com.example.helloandroidcristofermunoz.viewmodel.task.TaskListViewModelFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
