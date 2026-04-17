@@ -33,14 +33,13 @@ class TaskDetailViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun createTask(title: String, description: String, hasReminder: Boolean) {
+    fun createTask(title: String, description: String, hasReminder: Boolean, reminderTime: Long = 0L) {
         viewModelScope.launch {
             try {
-                val task = repository.createTask(title, description, hasReminder)
+                val task = repository.createTask(title, description, hasReminder, reminderTime)
                 
                 // Programar recordatorio si está activado
-                if (hasReminder) {
-                    val reminderTime = System.currentTimeMillis() + (30 * 1000) // 30 segundos para prueba
+                if (hasReminder && reminderTime > 0) {
                     AlarmUtils.scheduleTaskReminder(
                         getApplication(),
                         task.id,
@@ -57,7 +56,7 @@ class TaskDetailViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun updateTask(taskId: Int, title: String, description: String, hasReminder: Boolean) {
+    fun updateTask(taskId: Int, title: String, description: String, hasReminder: Boolean, reminderTime: Long = 0L) {
         viewModelScope.launch {
             try {
                 val existingTask = repository.getTaskById(taskId)
@@ -70,14 +69,14 @@ class TaskDetailViewModel(application: Application) : AndroidViewModel(applicati
                     val updatedTask = it.copy(
                         title = title,
                         description = description,
-                        hasReminder = hasReminder
+                        hasReminder = hasReminder,
+                        reminderTime = reminderTime
                     )
                     
                     repository.updateTask(updatedTask)
                     
                     // Programar nuevo recordatorio si está activado
-                    if (hasReminder) {
-                        val reminderTime = System.currentTimeMillis() + (30 * 1000) // 30 segundos para prueba
+                    if (hasReminder && reminderTime > 0) {
                         AlarmUtils.scheduleTaskReminder(
                             getApplication(),
                             taskId,

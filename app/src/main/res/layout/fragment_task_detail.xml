@@ -69,6 +69,61 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/linearLayoutDateTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutReminder">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fecha y hora del recordatorio:"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/buttonSelectDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:text="Seleccionar fecha"
+                style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog" />
+
+            <Button
+                android:id="@+id/buttonSelectTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="Seleccionar hora"
+                style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textViewDateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Fecha: No seleccionada | Hora: No seleccionada"
+            android:textSize="12sp"
+            android:textColor="@android:color/holo_blue_dark" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/linearLayoutButtons"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -76,7 +131,7 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/linearLayoutReminder">
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutDateTime">
 
         <Button
             android:id="@+id/buttonCancel"

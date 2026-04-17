@@ -30,8 +30,8 @@ class TaskRepository(context: Context) {
     }
 
     /** Crea una nueva tarea con ID automático */
-    fun createTask(title: String, description: String, hasReminder: Boolean): Task {
-        val task = Task(nextId++, title, description, hasReminder)
+    fun createTask(title: String, description: String, hasReminder: Boolean, reminderTime: Long = 0L): Task {
+        val task = Task(nextId++, title, description, hasReminder, reminderTime)
         addTask(task)
         return task
     }

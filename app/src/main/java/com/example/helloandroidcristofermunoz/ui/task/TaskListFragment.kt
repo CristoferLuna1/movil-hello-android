@@ -51,6 +51,12 @@ class TaskListFragment : Fragment() {
         // Cargar las tareas
         viewModel.loadTasks()
     }
+    
+    override fun onResume() {
+        super.onResume()
+        // Recargar tareas cada vez que el fragment se vuelve visible
+        viewModel.loadTasks()
+    }
 
     private fun setupRecyclerView() {
         taskAdapter = TaskAdapter { task ->
