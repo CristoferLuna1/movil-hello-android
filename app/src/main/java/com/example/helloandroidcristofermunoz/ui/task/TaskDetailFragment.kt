@@ -114,6 +114,10 @@ class TaskDetailFragment : Fragment() {
         viewModel.taskSaved.observe(viewLifecycleOwner) { saved ->
             if (saved) {
                 Toast.makeText(context, "Tarea guardada exitosamente", Toast.LENGTH_SHORT).show()
+                
+                // Forzar actualización del TaskListFragment antes de navegar hacia atrás
+                findNavController().previousBackStackEntry?.savedStateHandle?.set("refresh_tasks", true)
+                
                 findNavController().navigateUp()
                 // Resetear el estado para la próxima vez
                 viewModel.resetTaskSaved()
