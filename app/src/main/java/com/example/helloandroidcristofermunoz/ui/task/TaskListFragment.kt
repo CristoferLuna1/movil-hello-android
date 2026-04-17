@@ -53,7 +53,10 @@ class TaskListFragment : Fragment() {
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("refresh_tasks")
             ?.observe(viewLifecycleOwner) { shouldRefresh ->
                 if (shouldRefresh == true) {
-                    viewModel.loadTasks()
+                    // Pequeño delay para asegurar que los datos se guardaron
+                    recyclerView.postDelayed({
+                        viewModel.loadTasks()
+                    }, 100)
                     // Limpiar el estado
                     findNavController().currentBackStackEntry?.savedStateHandle?.remove<Boolean>("refresh_tasks")
                 }
