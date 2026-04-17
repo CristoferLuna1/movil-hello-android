@@ -59,16 +59,22 @@ class TaskListFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        taskAdapter = TaskAdapter { task ->
-            // Navegar al detalle de la tarea
-            val bundle = Bundle().apply {
-                putInt("taskId", task.id)
-                putString("taskTitle", task.title)
-                putString("taskDescription", task.description)
-                putBoolean("taskHasReminder", task.hasReminder)
+        taskAdapter = TaskAdapter(
+            onTaskClick = { task ->
+                // Navegar al detalle de la tarea
+                val bundle = Bundle().apply {
+                    putInt("taskId", task.id)
+                    putString("taskTitle", task.title)
+                    putString("taskDescription", task.description)
+                    putBoolean("taskHasReminder", task.hasReminder)
+                }
+                findNavController().navigate(R.id.action_taskListFragment_to_taskDetailFragment, bundle)
+            },
+            onDeleteClick = { task ->
+                // Mostrar confirmación y eliminar tarea
+                deleteTask(task)
             }
-            findNavController().navigate(R.id.action_taskListFragment_to_taskDetailFragment, bundle)
-        }
+        )
         
         recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -108,5 +114,19 @@ class TaskListFragment : Fragment() {
             }
             findNavController().navigate(R.id.action_taskListFragment_to_taskDetailFragment, bundle)
         }
+    }
+    
+    private fun deleteTask(task: Task) {
+        // Mostrar diálogo de confirmación
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Eliminar Tarea")
+            .setMessage("¿Estás seguro de que quieres eliminar la tarea \"${task.title}\"?")
+            .setPositiveButton("Eliminar") { _, _ ->
+                // Eliminar la tarea
+                viewModel.deleteTask(task.id)
+                Toast.makeText(context, "Tarea eliminada", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 }
