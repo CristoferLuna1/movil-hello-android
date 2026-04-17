@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.adapter.TaskAdapter
 import com.example.helloandroidcristofermunoz.viewmodel.task.TaskListViewModel
+import com.example.helloandroidcristofermunoz.viewmodel.task.TaskListViewModelFactory
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class TaskListFragment : Fragment() {
@@ -41,7 +42,7 @@ class TaskListFragment : Fragment() {
         emptyView = view.findViewById(R.id.textViewEmpty)
         fabAdd = view.findViewById(R.id.fabAddTask)
         
-        viewModel = ViewModelProvider(this)[TaskListViewModel::class.java]
+        viewModel = ViewModelProvider(this, TaskListViewModelFactory(requireActivity().application))[TaskListViewModel::class.java]
         
         setupRecyclerView()
         setupObservers()

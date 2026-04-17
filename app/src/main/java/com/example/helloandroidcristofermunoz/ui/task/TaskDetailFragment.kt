@@ -14,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.viewmodel.task.TaskDetailViewModel
+import com.example.helloandroidcristofermunoz.viewmodel.task.TaskDetailViewModelFactory
 
 class TaskDetailFragment : Fragment() {
     
@@ -45,7 +46,7 @@ class TaskDetailFragment : Fragment() {
         saveButton = view.findViewById(R.id.buttonSave)
         cancelButton = view.findViewById(R.id.buttonCancel)
         
-        viewModel = ViewModelProvider(this)[TaskDetailViewModel::class.java]
+        viewModel = ViewModelProvider(this, TaskDetailViewModelFactory(requireActivity().application))[TaskDetailViewModel::class.java]
         
         setupClickListeners()
         setupObservers()
