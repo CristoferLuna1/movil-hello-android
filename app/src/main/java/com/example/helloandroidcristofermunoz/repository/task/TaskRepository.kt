@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 class TaskRepository(context: Context) {
+
     companion object {
         private const val PREFS_NAME = "tasks_prefs"
         private const val KEY_TASK_LIST = "task_list"
@@ -14,72 +15,95 @@ class TaskRepository(context: Context) {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
     private val gson = Gson()
-    
-    // Lista en memoria (copia de trabajo)
+
+    // ==========================
+    // LISTA EN MEMORIA
+    // ==========================
     private var tasksInMemory: MutableList<Task> = loadTasksFromPrefs()
-    private var nextId: Int = tasksInMemory.maxOfOrNull { it.id }?.plus(1) ?: 1
 
-    /** Devuelve una copia inmutable de la lista de tareas */
-    fun getAllTasks(): List<Task> = tasksInMemory.toList()
+    // 🔥 IDs únicos
+    private var nextId: Int = generateNextId()
 
-    /** Agrega una nueva tarea y persiste el cambio */
+    /** ==========================
+     *  OBTENER TODAS LAS TAREAS
+     *  🔥 FIX IMPORTANTE AQUÍ
+     *  ========================== */
+    fun getAllTasks(): List<Task> {
+        tasksInMemory = loadTasksFromPrefs()
+        return tasksInMemory.toList()
+    }
+
+    /** Agregar tarea */
     fun addTask(task: Task) {
         tasksInMemory.add(task)
         saveTasksToPrefs()
     }
 
-    /** Crea una nueva tarea con ID automático */
-    fun createTask(title: String, description: String, hasReminder: Boolean, reminderTime: Long = 0L): Task {
-        val task = Task(nextId++, title, description, hasReminder, reminderTime)
+    /** Crear tarea con ID seguro */
+    fun createTask(
+        title: String,
+        description: String,
+        hasReminder: Boolean,
+        reminderTime: Long = 0L
+    ): Task {
+
+        val task = Task(
+            id = nextId++,
+            title = title,
+            description = description,
+            hasReminder = hasReminder,
+            reminderTime = reminderTime
+        )
+
         addTask(task)
         return task
     }
 
-    /** Actualiza una tarea existente por id (si existe) y persiste el cambio */
+    /** Update */
     fun updateTask(updated: Task) {
         val index = tasksInMemory.indexOfFirst { it.id == updated.id }
+
         if (index != -1) {
             tasksInMemory[index] = updated
             saveTasksToPrefs()
         }
     }
 
-    /** Elimina una tarea por id y persiste el cambio */
+    /** Delete */
     fun deleteTask(taskId: Int) {
-        tasksInMemory.removeAll { it.id == taskId }
+        tasksInMemory = tasksInMemory.filter { it.id != taskId }.toMutableList()
         saveTasksToPrefs()
     }
 
-    /** Obtiene una tarea por su ID */
+    /** Get by ID */
     fun getTaskById(taskId: Int): Task? {
         return tasksInMemory.find { it.id == taskId }
     }
 
     // ==========================
-    // Sección de persistencia
+    // PERSISTENCIA
     // ==========================
-
-    /** Carga la lista de tareas desde SharedPreferences (JSON -> List<Task>) */
     private fun loadTasksFromPrefs(): MutableList<Task> {
         val json = prefs.getString(KEY_TASK_LIST, null) ?: return mutableListOf()
-        
-        // Tipo genérico List<Task> para Gson
-        val type = object : TypeToken<List<Task>>() {}.type
+
         return try {
-            val list: List<Task> = gson.fromJson(json, type)
-            list.toMutableList()
+            val type = object : TypeToken<List<Task>>() {}.type
+            gson.fromJson<List<Task>>(json, type).toMutableList()
         } catch (e: Exception) {
-            e.printStackTrace()
             mutableListOf()
         }
     }
 
-    /** Guarda la lista de tareas actual en SharedPreferences (List<Task> -> JSON) */
     private fun saveTasksToPrefs() {
-        val editor = prefs.edit()
-        val json = gson.toJson(tasksInMemory)
-        editor.putString(KEY_TASK_LIST, json)
-        editor.apply()
+        prefs.edit()
+            .putString(KEY_TASK_LIST, gson.toJson(tasksInMemory))
+            .apply()
+    }
+
+    // 🔥 asegura IDs únicos
+    private fun generateNextId(): Int {
+        return (tasksInMemory.maxOfOrNull { it.id } ?: 0) + 1
     }
 }

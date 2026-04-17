@@ -11,15 +11,15 @@ import com.example.helloandroidcristofermunoz.utils.AlarmUtils
 import kotlinx.coroutines.launch
 
 class TaskDetailViewModel(application: Application) : AndroidViewModel(application) {
-    
+
     private val repository = TaskRepository(application)
-    
+
     private val _task = MutableLiveData<Task?>()
     val task: LiveData<Task?> = _task
-    
+
     private val _taskSaved = MutableLiveData<Boolean>()
     val taskSaved: LiveData<Boolean> = _taskSaved
-    
+
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
@@ -33,22 +33,35 @@ class TaskDetailViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun createTask(title: String, description: String, hasReminder: Boolean, reminderTime: Long = 0L) {
+    fun createTask(
+            title: String,
+            description: String,
+            hasReminder: Boolean,
+            reminderTime: Long = 0L
+    ) {
         viewModelScope.launch {
             try {
                 val task = repository.createTask(title, description, hasReminder, reminderTime)
-                
+
+                // 🔥 TOAST DE DEBUG (CREACIÓN)
+                android.widget.Toast.makeText(
+                                getApplication(),
+                                "Tarea creada con ID: ${task.id}",
+                                android.widget.Toast.LENGTH_SHORT
+                        )
+                        .show()
+
                 // Programar recordatorio si está activado
                 if (hasReminder && reminderTime > 0) {
                     AlarmUtils.scheduleTaskReminder(
-                        getApplication(),
-                        task.id,
-                        task.title,
-                        task.description,
-                        reminderTime
+                            getApplication(),
+                            task.id,
+                            task.title,
+                            task.description,
+                            reminderTime
                     )
                 }
-                
+
                 _taskSaved.value = true
             } catch (e: Exception) {
                 _error.value = "Error al crear la tarea: ${e.message}"
@@ -56,7 +69,13 @@ class TaskDetailViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    fun updateTask(taskId: Int, title: String, description: String, hasReminder: Boolean, reminderTime: Long = 0L) {
+    fun updateTask(
+            taskId: Int,
+            title: String,
+            description: String,
+            hasReminder: Boolean,
+            reminderTime: Long = 0L
+    ) {
         viewModelScope.launch {
             try {
                 val existingTask = repository.getTaskById(taskId)
@@ -65,27 +84,28 @@ class TaskDetailViewModel(application: Application) : AndroidViewModel(applicati
                     if (it.hasReminder) {
                         AlarmUtils.cancelTaskReminder(getApplication(), taskId)
                     }
-                    
-                    val updatedTask = it.copy(
-                        title = title,
-                        description = description,
-                        hasReminder = hasReminder,
-                        reminderTime = reminderTime
-                    )
-                    
+
+                    val updatedTask =
+                            it.copy(
+                                    title = title,
+                                    description = description,
+                                    hasReminder = hasReminder,
+                                    reminderTime = reminderTime
+                            )
+
                     repository.updateTask(updatedTask)
-                    
+
                     // Programar nuevo recordatorio si está activado
                     if (hasReminder && reminderTime > 0) {
                         AlarmUtils.scheduleTaskReminder(
-                            getApplication(),
-                            taskId,
-                            title,
-                            description,
-                            reminderTime
+                                getApplication(),
+                                taskId,
+                                title,
+                                description,
+                                reminderTime
                         )
                     }
-                    
+
                     _taskSaved.value = true
                 }
             } catch (e: Exception) {
@@ -93,7 +113,7 @@ class TaskDetailViewModel(application: Application) : AndroidViewModel(applicati
             }
         }
     }
-    
+
     /** Resetea el estado de taskSaved */
     fun resetTaskSaved() {
         _taskSaved.value = false

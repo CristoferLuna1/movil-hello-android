@@ -10,18 +10,20 @@ import com.example.helloandroidcristofermunoz.repository.task.TaskRepository
 import kotlinx.coroutines.launch
 
 class TaskListViewModel(application: Application) : AndroidViewModel(application) {
-    
+
+    // ✔️ UN SOLO repository (correcto)
     private val repository = TaskRepository(application)
-    
+
     private val _tasks = MutableLiveData<List<Task>>()
     val tasks: LiveData<List<Task>> = _tasks
-    
+
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> = _error
 
     fun loadTasks() {
         viewModelScope.launch {
             try {
+                // ❌ quitado freshRepository
                 _tasks.value = repository.getAllTasks()
             } catch (e: Exception) {
                 _error.value = "Error al cargar las tareas: ${e.message}"
@@ -33,7 +35,10 @@ class TaskListViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             try {
                 repository.deleteTask(taskId)
-                loadTasks() // Recargar la lista
+
+                // ✔️ recarga consistente desde el mismo repo
+                _tasks.value = repository.getAllTasks()
+
             } catch (e: Exception) {
                 _error.value = "Error al eliminar la tarea: ${e.message}"
             }
