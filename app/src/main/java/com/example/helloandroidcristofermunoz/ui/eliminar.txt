@@ -1,1 +1,0 @@
-Este fichero debe eliminarse al terminar las pruebas en la rama develop.
