@@ -1,9 +1,11 @@
 # Taller 3 - Lista de Tareas con Fragments, Persistencia y Recordatorios
 
-## Estudiante
-- **Nombre:** Cristofer Danilo Muñoz Luna
-- **Taller:** 3 - Lista de Tareas con Fragments
-- **Fecha:** Abril 2026
+## Información de los Estudiante
+- **Nombre:** Cristofer Danilo Muñoz Luna 
+- **Nombre:** Karen Sirley Acosta Beltran
+- **Nombre:** Emersson Andrey Forero Jerez
+- **Fecha:** 18/04/2026  
+
 
 ## Objetivos Implementados
 

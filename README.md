@@ -1,6 +1,6 @@
 # Taller 1 - Hello Android
 
-## Información del Estudiante
+## Información de los Estudiantes
 - **Nombre:** Cristofer Danilo Muñoz Luna 
 - **Nombre:** Karen Sirley Acosta Beltran
 - **Nombre:** Emersson Andrey Forero Jerez
