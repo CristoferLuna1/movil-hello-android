@@ -5,9 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.helloandroidcristofermunoz.R
 
-class MovieAdapter(private val movieList: List<String>) : 
+class MovieAdapter(private var movieList: List<String>) :
     RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
 
     class MovieViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -25,4 +24,9 @@ class MovieAdapter(private val movieList: List<String>) :
     }
 
     override fun getItemCount(): Int = movieList.size
+
+    fun updateData(newList: List<String>) {
+        movieList = newList
+        notifyDataSetChanged()
+    }
 }
