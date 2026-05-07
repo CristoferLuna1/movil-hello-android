@@ -17,8 +17,8 @@
         android:name="com.example.helloandroidcristofermunoz.ui.MovieDetailFragment">
 
         <argument
-            android:name="movieId"
-            app:argType="integer" />
+            android:name="movieTitle"
+            app:argType="string" />
 
         <action
             android:id="@+id/action_detail_to_edit"
