@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context=".ui.task.TaskDetailFragment">
+
+    <TextView
+        android:id="@+id/textViewTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Detalle de Tarea"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:hint="Título de la tarea"
+        android:inputType="text"
+        android:maxLines="1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textViewTitle" />
+
+    <EditText
+        android:id="@+id/editTextDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Descripción (opcional)"
+        android:inputType="textMultiLine"
+        android:maxLines="4"
+        android:minLines="2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextTitle" />
+
+    <LinearLayout
+        android:id="@+id/linearLayoutReminder"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextDescription">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Activar recordatorio"
+            android:textSize="16sp" />
+
+        <Switch
+            android:id="@+id/switchReminder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutDateTime"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutReminder">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fecha y hora del recordatorio:"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/buttonSelectDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:text="Seleccionar fecha"
+                style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog" />
+
+            <Button
+                android:id="@+id/buttonSelectTime"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="Seleccionar hora"
+                style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textViewDateTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Fecha: No seleccionada | Hora: No seleccionada"
+            android:textSize="12sp"
+            android:textColor="@android:color/holo_blue_dark" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayoutButtons"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/linearLayoutDateTime">
+
+        <Button
+            android:id="@+id/buttonCancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="Cancelar" />
+
+        <Button
+            android:id="@+id/buttonSave"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:text="Guardar" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

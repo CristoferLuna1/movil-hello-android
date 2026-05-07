@@ -1,7 +1,9 @@
 # Taller 1 - Hello Android
 
-## Información del Estudiante
-- **Nombre:** Cristofer Danilo Muñoz Luna  
+## Información de los Estudiantes
+- **Nombre:** Cristofer Danilo Muñoz Luna 
+- **Nombre:** Karen Sirley Acosta Beltran
+- **Nombre:** Emersson Andrey Forero Jerez
 - **Código:** *(agrega tu código estudiantil aquí)*  
 - **Fecha:** 24/02/2026  
 
@@ -54,3 +56,76 @@ Algunas aplicaciones muy conocidas desarrolladas total o parcialmente con Kotlin
 - **Instagram**  
 - **Pinterest**  
 - **Trello**
+
+
+## Taller 2 - Arquitectura MVVM
+
+### Respuestas a Preguntas Conceptuales
+
+---
+
+### **1. ¿Qué problema resuelve el ViewModel en Android?**
+
+El **ViewModel** resuelve principalmente la **gestión de datos ante cambios de configuración** (como la rotación de pantalla) y la **separación de responsabilidades** dentro de la arquitectura.
+
+**Problemas que soluciona:**
+
+- **Pérdida de datos:** Cuando el dispositivo rota, la Activity se destruye y recrea. El ViewModel mantiene los datos intactos.  
+- **Gestión del ciclo de vida:** Se elimina automáticamente cuando ya no es necesario, evitando memory leaks.  
+- **Desacoplamiento:** Separa la lógica de negocio de la UI, haciendo la vista más simple.  
+- **Compartición de datos:** Permite que varios fragments compartan información mediante `activityViewModels()`.
+
+---
+
+### **2. ¿Por qué LiveData es "lifecycle-aware" y qué beneficio trae?**
+
+**LiveData** es *lifecycle-aware* porque respeta el ciclo de vida de Activities y Fragments, actualizando la UI **solo cuando están activos** (`STARTED` o `RESUMED`).
+
+**Beneficios:**
+
+- **Evita memory leaks:** Elimina automáticamente observadores cuando la vista se destruye.  
+- **Previene crashes:** No envía datos cuando la UI está en segundo plano.  
+- **Actualización automática:** La UI se actualiza cuando los datos cambian.  
+- **Optimización:** Evita trabajo innecesario cuando la UI no es visible.
+
+---
+
+### **3. Explica con tus propias palabras el flujo de datos en MVVM**
+
+El flujo de datos en **MVVM** es **unidireccional y reactivo**.
+
+**Flujo:**
+
+- **View (Fragment / Activity):** El usuario interactúa con la UI y notifica al ViewModel.  
+- **ViewModel:** Procesa la acción, aplica lógica de negocio y actualiza los datos.  
+- **Model (Repository + Data):** Gestiona los datos y responde al ViewModel.  
+- **View:** Observa los cambios mediante LiveData y actualiza la UI automáticamente.
+
+---
+
+### **4. ¿Qué ventaja tiene usar Fragments vs múltiples Activities?**
+
+**Ventajas:**
+
+- **Reutilización:** Un Fragment puede usarse en varias Activities.  
+- **Navegación fluida:** Permiten transiciones más suaves y manejo del back stack.  
+- **Compartición de datos:** Pueden compartir ViewModel fácilmente.  
+- **Menor consumo:** Son más ligeros que las Activities.  
+- **UI adaptable:** Permiten diseños más flexibles (ej: tablets).
+
+---
+
+### **5. ¿Cómo ayuda el Repository Pattern a la arquitectura?**
+
+El **Repository Pattern** actúa como una **fuente única de verdad** (*single source of truth*) y abstrae la fuente de datos.
+
+**Beneficios:**
+
+- **Abstracción:** El ViewModel no necesita saber de dónde vienen los datos.  
+- **Centralización:** Toda la lógica de datos está en un solo lugar.  
+- **Testing:** Permite usar mocks fácilmente.  
+- **Caché:** Puede gestionar datos locales y remotos.  
+- **Separación de responsabilidades:**
+  - ViewModel: lógica de negocio  
+  - Repository: acceso a datos  
+  - DataSource: origen de datos
