@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.viewmodel.MovieViewModel
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MovieListFragment : Fragment() {
 
@@ -41,6 +42,13 @@ class MovieListFragment : Fragment() {
 
         viewModel.movies.observe(viewLifecycleOwner) { movies ->
             adapter.updateData(movies)
+        }
+
+        // Configurar el FAB para agregar nueva película
+        val fabAddMovie = view.findViewById<FloatingActionButton>(R.id.fabAddMovie)
+        fabAddMovie.setOnClickListener {
+            val action = MovieListFragmentDirections.actionListToEdit(-1) // -1 para nueva película
+            findNavController().navigate(action)
         }
     }
 }
