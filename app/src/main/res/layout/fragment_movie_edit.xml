@@ -1,29 +1,53 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp">
 
-    <EditText
-        android:id="@+id/etMovieTitle"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nombre de la película" />
+        android:orientation="vertical">
 
-    <EditText
-        android:id="@+id/etMovieDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:hint="Descripción" />
+        <EditText
+            android:id="@+id/etMovieTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Título" />
 
-    <Button
-        android:id="@+id/btnSaveMovie"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Guardar Película" />
+        <EditText
+            android:id="@+id/etMovieYear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:hint="Año" />
 
-</LinearLayout>
+        <EditText
+            android:id="@+id/etMovieGenre"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Género" />
+
+        <EditText
+            android:id="@+id/etMovieRating"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:hint="Rating (1-10)" />
+
+        <CheckBox
+            android:id="@+id/cbMovieWatched"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Vista" />
+
+        <Button
+            android:id="@+id/btnSaveMovie"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Guardar película" />
+
+    </LinearLayout>
+</ScrollView>

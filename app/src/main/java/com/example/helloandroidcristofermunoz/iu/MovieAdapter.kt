@@ -1,14 +1,15 @@
-package com.example.helloandroidcristofermunoz.ui
+﻿package com.example.helloandroidcristofermunoz.ui
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.helloandroidcristofermunoz.model.Movie
 
 class MovieAdapter(
-    private var movieList: List<String>,
-    private val onMovieClick: (String) -> Unit
+    private var movieList: List<Movie>,
+    private val onMovieClick: (Movie) -> Unit
 ) : RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
 
     class MovieViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -23,10 +24,8 @@ class MovieAdapter(
     }
 
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
-
         val movie = movieList[position]
-
-        holder.title.text = movie
+        holder.title.text = movie.title
 
         holder.itemView.setOnClickListener {
             onMovieClick(movie)
@@ -35,7 +34,7 @@ class MovieAdapter(
 
     override fun getItemCount(): Int = movieList.size
 
-    fun updateData(newList: List<String>) {
+    fun updateData(newList: List<Movie>) {
         movieList = newList
         notifyDataSetChanged()
     }

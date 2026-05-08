@@ -1,4 +1,4 @@
-package com.example.helloandroidcristofermunoz.ui
+﻿package com.example.helloandroidcristofermunoz.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -28,24 +28,19 @@ class MovieListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.rvMovies)
-
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         viewModel = ViewModelProvider(this)[MovieViewModel::class.java]
 
+        val adapter = MovieAdapter(emptyList()) { selectedMovie ->
+            val action = MovieListFragmentDirections.actionListToDetail(selectedMovie.id)
+            findNavController().navigate(action)
+        }
+
+        recyclerView.adapter = adapter
+
         viewModel.movies.observe(viewLifecycleOwner) { movies ->
-
-            recyclerView.adapter = MovieAdapter(movies) { selectedMovie ->
-
-                val bundle = Bundle()
-
-                bundle.putString("movieTitle", selectedMovie)
-
-                findNavController().navigate(
-                    R.id.action_list_to_detail,
-                    bundle
-                )
-            }
+            adapter.updateData(movies)
         }
     }
 }
