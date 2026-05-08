@@ -1,3 +1,8 @@
-<resources>
-    <string name="app_name">Mi Primera App</string>
+﻿<resources>
+    <string name="app_name">MovieLibrary</string>
+    <string name="movie_not_found">Película no encontrada</string>
+    <string name="watched">Vista</string>
+    <string name="not_watched">No vista</string>
+    <string name="mark_as_watched">Marcar como vista</string>
+    <string name="mark_as_not_watched">Marcar como no vista</string>
 </resources>
