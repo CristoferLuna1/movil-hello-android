@@ -20,6 +20,12 @@ class StatisticsViewModel : ViewModel() {
 
     init {
 
+        loadStatistics()
+    }
+
+    private fun loadStatistics() {
+
+        // Datos temporales
         _income.value = 2500000.0
 
         _expenses.value = 158000.0
