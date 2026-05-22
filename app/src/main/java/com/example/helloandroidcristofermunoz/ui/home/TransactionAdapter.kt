@@ -1,5 +1,6 @@
 package com.example.helloandroidcristofermunoz.ui.home
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -15,10 +16,23 @@ class TransactionAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(transaction: Transaction) {
-
             binding.txtTitle.text = transaction.title
             binding.txtCategory.text = transaction.category
-            binding.txtAmount.text = "$ ${transaction.amount}"
+            
+            val amountText = if (transaction.type == "income") {
+                "+ $${transaction.amount}"
+            } else {
+                "- $${transaction.amount}"
+            }
+            binding.txtAmount.text = amountText
+            
+            // Color según tipo de transacción
+            val color = if (transaction.type == "income") {
+                Color.parseColor("#4CAF50") // Verde para ingresos
+            } else {
+                Color.parseColor("#F44336") // Rojo para gastos
+            }
+            binding.txtAmount.setTextColor(color)
         }
     }
 
