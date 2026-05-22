@@ -1,14 +1,13 @@
 package com.example.helloandroidcristofermunoz.ui.home
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import com.example.helloandroidcristofermunoz.data.model.Transaction
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
+import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel() {
-
-    private val repository = TransactionRepository()
+class HomeViewModel(
+    private val repository: TransactionRepository
+) : ViewModel() {
 
     private val _transactions = MutableLiveData<List<Transaction>>()
     val transactions: LiveData<List<Transaction>> = _transactions
@@ -27,20 +26,26 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun loadTransactions() {
+
         _isLoading.value = true
         _isError.value = false
 
-        try {
-            // Simular carga de datos
-            Thread.sleep(500)
-            
-            val transactionList = repository.getTransactions()
-            _transactions.value = transactionList
-            _isEmpty.value = transactionList.isEmpty()
-            _isLoading.value = false
-        } catch (e: Exception) {
-            _isLoading.value = false
-            _isError.value = true
+        viewModelScope.launch {
+
+            try {
+
+                repository.allTransactions.collect { transactionList ->
+
+                    _transactions.value = transactionList
+                    _isEmpty.value = transactionList.isEmpty()
+                    _isLoading.value = false
+                }
+
+            } catch (e: Exception) {
+
+                _isLoading.value = false
+                _isError.value = true
+            }
         }
     }
 

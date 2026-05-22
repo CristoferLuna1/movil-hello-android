@@ -5,9 +5,20 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "transactions")
 data class Transaction(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val description: String,
+
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+
+    // Antes title
+    val title: String,
+
     val amount: Double,
-    val type: String, // Ejemplo: "Ingreso" o "Gasto"
+
+    // Antes category
+    val category: String,
+
+    // "Ingreso" o "Gasto"
+    val type: String,
+
     val date: Long
 )
