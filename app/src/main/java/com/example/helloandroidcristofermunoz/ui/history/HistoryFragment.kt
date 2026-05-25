@@ -1,9 +1,9 @@
 package com.example.helloandroidcristofermunoz.ui.history
 
+import android.app.DatePickerDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -13,6 +13,7 @@ import com.example.helloandroidcristofermunoz.data.repository.TransactionReposit
 import com.example.helloandroidcristofermunoz.databinding.FragmentHistoryBinding
 import com.example.helloandroidcristofermunoz.ui.home.TransactionAdapter
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
@@ -46,53 +47,59 @@ class HistoryFragment : Fragment(R.layout.fragment_history) {
         val currentYear = calendar.get(Calendar.YEAR)
         val currentMonth = calendar.get(Calendar.MONTH)
 
-        // Mostrar últimos 6 meses
-        for (i in 5 downTo 0) {
-            val monthCalendar = Calendar.getInstance()
-            monthCalendar.add(Calendar.MONTH, -i)
+        val monthText = "${monthNames[currentMonth]} $currentYear"
+        binding.monthSelector.removeAllViews()
 
-            val month = monthCalendar.get(Calendar.MONTH)
-            val year = monthCalendar.get(Calendar.YEAR)
+        val monthButton = android.widget.Button(requireContext()).apply {
+            text = monthText
+            textSize = 16f
+            setPadding(32, 16, 32, 16)
+            setBackgroundColor(Color.parseColor("#2196F3"))
+            setTextColor(Color.WHITE)
+            isAllCaps = false
 
-            val monthButton = Button(requireContext()).apply {
-                text = "${monthNames[month]} $year"
-                textSize = 12f
-                setPadding(16, 8, 16, 8)
-
-                if (month == currentMonth && year == currentYear) {
-                    setBackgroundColor(Color.parseColor("#2196F3"))
-                    setTextColor(Color.WHITE)
-                } else {
-                    setBackgroundColor(Color.parseColor("#E0E0E0"))
-                    setTextColor(Color.parseColor("#212121"))
-                }
-
-                setOnClickListener {
-                    viewModel.selectMonth(month, year)
-                    updateMonthSelectorUI(month, year)
-                }
+            setOnClickListener {
+                showMonthYearPicker()
             }
-
-            binding.monthSelector.addView(monthButton)
         }
+
+        binding.monthSelector.addView(monthButton)
+    }
+
+    private fun showMonthYearPicker() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            { _, selectedYear, selectedMonth, _ ->
+                viewModel.selectMonth(selectedMonth, selectedYear)
+                updateMonthSelectorUI(selectedMonth, selectedYear)
+            },
+            year, month, 1
+        )
+
+        // Configurar para mostrar solo mes y año
+        try {
+            val datePicker = datePickerDialog.datePicker
+            val dayField = datePicker.findViewById<View>(
+                resources.getIdentifier("day", "id", "android")
+            )
+            if (dayField != null) {
+                dayField.visibility = View.GONE
+            }
+        } catch (e: Exception) {
+            // Si no se puede ocultar el día, se muestra normal
+        }
+
+        datePickerDialog.show()
     }
 
     private fun updateMonthSelectorUI(selectedMonth: Int, selectedYear: Int) {
-        for (i in 0 until binding.monthSelector.childCount) {
-            val button = binding.monthSelector.getChildAt(i) as Button
-            val calendar = Calendar.getInstance()
-            calendar.add(Calendar.MONTH, -(5 - i))
-            val month = calendar.get(Calendar.MONTH)
-            val year = calendar.get(Calendar.YEAR)
-
-            if (month == selectedMonth && year == selectedYear) {
-                button.setBackgroundColor(Color.parseColor("#2196F3"))
-                button.setTextColor(Color.WHITE)
-            } else {
-                button.setBackgroundColor(Color.parseColor("#E0E0E0"))
-                button.setTextColor(Color.parseColor("#212121"))
-            }
-        }
+        val monthText = "${monthNames[selectedMonth]} $selectedYear"
+        val button = binding.monthSelector.getChildAt(0) as android.widget.Button
+        button.text = monthText
     }
 
     private fun setupRecycler() {

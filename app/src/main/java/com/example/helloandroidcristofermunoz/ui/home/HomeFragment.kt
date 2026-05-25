@@ -1,14 +1,16 @@
 package com.example.helloandroidcristofermunoz.ui.home
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
@@ -16,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.data.AppDatabase
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
+import com.example.helloandroidcristofermunoz.databinding.DialogTransactionDetailImprovedBinding
 import com.example.helloandroidcristofermunoz.databinding.FragmentHomeBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutEmptyStateBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutErrorStateBinding
@@ -23,6 +26,8 @@ import com.example.helloandroidcristofermunoz.databinding.LayoutLoadingStateBind
 import com.example.helloandroidcristofermunoz.ui.addtransaction.AddTransactionViewModel
 import com.example.helloandroidcristofermunoz.ui.addtransaction.AddTransactionViewModelFactory
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -117,25 +122,47 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun showTransactionDetailDialog(transaction: com.example.helloandroidcristofermunoz.data.model.Transaction) {
-        val formattedAmount = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(transaction.amount)
-        val message = """
-            Título: ${transaction.title}
-            Categoría: ${transaction.category}
-            Tipo: ${transaction.type}
-            Monto: $formattedAmount
-        """.trimIndent()
+        val dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_transaction_detail_improved)
 
-        AlertDialog.Builder(requireContext())
-            .setTitle("Detalle de Transacción")
-            .setMessage(message)
-            .setPositiveButton("Editar") { _, _ ->
-                showEditDialog(transaction)
-            }
-            .setNegativeButton("Eliminar") { _, _ ->
-                showDeleteDialog(transaction)
-            }
-            .setNeutralButton("Cancelar", null)
-            .show()
+        val txtDetailTitle = dialog.findViewById<TextView>(R.id.txtDetailTitle)
+        val txtDetailCategory = dialog.findViewById<TextView>(R.id.txtDetailCategory)
+        val txtDetailType = dialog.findViewById<TextView>(R.id.txtDetailType)
+        val txtDetailDate = dialog.findViewById<TextView>(R.id.txtDetailDate)
+        val txtDetailAmount = dialog.findViewById<TextView>(R.id.txtDetailAmount)
+        val btnEdit = dialog.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnEdit)
+        val btnDelete = dialog.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnDelete)
+
+        txtDetailTitle.text = transaction.title
+        txtDetailCategory.text = transaction.category
+        txtDetailType.text = transaction.type
+
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale("es", "CO"))
+        val date = Date(transaction.date)
+        txtDetailDate.text = dateFormat.format(date)
+
+        val formattedAmount = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(transaction.amount)
+        txtDetailAmount.text = formattedAmount
+
+        val color = if (transaction.type == "Ingreso") {
+            android.graphics.Color.parseColor("#4CAF50")
+        } else {
+            android.graphics.Color.parseColor("#F44336")
+        }
+        txtDetailAmount.setTextColor(color)
+
+        btnEdit.setOnClickListener {
+            dialog.dismiss()
+            showEditDialog(transaction)
+        }
+
+        btnDelete.setOnClickListener {
+            dialog.dismiss()
+            showDeleteDialog(transaction)
+        }
+
+        dialog.show()
     }
 
     private fun showEditDialog(transaction: com.example.helloandroidcristofermunoz.data.model.Transaction) {
@@ -156,7 +183,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             radioGroupType.check(R.id.rbExpense)
         }
 
-        AlertDialog.Builder(requireContext())
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Editar Transacción")
             .setView(dialogView)
             .setPositiveButton("Guardar") { _, _ ->
@@ -201,7 +228,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun showDeleteDialog(transaction: com.example.helloandroidcristofermunoz.data.model.Transaction) {
-        AlertDialog.Builder(requireContext())
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("Eliminar transacción")
             .setMessage("¿Estás seguro de eliminar ${transaction.title}?")
             .setPositiveButton("Eliminar") { _, _ ->

@@ -9,8 +9,9 @@
     android:layout_marginBottom="12dp"
     android:clickable="true"
     android:focusable="true"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,7 +31,7 @@
                 android:layout_height="wrap_content"
                 android:text="Mercado"
                 android:textStyle="bold"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textColor="#212121"/>
 
             <TextView
@@ -38,7 +39,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Comida"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textColor="#757575"
                 android:layout_marginTop="4dp"/>
 
@@ -47,7 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="25/05/2026"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textColor="#999"
                 android:layout_marginTop="4dp"/>
 
@@ -59,7 +60,7 @@
             android:layout_height="wrap_content"
             android:text="$120000"
             android:textStyle="bold"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textColor="#F44336"
             android:layout_gravity="center_vertical"/>
 
