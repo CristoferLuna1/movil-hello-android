@@ -1,5 +1,6 @@
 package com.example.helloandroidcristofermunoz.ui.home
 
+import android.widget.Toast
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import com.example.helloandroidcristofermunoz.databinding.FragmentHomeBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutEmptyStateBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutErrorStateBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutLoadingStateBinding
+import androidx.navigation.fragment.findNavController
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -79,7 +81,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         viewModel.transactions.observe(viewLifecycleOwner) { transactions ->
 
-            val adapter = TransactionAdapter(transactions)
+            val adapter = TransactionAdapter(transactions) { transaction ->
+
+                val action = HomeFragmentDirections
+                    .actionHomeFragmentToTransactionDetailFragment(transaction.id)
+
+                findNavController().navigate(action)
+            }
 
             binding.recyclerTransactions.adapter = adapter
 

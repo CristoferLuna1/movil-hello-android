@@ -4,24 +4,44 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/homeFragment">
 
+    <!-- HOME -->
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.helloandroidcristofermunoz.ui.home.HomeFragment"
-        android:label="Home" />
+        android:label="Home">
 
+        <action
+            android:id="@+id/action_homeFragment_to_transactionDetailFragment"
+            app:destination="@id/transactionDetailFragment" />
+    </fragment>
+
+    <!-- ADD -->
     <fragment
         android:id="@+id/addTransactionFragment"
         android:name="com.example.helloandroidcristofermunoz.ui.addtransaction.AddTransactionFragment"
         android:label="Add" />
 
+    <!-- STATISTICS -->
     <fragment
         android:id="@+id/statisticsFragment"
         android:name="com.example.helloandroidcristofermunoz.ui.statistics.StatisticsFragment"
         android:label="Statistics" />
 
+    <!-- PROFILE -->
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.helloandroidcristofermunoz.ui.profile.ProfileFragment"
         android:label="Profile" />
+
+    <!-- DETAIL (CLAVE) -->
+    <fragment
+        android:id="@+id/transactionDetailFragment"
+        android:name="com.example.helloandroidcristofermunoz.ui.detail.TransactionDetailFragment"
+        android:label="Detail">
+
+        <argument
+            android:name="transactionId"
+            app:argType="integer" />
+    </fragment>
 
 </navigation>
