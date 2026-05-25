@@ -12,6 +12,9 @@ class HomeViewModel(
     private val _transactions = MutableLiveData<List<Transaction>>()
     val transactions: LiveData<List<Transaction>> = _transactions
 
+    private val _balance = MutableLiveData<Double>()
+    val balance: LiveData<Double> = _balance
+
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
@@ -41,10 +44,23 @@ class HomeViewModel(
                     _isLoading.value = false
                 }
 
+                loadBalance()
+
             } catch (e: Exception) {
 
                 _isLoading.value = false
                 _isError.value = true
+            }
+        }
+    }
+
+    private fun loadBalance() {
+        viewModelScope.launch {
+            try {
+                val totalBalance = repository.getTotalBalance()
+                _balance.value = totalBalance
+            } catch (e: Exception) {
+                _balance.value = 0.0
             }
         }
     }
