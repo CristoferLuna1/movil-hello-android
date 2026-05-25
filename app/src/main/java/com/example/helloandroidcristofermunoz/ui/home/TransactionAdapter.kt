@@ -12,7 +12,7 @@ import java.util.Locale
 
 class TransactionAdapter(
     private val transactions: List<Transaction>,
-    private val onItemClick: (Transaction) -> Unit
+    private val onItemClick: (Transaction) -> Unit = {}
 ) : RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
 
     inner class ViewHolder(
@@ -23,7 +23,6 @@ class TransactionAdapter(
             binding.txtTitle.text = transaction.title
             binding.txtCategory.text = transaction.category
 
-            // Formatear fecha
             val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale("es", "CO"))
             val date = Date(transaction.date)
             binding.txtDate.text = dateFormat.format(date)
@@ -35,18 +34,12 @@ class TransactionAdapter(
             }
             binding.txtAmount.text = amountText
 
-            // Color según tipo de transacción
             val color = if (transaction.type == "Ingreso") {
-                Color.parseColor("#4CAF50") // Verde para ingresos
+                Color.parseColor("#4CAF50")
             } else {
-                Color.parseColor("#F44336") // Rojo para gastos
+                Color.parseColor("#F44336")
             }
             binding.txtAmount.setTextColor(color)
-
-            // Click listener en toda la tarjeta
-            binding.cardTransaction.setOnClickListener {
-                onItemClick(transaction)
-            }
         }
     }
 

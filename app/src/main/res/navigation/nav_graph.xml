@@ -20,11 +20,6 @@
         android:label="Statistics" />
 
     <fragment
-        android:id="@+id/historyFragment"
-        android:name="com.example.helloandroidcristofermunoz.ui.history.HistoryFragment"
-        android:label="History" />
-
-    <fragment
         android:id="@+id/profileFragment"
         android:name="com.example.helloandroidcristofermunoz.ui.profile.ProfileFragment"
         android:label="Profile" />
