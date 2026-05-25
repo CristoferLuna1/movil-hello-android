@@ -5,10 +5,14 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.helloandroidcristofermunoz.R
+import com.example.helloandroidcristofermunoz.data.AppDatabase
+import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
 import com.example.helloandroidcristofermunoz.databinding.FragmentStatisticsBinding
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import java.text.NumberFormat
+import java.util.Locale
 import kotlin.collections.listOf
 
 class StatisticsFragment :
@@ -18,7 +22,15 @@ class StatisticsFragment :
 
     private val binding get() = _binding!!
 
-    private val viewModel: StatisticsViewModel by viewModels()
+    private val viewModel: StatisticsViewModel by viewModels {
+        val dao = AppDatabase
+            .getDatabase(requireContext())
+            .transactionDao()
+
+        val repository = TransactionRepository(dao)
+
+        StatisticsViewModelFactory(repository)
+    }
 
     override fun onViewCreated(
         view: View,
@@ -35,8 +47,8 @@ class StatisticsFragment :
     private fun observeData() {
 
         viewModel.income.observe(viewLifecycleOwner) { income ->
-
-            binding.txtIncome.text = "$ $income"
+            val formattedIncome = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(income)
+            binding.txtIncome.text = formattedIncome
 
             val expenses =
                 viewModel.expenses.value ?: 0.0
@@ -48,8 +60,8 @@ class StatisticsFragment :
         }
 
         viewModel.expenses.observe(viewLifecycleOwner) { expenses ->
-
-            binding.txtExpenses.text = "$ $expenses"
+            val formattedExpenses = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(expenses)
+            binding.txtExpenses.text = formattedExpenses
 
             val income =
                 viewModel.income.value ?: 0.0
@@ -83,7 +95,7 @@ class StatisticsFragment :
             PieDataSet(entries, "Finanzas")
 
         dataSet.valueTextSize = 14f
-        
+
         dataSet.colors = listOf(
             android.graphics.Color.parseColor("#4CAF50"),
             android.graphics.Color.parseColor("#F44336")
