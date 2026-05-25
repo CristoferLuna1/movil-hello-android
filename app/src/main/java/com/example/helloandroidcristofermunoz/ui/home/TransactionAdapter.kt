@@ -8,7 +8,9 @@ import com.example.helloandroidcristofermunoz.data.model.Transaction
 import com.example.helloandroidcristofermunoz.databinding.ItemTransactionBinding
 
 class TransactionAdapter(
-    private val transactions: List<Transaction>
+    private val transactions: List<Transaction>,
+    private val onEditClick: (Transaction) -> Unit,
+    private val onDeleteClick: (Transaction) -> Unit
 ) : RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
 
     inner class ViewHolder(
@@ -18,21 +20,30 @@ class TransactionAdapter(
         fun bind(transaction: Transaction) {
             binding.txtTitle.text = transaction.title
             binding.txtCategory.text = transaction.category
-            
-            val amountText = if (transaction.type == "income") {
+
+            val amountText = if (transaction.type == "Ingreso") {
                 "+ $${transaction.amount}"
             } else {
                 "- $${transaction.amount}"
             }
             binding.txtAmount.text = amountText
-            
+
             // Color según tipo de transacción
-            val color = if (transaction.type == "income") {
+            val color = if (transaction.type == "Ingreso") {
                 Color.parseColor("#4CAF50") // Verde para ingresos
             } else {
                 Color.parseColor("#F44336") // Rojo para gastos
             }
             binding.txtAmount.setTextColor(color)
+
+            // Click listeners para botones
+            binding.btnEdit.setOnClickListener {
+                onEditClick(transaction)
+            }
+
+            binding.btnDelete.setOnClickListener {
+                onDeleteClick(transaction)
+            }
         }
     }
 
