@@ -2,6 +2,7 @@ package com.example.helloandroidcristofermunoz.ui.home
 
 import android.app.DatePickerDialog
 import android.app.Dialog
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.data.AppDatabase
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
+import com.example.helloandroidcristofermunoz.databinding.DialogTransactionDetailBinding
 import com.example.helloandroidcristofermunoz.databinding.FragmentHomeBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutEmptyStateBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutErrorStateBinding
@@ -23,7 +25,9 @@ import com.example.helloandroidcristofermunoz.databinding.LayoutLoadingStateBind
 import com.example.helloandroidcristofermunoz.ui.addtransaction.AddTransactionViewModel
 import com.example.helloandroidcristofermunoz.ui.addtransaction.AddTransactionViewModelFactory
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -148,11 +152,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
             val adapter = TransactionAdapter(
                 transactions,
-                onEditClick = { transaction ->
-                    showEditDialog(transaction)
-                },
-                onDeleteClick = { transaction ->
-                    showDeleteDialog(transaction)
+                onItemClick = { transaction ->
+                    showTransactionDetailDialog(transaction)
                 }
             )
 
@@ -183,6 +184,48 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 showEmptyState()
             }
         }
+    }
+
+    private fun showTransactionDetailDialog(transaction: com.example.helloandroidcristofermunoz.data.model.Transaction) {
+        val dialog = Dialog(requireContext())
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_transaction_detail)
+
+        val binding = DialogTransactionDetailBinding.bind(dialog.findViewById<View>(android.R.id.content))
+
+        // Mostrar datos
+        binding.txtDetailTitle.text = transaction.title
+        binding.txtDetailCategory.text = transaction.category
+        binding.txtDetailType.text = transaction.type
+
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale("es", "CO"))
+        val date = Date(transaction.date)
+        binding.txtDetailDate.text = dateFormat.format(date)
+
+        val formattedAmount = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(transaction.amount)
+        binding.txtDetailAmount.text = formattedAmount
+
+        // Color según tipo
+        val color = if (transaction.type == "Ingreso") {
+            Color.parseColor("#4CAF50")
+        } else {
+            Color.parseColor("#F44336")
+        }
+        binding.txtDetailAmount.setTextColor(color)
+
+        // Botón editar
+        binding.btnEdit.setOnClickListener {
+            dialog.dismiss()
+            showEditDialog(transaction)
+        }
+
+        // Botón eliminar
+        binding.btnDelete.setOnClickListener {
+            dialog.dismiss()
+            showDeleteDialog(transaction)
+        }
+
+        dialog.show()
     }
 
     private fun showEditDialog(transaction: com.example.helloandroidcristofermunoz.data.model.Transaction) {

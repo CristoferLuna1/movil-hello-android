@@ -6,11 +6,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.helloandroidcristofermunoz.data.model.Transaction
 import com.example.helloandroidcristofermunoz.databinding.ItemTransactionBinding
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class TransactionAdapter(
     private val transactions: List<Transaction>,
-    private val onEditClick: (Transaction) -> Unit,
-    private val onDeleteClick: (Transaction) -> Unit
+    private val onItemClick: (Transaction) -> Unit
 ) : RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
 
     inner class ViewHolder(
@@ -20,6 +22,11 @@ class TransactionAdapter(
         fun bind(transaction: Transaction) {
             binding.txtTitle.text = transaction.title
             binding.txtCategory.text = transaction.category
+
+            // Formatear fecha
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale("es", "CO"))
+            val date = Date(transaction.date)
+            binding.txtDate.text = dateFormat.format(date)
 
             val amountText = if (transaction.type == "Ingreso") {
                 "+ $${transaction.amount}"
@@ -36,13 +43,9 @@ class TransactionAdapter(
             }
             binding.txtAmount.setTextColor(color)
 
-            // Click listeners para botones
-            binding.btnEdit.setOnClickListener {
-                onEditClick(transaction)
-            }
-
-            binding.btnDelete.setOnClickListener {
-                onDeleteClick(transaction)
+            // Click listener en toda la tarjeta
+            binding.cardTransaction.setOnClickListener {
+                onItemClick(transaction)
             }
         }
     }

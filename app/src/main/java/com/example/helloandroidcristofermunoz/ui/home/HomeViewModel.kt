@@ -42,9 +42,10 @@ class HomeViewModel(
                     _transactions.value = transactionList
                     _isEmpty.value = transactionList.isEmpty()
                     _isLoading.value = false
-                }
 
-                loadBalance()
+                    // Recalcular balance cada vez que cambian las transacciones
+                    calculateBalance(transactionList)
+                }
 
             } catch (e: Exception) {
 
@@ -52,6 +53,18 @@ class HomeViewModel(
                 _isError.value = true
             }
         }
+    }
+
+    private fun calculateBalance(transactions: List<Transaction>) {
+        var total = 0.0
+        transactions.forEach { transaction ->
+            if (transaction.type == "Ingreso") {
+                total += transaction.amount
+            } else {
+                total -= transaction.amount
+            }
+        }
+        _balance.value = total
     }
 
     fun filterByDateRange(startDate: Long, endDate: Long) {
@@ -64,6 +77,7 @@ class HomeViewModel(
                     _transactions.value = transactionList
                     _isEmpty.value = transactionList.isEmpty()
                     _isLoading.value = false
+                    calculateBalance(transactionList)
                 }
             } catch (e: Exception) {
                 _isLoading.value = false
@@ -83,6 +97,7 @@ class HomeViewModel(
                     _transactions.value = transactionList
                     _isEmpty.value = transactionList.isEmpty()
                     _isLoading.value = false
+                    calculateBalance(transactionList)
                 }
             } catch (e: Exception) {
                 _isLoading.value = false
@@ -93,17 +108,6 @@ class HomeViewModel(
 
     fun clearFilters() {
         loadTransactions()
-    }
-
-    private fun loadBalance() {
-        viewModelScope.launch {
-            try {
-                val totalBalance = repository.getTotalBalance()
-                _balance.value = totalBalance
-            } catch (e: Exception) {
-                _balance.value = 0.0
-            }
-        }
     }
 
     fun retryLoad() {
