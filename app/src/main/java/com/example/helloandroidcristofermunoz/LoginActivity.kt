@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.helloandroidcristofermunoz.data.AppDatabase
+import com.example.helloandroidcristofermunoz.data.model.User
 import com.example.helloandroidcristofermunoz.data.repository.UserRepository
 import com.example.helloandroidcristofermunoz.databinding.ActivityLoginBinding
 import com.example.helloandroidcristofermunoz.ui.login.LoginViewModel
@@ -28,6 +29,7 @@ class LoginActivity : AppCompatActivity() {
         setupDatabase()
         setupViewModel()
         setupClickListeners()
+        createTestUserIfNeeded()
         checkLoggedInUser()
     }
 
@@ -81,6 +83,25 @@ class LoginActivity : AppCompatActivity() {
                 android.view.View.GONE
             }
             binding.btnLogin.isEnabled = !isLoading
+        }
+    }
+
+    private fun createTestUserIfNeeded() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val users = userRepository.getAllUsers()
+            if (users.isEmpty()) {
+                // Crear usuario de prueba
+                val testUser = User(
+                    name = "Usuario Prueba",
+                    email = "test@test.com",
+                    password = "123456",
+                    isLoggedIn = false
+                )
+                userRepository.register(testUser)
+                runOnUiThread {
+                    Toast.makeText(this@LoginActivity, "Usuario de prueba creado: test@test.com / 123456", Toast.LENGTH_LONG).show()
+                }
+            }
         }
     }
 
