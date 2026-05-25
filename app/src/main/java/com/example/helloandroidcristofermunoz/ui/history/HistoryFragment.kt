@@ -3,7 +3,6 @@ package com.example.helloandroidcristofermunoz.ui.history
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -46,7 +45,6 @@ class HistoryFragment : Fragment(R.layout.fragment_history) {
         val currentYear = calendar.get(Calendar.YEAR)
         val currentMonth = calendar.get(Calendar.MONTH)
 
-        // Mostrar últimos 12 meses
         for (i in 11 downTo 0) {
             val monthCalendar = Calendar.getInstance()
             monthCalendar.add(Calendar.MONTH, -i)
@@ -54,17 +52,17 @@ class HistoryFragment : Fragment(R.layout.fragment_history) {
             val month = monthCalendar.get(Calendar.MONTH)
             val year = monthCalendar.get(Calendar.YEAR)
 
-            val monthButton = TextView(requireContext()).apply {
-                text = monthNames[month]
-                textSize = 16f
-                setPadding(24, 16, 24, 16)
-                isClickable = true
-                isFocusable = true
+            val monthButton = android.widget.Button(requireContext()).apply {
+                text = "${monthNames[month]} $year"
+                textSize = 12f
+                setPadding(16, 8, 16, 8)
 
                 if (month == currentMonth && year == currentYear) {
-                    setTextColor(Color.parseColor("#2196F3"))
+                    setBackgroundColor(Color.parseColor("#2196F3"))
+                    setTextColor(Color.WHITE)
                 } else {
-                    setTextColor(Color.parseColor("#666"))
+                    setBackgroundColor(Color.parseColor("#E0E0E0"))
+                    setTextColor(Color.parseColor("#212121"))
                 }
 
                 setOnClickListener {
@@ -79,16 +77,18 @@ class HistoryFragment : Fragment(R.layout.fragment_history) {
 
     private fun updateMonthSelectorUI(selectedMonth: Int, selectedYear: Int) {
         for (i in 0 until binding.monthSelector.childCount) {
-            val button = binding.monthSelector.getChildAt(i) as TextView
+            val button = binding.monthSelector.getChildAt(i) as android.widget.Button
             val calendar = Calendar.getInstance()
             calendar.add(Calendar.MONTH, -(11 - i))
             val month = calendar.get(Calendar.MONTH)
             val year = calendar.get(Calendar.YEAR)
 
             if (month == selectedMonth && year == selectedYear) {
-                button.setTextColor(Color.parseColor("#2196F3"))
+                button.setBackgroundColor(Color.parseColor("#2196F3"))
+                button.setTextColor(Color.WHITE)
             } else {
-                button.setTextColor(Color.parseColor("#666"))
+                button.setBackgroundColor(Color.parseColor("#E0E0E0"))
+                button.setTextColor(Color.parseColor("#212121"))
             }
         }
     }
@@ -101,9 +101,7 @@ class HistoryFragment : Fragment(R.layout.fragment_history) {
         viewModel.transactions.observe(viewLifecycleOwner) { transactions ->
             val adapter = TransactionAdapter(
                 transactions,
-                onItemClick = { transaction ->
-                    // Callback vacío para evitar crash
-                }
+                onItemClick = { }
             )
             binding.recyclerHistory.adapter = adapter
         }
@@ -122,7 +120,6 @@ class HistoryFragment : Fragment(R.layout.fragment_history) {
             val formatted = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(balance)
             binding.txtMonthBalance.text = formatted
 
-            // Color según balance positivo o negativo
             binding.txtMonthBalance.setTextColor(
                 if (balance >= 0) Color.parseColor("#212121") else Color.parseColor("#F44336")
             )
