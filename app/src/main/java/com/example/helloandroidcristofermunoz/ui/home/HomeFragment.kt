@@ -1,6 +1,7 @@
 package com.example.helloandroidcristofermunoz.ui.home
 
 import android.app.Dialog
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +19,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.data.AppDatabase
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
-import com.example.helloandroidcristofermunoz.databinding.DialogTransactionDetailImprovedBinding
 import com.example.helloandroidcristofermunoz.databinding.FragmentHomeBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutEmptyStateBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutErrorStateBinding
@@ -145,12 +145,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val formattedAmount = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(transaction.amount)
         txtDetailAmount.text = formattedAmount
 
-        val color = if (transaction.type == "Ingreso") {
-            android.graphics.Color.parseColor("#4CAF50")
+        // Color del monto según tipo
+        if (transaction.type == "Ingreso") {
+            txtDetailAmount.setTextColor(Color.parseColor("#4CAF50"))
         } else {
-            android.graphics.Color.parseColor("#F44336")
+            txtDetailAmount.setTextColor(Color.parseColor("#FFFFFF"))
         }
-        txtDetailAmount.setTextColor(color)
 
         btnEdit.setOnClickListener {
             dialog.dismiss()
