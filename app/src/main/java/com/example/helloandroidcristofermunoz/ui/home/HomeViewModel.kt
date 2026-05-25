@@ -54,6 +54,47 @@ class HomeViewModel(
         }
     }
 
+    fun filterByDateRange(startDate: Long, endDate: Long) {
+        _isLoading.value = true
+        _isError.value = false
+
+        viewModelScope.launch {
+            try {
+                repository.getTransactionsByDateRange(startDate, endDate).collect { transactionList ->
+                    _transactions.value = transactionList
+                    _isEmpty.value = transactionList.isEmpty()
+                    _isLoading.value = false
+                }
+            } catch (e: Exception) {
+                _isLoading.value = false
+                _isError.value = true
+            }
+        }
+    }
+
+    fun searchTransactions(query: String) {
+        _isLoading.value = true
+        _isError.value = false
+
+        viewModelScope.launch {
+            try {
+                val searchPattern = "%$query%"
+                repository.searchTransactions(searchPattern).collect { transactionList ->
+                    _transactions.value = transactionList
+                    _isEmpty.value = transactionList.isEmpty()
+                    _isLoading.value = false
+                }
+            } catch (e: Exception) {
+                _isLoading.value = false
+                _isError.value = true
+            }
+        }
+    }
+
+    fun clearFilters() {
+        loadTransactions()
+    }
+
     private fun loadBalance() {
         viewModelScope.launch {
             try {
