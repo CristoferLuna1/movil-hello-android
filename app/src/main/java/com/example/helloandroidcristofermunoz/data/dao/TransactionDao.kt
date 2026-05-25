@@ -10,13 +10,13 @@ interface TransactionDao {
     fun getAllTransactions(): Flow<List<Transaction>>
 
     @Query("SELECT SUM(CASE WHEN type = 'Ingreso' THEN amount ELSE -amount END) FROM transactions")
-    suspend fun getTotalBalance(): Double
+    suspend fun getTotalBalance(): Double?
 
     @Query("SELECT SUM(amount) FROM transactions WHERE type = 'Ingreso'")
-    suspend fun getTotalIncome(): Double
+    suspend fun getTotalIncome(): Double?
 
     @Query("SELECT SUM(amount) FROM transactions WHERE type = 'Gasto'")
-    suspend fun getTotalExpenses(): Double
+    suspend fun getTotalExpenses(): Double?
 
     @Query("SELECT * FROM transactions WHERE date BETWEEN :startDate AND :endDate ORDER BY date DESC")
     fun getTransactionsByDateRange(startDate: Long, endDate: Long): Flow<List<Transaction>>

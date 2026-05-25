@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.Flow
 class TransactionRepository(private val transactionDao: TransactionDao) {
     val allTransactions: Flow<List<Transaction>> = transactionDao.getAllTransactions()
 
-    suspend fun getTotalBalance(): Double = transactionDao.getTotalBalance()
-    suspend fun getTotalIncome(): Double = transactionDao.getTotalIncome()
-    suspend fun getTotalExpenses(): Double = transactionDao.getTotalExpenses()
+    suspend fun getTotalBalance(): Double = transactionDao.getTotalBalance() ?: 0.0
+    suspend fun getTotalIncome(): Double = transactionDao.getTotalIncome() ?: 0.0
+    suspend fun getTotalExpenses(): Double = transactionDao.getTotalExpenses() ?: 0.0
 
     fun getTransactionsByDateRange(startDate: Long, endDate: Long): Flow<List<Transaction>> =
         transactionDao.getTransactionsByDateRange(startDate, endDate)

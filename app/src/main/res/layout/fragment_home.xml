@@ -30,7 +30,7 @@
                 android:id="@+id/txtBalance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="$2.500.000"
+                android:text="$0"
                 android:textSize="32sp"
                 android:textStyle="bold"
                 android:layout_marginTop="8dp"/>
