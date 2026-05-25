@@ -3,6 +3,7 @@ package com.example.helloandroidcristofermunoz.ui.history
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,12 +27,72 @@ class HistoryFragment : Fragment(R.layout.fragment_history) {
         HistoryViewModelFactory(repository)
     }
 
+    private val monthNames = arrayOf(
+        "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+        "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+    )
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHistoryBinding.bind(view)
 
+        setupMonthSelector()
         setupRecycler()
         observeData()
+    }
+
+    private fun setupMonthSelector() {
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+        val currentMonth = calendar.get(Calendar.MONTH)
+
+        // Mostrar últimos 6 meses
+        for (i in 5 downTo 0) {
+            val monthCalendar = Calendar.getInstance()
+            monthCalendar.add(Calendar.MONTH, -i)
+
+            val month = monthCalendar.get(Calendar.MONTH)
+            val year = monthCalendar.get(Calendar.YEAR)
+
+            val monthButton = Button(requireContext()).apply {
+                text = "${monthNames[month]} $year"
+                textSize = 12f
+                setPadding(16, 8, 16, 8)
+
+                if (month == currentMonth && year == currentYear) {
+                    setBackgroundColor(Color.parseColor("#2196F3"))
+                    setTextColor(Color.WHITE)
+                } else {
+                    setBackgroundColor(Color.parseColor("#E0E0E0"))
+                    setTextColor(Color.parseColor("#212121"))
+                }
+
+                setOnClickListener {
+                    viewModel.selectMonth(month, year)
+                    updateMonthSelectorUI(month, year)
+                }
+            }
+
+            binding.monthSelector.addView(monthButton)
+        }
+    }
+
+    private fun updateMonthSelectorUI(selectedMonth: Int, selectedYear: Int) {
+        for (i in 0 until binding.monthSelector.childCount) {
+            val button = binding.monthSelector.getChildAt(i) as Button
+            val calendar = Calendar.getInstance()
+            calendar.add(Calendar.MONTH, -(5 - i))
+            val month = calendar.get(Calendar.MONTH)
+            val year = calendar.get(Calendar.YEAR)
+
+            if (month == selectedMonth && year == selectedYear) {
+                button.setBackgroundColor(Color.parseColor("#2196F3"))
+                button.setTextColor(Color.WHITE)
+            } else {
+                button.setBackgroundColor(Color.parseColor("#E0E0E0"))
+                button.setTextColor(Color.parseColor("#212121"))
+            }
+        }
     }
 
     private fun setupRecycler() {

@@ -5,8 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.data.AppDatabase
@@ -15,6 +17,8 @@ import com.example.helloandroidcristofermunoz.databinding.FragmentHomeBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutEmptyStateBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutErrorStateBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutLoadingStateBinding
+import com.example.helloandroidcristofermunoz.ui.addtransaction.AddTransactionViewModel
+import com.example.helloandroidcristofermunoz.ui.addtransaction.AddTransactionViewModelFactory
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -80,12 +84,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             val adapter = TransactionAdapter(
                 transactions,
                 onItemClick = { transaction ->
-                    val formattedAmount = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(transaction.amount)
-                    Toast.makeText(
-                        requireContext(),
-                        "${transaction.title} - $formattedAmount - ${transaction.type}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    showTransactionDetailDialog(transaction)
                 }
             )
             binding.recyclerTransactions.adapter = adapter
@@ -112,6 +111,60 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 showEmptyState()
             }
         }
+    }
+
+    private fun showTransactionDetailDialog(transaction: com.example.helloandroidcristofermunoz.data.model.Transaction) {
+        val formattedAmount = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(transaction.amount)
+        val message = """
+            Título: ${transaction.title}
+            Categoría: ${transaction.category}
+            Tipo: ${transaction.type}
+            Monto: $formattedAmount
+        """.trimIndent()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Detalle de Transacción")
+            .setMessage(message)
+            .setPositiveButton("Editar") { _, _ ->
+                showEditDialog(transaction)
+            }
+            .setNegativeButton("Eliminar") { _, _ ->
+                showDeleteDialog(transaction)
+            }
+            .setNeutralButton("Cancelar", null)
+            .show()
+    }
+
+    private fun showEditDialog(transaction: com.example.helloandroidcristofermunoz.data.model.Transaction) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Editar Transacción")
+            .setMessage("Funcionalidad de edición en desarrollo")
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    private fun showDeleteDialog(transaction: com.example.helloandroidcristofermunoz.data.model.Transaction) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Eliminar transacción")
+            .setMessage("¿Estás seguro de eliminar ${transaction.title}?")
+            .setPositiveButton("Eliminar") { _, _ ->
+                val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
+                val repository = TransactionRepository(dao)
+                val factory = AddTransactionViewModelFactory(repository)
+                val deleteViewModel = ViewModelProvider(this, factory)[AddTransactionViewModel::class.java]
+
+                deleteViewModel.deleteTransaction(transaction)
+
+                deleteViewModel.isSuccess.observe(viewLifecycleOwner) { isSuccess ->
+                    if (isSuccess) {
+                        Toast.makeText(requireContext(), "Transacción eliminada", Toast.LENGTH_SHORT).show()
+                        deleteViewModel.resetSuccessState()
+                        viewModel.retryLoad()
+                    }
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     private fun showLoadingState() {
