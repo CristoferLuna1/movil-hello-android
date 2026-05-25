@@ -14,6 +14,9 @@ class HomeViewModel(private val repository: TransactionRepository) : ViewModel()
     private val _transactions = MutableLiveData<List<Transaction>>()
     val transactions: LiveData<List<Transaction>> = _transactions
 
+    private val _balance = MutableLiveData<Double>()
+    val balance: LiveData<Double> = _balance
+
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
@@ -41,6 +44,9 @@ class HomeViewModel(private val repository: TransactionRepository) : ViewModel()
                     _transactions.value = transactionList
                     _isEmpty.value = transactionList.isEmpty()
                     _isLoading.value = false
+
+                    // Recalcular balance cada vez que cambian las transacciones
+                    calculateBalance(transactionList)
                 }
             } catch (e: Exception) {
 
@@ -48,6 +54,61 @@ class HomeViewModel(private val repository: TransactionRepository) : ViewModel()
                 _isError.value = true
             }
         }
+    }
+
+    private fun calculateBalance(transactions: List<Transaction>) {
+        var total = 0.0
+        transactions.forEach { transaction ->
+            if (transaction.type == "Ingreso") {
+                total += transaction.amount
+            } else {
+                total -= transaction.amount
+            }
+        }
+        _balance.value = total
+    }
+
+    fun filterByDateRange(startDate: Long, endDate: Long) {
+        _isLoading.value = true
+        _isError.value = false
+
+        viewModelScope.launch {
+            try {
+                repository.getTransactionsByDateRange(startDate, endDate).collect { transactionList ->
+                    _transactions.value = transactionList
+                    _isEmpty.value = transactionList.isEmpty()
+                    _isLoading.value = false
+                    calculateBalance(transactionList)
+                }
+            } catch (e: Exception) {
+                _isLoading.value = false
+                _isError.value = true
+            }
+        }
+    }
+
+    fun searchTransactions(query: String) {
+        _isLoading.value = true
+        _isError.value = false
+
+        viewModelScope.launch {
+            try {
+                val searchPattern = "%$query%"
+                repository.searchTransactions(searchPattern).collect { transactionList ->
+                    _transactions.value = transactionList
+                    _isEmpty.value = transactionList.isEmpty()
+                    _isLoading.value = false
+                    calculateBalance(transactionList)
+                }
+            } catch (e: Exception) {
+                _isLoading.value = false
+                _isError.value = true
+            }
+        }
+    }
+
+    fun clearFilters() {
+        loadTransactions()
     }
 
     fun retryLoad() {
@@ -71,3 +132,4 @@ class HomeViewModel(private val repository: TransactionRepository) : ViewModel()
         }
     }
 }
+

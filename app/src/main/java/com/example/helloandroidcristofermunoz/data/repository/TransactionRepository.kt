@@ -11,12 +11,19 @@ class TransactionRepository(private val transactionDao: TransactionDao) {
 
     val allTransactions: Flow<List<Transaction>> = transactionDao.getAllTransactions()
 
-    suspend fun insert(transaction: Transaction) {
+    suspend fun getTotalBalance(): Double = transactionDao.getTotalBalance() ?: 0.0
+    suspend fun getTotalIncome(): Double = transactionDao.getTotalIncome() ?: 0.0
+    suspend fun getTotalExpenses(): Double = transactionDao.getTotalExpenses() ?: 0.0
 
-        // Guarda localmente
+    fun getTransactionsByDateRange(startDate: Long, endDate: Long): Flow<List<Transaction>> =
+            transactionDao.getTransactionsByDateRange(startDate, endDate)
+
+    fun searchTransactions(searchQuery: String): Flow<List<Transaction>> =
+            transactionDao.searchTransactions(searchQuery)
+
+    suspend fun insert(transaction: Transaction) {
         transactionDao.insert(transaction)
 
-        // Guarda en Firebase
         try {
             firebaseRepository.saveTransaction(transaction)
         } catch (e: Exception) {

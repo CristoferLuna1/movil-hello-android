@@ -30,6 +30,13 @@ class AddTransactionViewModel(
     private val _categoryError = MutableLiveData<String?>()
     val categoryError: LiveData<String?> = _categoryError
 
+    private val _editingTransaction = MutableLiveData<Transaction?>()
+    val editingTransaction: LiveData<Transaction?> = _editingTransaction
+
+    fun setEditingTransaction(transaction: Transaction) {
+        _editingTransaction.value = transaction
+    }
+
     fun validateAndSaveTransaction(
         title: String,
         amount: String,
@@ -60,7 +67,13 @@ class AddTransactionViewModel(
 
         if (!isValid) return
 
-        saveTransaction(title, amount, category, type)
+        val currentEditing = _editingTransaction.value
+
+        if (currentEditing != null) {
+            updateTransaction(currentEditing.id, title, amount, category, type)
+        } else {
+            saveTransaction(title, amount, category, type)
+        }
     }
 
     private fun saveTransaction(
@@ -97,11 +110,84 @@ class AddTransactionViewModel(
         }
     }
 
+    private fun updateTransaction(
+        id: Int,
+        title: String,
+        amount: String,
+        category: String,
+        type: String
+    ) {
+
+        _isLoading.value = true
+
+        viewModelScope.launch {
+
+            try {
+
+                val transaction = Transaction(
+                    id = id,
+                    title = title,
+                    amount = amount.toDouble(),
+                    category = category,
+                    type = type,
+                    date = System.currentTimeMillis()
+                )
+
+                repository.update(transaction)
+
+                _isLoading.value = false
+                _isSuccess.value = true
+                _editingTransaction.value = null
+
+            } catch (e: Exception) {
+
+                _isLoading.value = false
+                _errorMessage.value = "Error al actualizar la transacción"
+            }
+        }
+    }
+
+    fun deleteTransaction(transaction: Transaction) {
+        _isLoading.value = true
+
+        viewModelScope.launch {
+            try {
+                repository.delete(transaction)
+                _isLoading.value = false
+                _isSuccess.value = true
+                _editingTransaction.value = null
+            } catch (e: Exception) {
+                _isLoading.value = false
+                _errorMessage.value = "Error al eliminar la transacción"
+            }
+        }
+    }
+
+    fun updateTransaction(transaction: Transaction) {
+        _isLoading.value = true
+
+        viewModelScope.launch {
+            try {
+                repository.update(transaction)
+                _isLoading.value = false
+                _isSuccess.value = true
+                _editingTransaction.value = null
+            } catch (e: Exception) {
+                _isLoading.value = false
+                _errorMessage.value = "Error al actualizar la transacción"
+            }
+        }
+    }
+
     fun resetSuccessState() {
         _isSuccess.value = false
     }
 
     fun resetErrorState() {
         _errorMessage.value = null
+    }
+
+    fun clearEditing() {
+        _editingTransaction.value = null
     }
 }

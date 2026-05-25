@@ -6,19 +6,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:background="#F5F5F5"
+    android:padding="16dp">
 
+    <!-- Balance Card -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        app:cardCornerRadius="24dp">
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#2196F3">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="20dp">
 
             <TextView
                 android:id="@+id/txtNetworkStatus"
@@ -30,8 +34,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Balance total"
-                android:textColor="#666" />
+                android:text="Balance Total"
+                android:textSize="14sp"
+                android:textColor="#FFFFFF"
+                android:alpha="0.8"/>
 
             <TextView
                 android:id="@+id/txtBalance"
@@ -40,12 +46,173 @@
                 android:text="$2.500.000"
                 android:textSize="32sp"
                 android:textStyle="bold"
-                android:layout_marginTop="8dp" />
+                android:textColor="#FFFFFF"
+                android:layout_marginTop="8dp"/>
 
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Meta de Ahorro Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="#FFFFFF">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Meta de Ahorro"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#212121"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSetGoal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Configurar"
+                    android:textSize="12sp"
+                    app:cornerRadius="8dp"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txtGoalAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Meta: $200.000"
+                android:textSize="14sp"
+                android:textColor="#757575"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/txtAvailableBudget"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Presupuesto disponible: $1.800.000"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#4CAF50"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/txtSpent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gastado: $1.500.000"
+                android:textSize="14sp"
+                android:textColor="#757575"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Barra de progreso con marcador -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+
+                <ProgressBar
+                    android:id="@+id/progressSavings"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:progress="75"
+                    android:max="100"
+                    android:progressTint="#4CAF50"
+                    android:progressBackgroundTint="#E0E0E0"/>
+
+                <!-- Marcador del tope (línea vertical) -->
+                <View
+                    android:id="@+id/markerLimit"
+                    android:layout_width="2dp"
+                    android:layout_height="16dp"
+                    android:background="#FF5722"
+                    android:layout_gravity="center_vertical"/>
+
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/txtProgressText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="75% del presupuesto gastado"
+                android:textSize="12sp"
+                android:textColor="#757575"
+                android:layout_marginTop="8dp"/>
+
+            <TextView
+                android:id="@+id/txtRemaining"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Te quedan $300.000 para gastar sin tocar tu ahorro"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#4CAF50"
+                android:layout_marginTop="4dp"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Search and Filter -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusTopStart="8dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Buscar..."
+                android:textSize="14sp"
+                android:inputType="text"
+                android:imeOptions="actionSearch"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnFilter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filtrar"
+            app:cornerRadius="8dp"
+            app:icon="@android:drawable/ic_menu_sort_by_size"/>
+
+    </LinearLayout>
+
+    <!-- Transactions List -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerTransactions"
         android:layout_width="match_parent"
