@@ -1,13 +1,15 @@
 package com.example.helloandroidcristofermunoz.ui.home
 
+// import para api
+//
+import android.util.Log
 import androidx.lifecycle.*
+import androidx.lifecycle.viewModelScope
 import com.example.helloandroidcristofermunoz.data.model.Transaction
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
 import kotlinx.coroutines.launch
 
-class HomeViewModel(
-    private val repository: TransactionRepository
-) : ViewModel() {
+class HomeViewModel(private val repository: TransactionRepository) : ViewModel() {
 
     private val _transactions = MutableLiveData<List<Transaction>>()
     val transactions: LiveData<List<Transaction>> = _transactions
@@ -22,6 +24,8 @@ class HomeViewModel(
     val isEmpty: LiveData<Boolean> = _isEmpty
 
     init {
+        syncFirebase()
+
         loadTransactions()
     }
 
@@ -31,16 +35,13 @@ class HomeViewModel(
         _isError.value = false
 
         viewModelScope.launch {
-
             try {
 
                 repository.allTransactions.collect { transactionList ->
-
                     _transactions.value = transactionList
                     _isEmpty.value = transactionList.isEmpty()
                     _isLoading.value = false
                 }
-
             } catch (e: Exception) {
 
                 _isLoading.value = false
@@ -51,5 +52,22 @@ class HomeViewModel(
 
     fun retryLoad() {
         loadTransactions()
+    }
+    // test api
+
+    fun testApi() {
+
+        viewModelScope.launch {
+            try {} catch (e: Exception) {
+
+                Log.e("API_TEST", e.message.toString())
+            }
+        }
+    }
+    private fun syncFirebase() {
+
+        viewModelScope.launch {
+             repository.syncTransactions() 
+        }
     }
 }

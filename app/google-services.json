@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "713433867058",
+    "project_id": "finzen-98277",
+    "storage_bucket": "finzen-98277.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:713433867058:android:30fb0f5024282db990ed2b",
+        "android_client_info": {
+          "package_name": "com.example.helloandroidcristofermunoz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyApPz2boPol7I1Xuw2v73I9W0a_bIsedZw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

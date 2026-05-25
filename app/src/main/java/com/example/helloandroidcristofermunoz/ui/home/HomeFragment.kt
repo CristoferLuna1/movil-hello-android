@@ -1,12 +1,11 @@
 package com.example.helloandroidcristofermunoz.ui.home
 
-import android.widget.Toast
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.data.AppDatabase
@@ -15,7 +14,8 @@ import com.example.helloandroidcristofermunoz.databinding.FragmentHomeBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutEmptyStateBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutErrorStateBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutLoadingStateBinding
-import androidx.navigation.fragment.findNavController
+import com.example.helloandroidcristofermunoz.utils.NetworkMonitor
+import com.example.helloandroidcristofermunoz.utils.NetworkState
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -23,13 +23,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private val binding get() = _binding!!
 
     private val viewModel: HomeViewModel by viewModels {
-
-        val dao = AppDatabase
-            .getDatabase(requireContext())
-            .transactionDao()
-
+        val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
         val repository = TransactionRepository(dao)
-
         HomeViewModelFactory(repository)
     }
 
@@ -39,7 +34,18 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         _binding = FragmentHomeBinding.bind(view)
+
+        // 🚀 INICIAR MONITOR EN TIEMPO REAL
+        NetworkMonitor.start(requireContext())
+
+        // 🌐 OBSERVAR ESTADO DE RED
+        NetworkState.isConnected.observe(viewLifecycleOwner) { connected ->
+            binding.txtNetworkStatus.text =
+                if (connected) "🟢 Conectado a Internet"
+                else "🔴 Sin conexión"
+        }
 
         setupStates()
         setupRecycler()
@@ -49,19 +55,19 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun setupStates() {
 
         emptyStateBinding = LayoutEmptyStateBinding.inflate(
-            LayoutInflater.from(requireContext()),
+            layoutInflater,
             binding.root as ViewGroup,
             false
         )
 
         loadingStateBinding = LayoutLoadingStateBinding.inflate(
-            LayoutInflater.from(requireContext()),
+            layoutInflater,
             binding.root as ViewGroup,
             false
         )
 
         errorStateBinding = LayoutErrorStateBinding.inflate(
-            LayoutInflater.from(requireContext()),
+            layoutInflater,
             binding.root as ViewGroup,
             false
         )
@@ -72,7 +78,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun setupRecycler() {
-
         binding.recyclerTransactions.layoutManager =
             LinearLayoutManager(requireContext())
     }
@@ -83,43 +88,26 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
             val adapter = TransactionAdapter(transactions) { transaction ->
 
-                val action = HomeFragmentDirections
-                    .actionHomeFragmentToTransactionDetailFragment(transaction.id)
+                val action =
+                    HomeFragmentDirections
+                        .actionHomeFragmentToTransactionDetailFragment(
+                            transaction.id
+                        )
 
                 findNavController().navigate(action)
             }
 
             binding.recyclerTransactions.adapter = adapter
 
-            if (transactions.isNotEmpty()) {
-                showContentState()
-            }
+            if (transactions.isNotEmpty()) showContentState()
         }
 
-        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-
-            if (isLoading) {
-                showLoadingState()
-            }
-        }
-
-        viewModel.isError.observe(viewLifecycleOwner) { isError ->
-
-            if (isError) {
-                showErrorState()
-            }
-        }
-
-        viewModel.isEmpty.observe(viewLifecycleOwner) { isEmpty ->
-
-            if (isEmpty) {
-                showEmptyState()
-            }
-        }
+        viewModel.isLoading.observe(viewLifecycleOwner) { if (it) showLoadingState() }
+        viewModel.isError.observe(viewLifecycleOwner) { if (it) showErrorState() }
+        viewModel.isEmpty.observe(viewLifecycleOwner) { if (it) showEmptyState() }
     }
 
     private fun showLoadingState() {
-
         binding.recyclerTransactions.visibility = View.GONE
 
         loadingStateBinding?.root?.visibility = View.VISIBLE
@@ -130,7 +118,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun showErrorState() {
-
         binding.recyclerTransactions.visibility = View.GONE
 
         loadingStateBinding?.root?.visibility = View.GONE
@@ -141,7 +128,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun showEmptyState() {
-
         binding.recyclerTransactions.visibility = View.GONE
 
         loadingStateBinding?.root?.visibility = View.GONE
@@ -152,7 +138,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun showContentState() {
-
         binding.recyclerTransactions.visibility = View.VISIBLE
 
         loadingStateBinding?.root?.visibility = View.GONE
@@ -161,7 +146,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     override fun onDestroyView() {
-
         super.onDestroyView()
 
         _binding = null

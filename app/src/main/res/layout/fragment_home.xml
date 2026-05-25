@@ -21,10 +21,17 @@
             android:padding="24dp">
 
             <TextView
+                android:id="@+id/txtNetworkStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Estado de red"
+                android:textSize="16sp"
+                android:padding="8dp" />
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Balance total"
-                android:textColor="#666"/>
+                android:textColor="#666" />
 
             <TextView
                 android:id="@+id/txtBalance"
@@ -33,7 +40,7 @@
                 android:text="$2.500.000"
                 android:textSize="32sp"
                 android:textStyle="bold"
-                android:layout_marginTop="8dp"/>
+                android:layout_marginTop="8dp" />
 
         </LinearLayout>
 
@@ -42,6 +49,6 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerTransactions"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 </LinearLayout>

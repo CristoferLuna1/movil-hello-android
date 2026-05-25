@@ -10,6 +10,7 @@ import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.data.AppDatabase
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
 import com.example.helloandroidcristofermunoz.databinding.FragmentAddTransactionBinding
+import com.example.helloandroidcristofermunoz.utils.NotificationHelper
 
 class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
@@ -17,13 +18,8 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
     private val binding get() = _binding!!
 
     private val viewModel: AddTransactionViewModel by viewModels {
-
-        val dao = AppDatabase
-            .getDatabase(requireContext())
-            .transactionDao()
-
+        val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
         val repository = TransactionRepository(dao)
-
         AddTransactionViewModelFactory(repository)
     }
 
@@ -44,54 +40,31 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
             val amount = binding.edtAmount.text.toString().trim()
             val category = binding.edtCategory.text.toString().trim()
 
-            val selectedTypeId =
-                binding.radioGroupType.checkedRadioButtonId
-
-            val selectedRadioButton =
-                view?.findViewById<RadioButton>(selectedTypeId)
+            val selectedTypeId = binding.radioGroupType.checkedRadioButtonId
+            val selectedRadioButton = view?.findViewById<RadioButton>(selectedTypeId)
 
             val type =
-                if (selectedRadioButton?.id == R.id.rbIncome)
-                    "income"
-                else
-                    "expense"
+                if (selectedRadioButton?.id == R.id.rbIncome) "income"
+                else "expense"
 
-            viewModel.validateAndSaveTransaction(
-                title,
-                amount,
-                category,
-                type
-            )
+            viewModel.validateAndSaveTransaction(title, amount, category, type)
         }
     }
 
     private fun observeViewModel() {
 
-        viewModel.titleError.observe(viewLifecycleOwner) { error ->
+        viewModel.titleError.observe(viewLifecycleOwner) { binding.tilTitle.error = it }
 
-            binding.tilTitle.error = error
-        }
+        viewModel.amountError.observe(viewLifecycleOwner) { binding.tilAmount.error = it }
 
-        viewModel.amountError.observe(viewLifecycleOwner) { error ->
-
-            binding.tilAmount.error = error
-        }
-
-        viewModel.categoryError.observe(viewLifecycleOwner) { error ->
-
-            binding.tilCategory.error = error
-        }
+        viewModel.categoryError.observe(viewLifecycleOwner) { binding.tilCategory.error = it }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-
-            binding.progressBar.visibility =
-                if (isLoading) View.VISIBLE else View.GONE
-
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             binding.btnSave.isEnabled = !isLoading
         }
 
         viewModel.isSuccess.observe(viewLifecycleOwner) { isSuccess ->
-
             if (isSuccess) {
 
                 Toast.makeText(
@@ -100,40 +73,34 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
                     Toast.LENGTH_SHORT
                 ).show()
 
-                clearForm()
+                NotificationHelper.showNotification(
+                    requireContext(),
+                    "Transacción creada",
+                    "Se guardó correctamente"
+                )
 
+                clearForm()
                 viewModel.resetSuccessState()
             }
         }
 
         viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
-
             errorMessage?.let {
-
-                Toast.makeText(
-                    requireContext(),
-                    it,
-                    Toast.LENGTH_SHORT
-                ).show()
-
+                Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show()
                 viewModel.resetErrorState()
             }
         }
     }
 
     private fun clearForm() {
-
         binding.edtTitle.text?.clear()
         binding.edtAmount.text?.clear()
         binding.edtCategory.text?.clear()
-
         binding.rbIncome.isChecked = true
     }
 
     override fun onDestroyView() {
-
         super.onDestroyView()
-
         _binding = null
     }
 }
