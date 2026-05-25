@@ -51,7 +51,9 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding.txtRegister.setOnClickListener {
-            Toast.makeText(this, "Registro - Próximamente", Toast.LENGTH_SHORT).show()
+            // Navegar a RegisterActivity
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
         }
 
         viewModel.isSuccess.observe(this) { isSuccess ->
