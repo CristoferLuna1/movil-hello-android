@@ -1,6 +1,7 @@
 package com.example.helloandroidcristofermunoz.ui.statistics
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -19,7 +20,6 @@ class StatisticsFragment :
     Fragment(R.layout.fragment_statistics) {
 
     private var _binding: FragmentStatisticsBinding? = null
-
     private val binding get() = _binding!!
 
     private val viewModel: StatisticsViewModel by viewModels {
@@ -36,22 +36,31 @@ class StatisticsFragment :
         view: View,
         savedInstanceState: Bundle?
     ) {
-
         super.onViewCreated(view, savedInstanceState)
-
         _binding = FragmentStatisticsBinding.bind(view)
 
         observeData()
     }
 
     private fun observeData() {
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            Log.d("StatisticsFragment", "Loading: $isLoading")
+        }
+
+        viewModel.isError.observe(viewLifecycleOwner) { isError ->
+            Log.d("StatisticsFragment", "Error: $isError")
+            if (isError) {
+                binding.txtIncome.text = "Error"
+                binding.txtExpenses.text = "Error"
+            }
+        }
 
         viewModel.income.observe(viewLifecycleOwner) { income ->
+            Log.d("StatisticsFragment", "Income: $income")
             val formattedIncome = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(income)
             binding.txtIncome.text = formattedIncome
 
-            val expenses =
-                viewModel.expenses.value ?: 0.0
+            val expenses = viewModel.expenses.value ?: 0.0
 
             setupChart(
                 income.toFloat(),
@@ -60,11 +69,11 @@ class StatisticsFragment :
         }
 
         viewModel.expenses.observe(viewLifecycleOwner) { expenses ->
+            Log.d("StatisticsFragment", "Expenses: $expenses")
             val formattedExpenses = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(expenses)
             binding.txtExpenses.text = formattedExpenses
 
-            val income =
-                viewModel.income.value ?: 0.0
+            val income = viewModel.income.value ?: 0.0
 
             setupChart(
                 income.toFloat(),
@@ -77,7 +86,6 @@ class StatisticsFragment :
         income: Float,
         expenses: Float
     ) {
-
         val entries = arrayListOf(
 
             PieEntry(
@@ -117,9 +125,7 @@ class StatisticsFragment :
     }
 
     override fun onDestroyView() {
-
         super.onDestroyView()
-
         _binding = null
     }
 }
