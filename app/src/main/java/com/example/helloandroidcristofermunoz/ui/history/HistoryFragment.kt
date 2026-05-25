@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.data.AppDatabase
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
 import com.example.helloandroidcristofermunoz.databinding.FragmentHistoryBinding
