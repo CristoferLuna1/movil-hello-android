@@ -158,11 +158,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             binding.txtSpent.text = ""
             binding.progressSavings.progress = 0
             binding.txtProgressText.text = ""
+            binding.txtRemaining.text = ""
+            binding.markerLimit.visibility = View.GONE
             return
         }
 
         val formattedGoal = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(currentSavingsGoal!!.amount)
         binding.txtGoalAmount.text = "Meta: $formattedGoal"
+        binding.markerLimit.visibility = View.VISIBLE
     }
 
     private fun updateSavingsProgress(transactions: List<com.example.helloandroidcristofermunoz.data.model.Transaction>) {
@@ -193,14 +196,32 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             100
         }
 
+        // Calcular presupuesto restante
+        val remainingBudget = availableBudget - monthlyExpenses
+
         // Actualizar UI
         val formattedBudget = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(availableBudget)
         val formattedSpent = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(monthlyExpenses)
+        val formattedRemaining = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(remainingBudget)
 
         binding.txtAvailableBudget.text = "Presupuesto disponible: $formattedBudget"
         binding.txtSpent.text = "Gastado: $formattedSpent"
         binding.progressSavings.progress = spentPercentage.coerceAtMost(100)
         binding.txtProgressText.text = "$spentPercentage% del presupuesto gastado"
+
+        // Mostrar presupuesto restante
+        if (remainingBudget >= 0) {
+            binding.txtRemaining.text = "Te quedan $formattedRemaining para gastar sin tocar tu ahorro"
+            binding.txtRemaining.setTextColor(Color.parseColor("#4CAF50"))
+        } else {
+            binding.txtRemaining.text = "Has superado tu presupuesto por ${NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(Math.abs(remainingBudget))}"
+            binding.txtRemaining.setTextColor(Color.parseColor("#F44336"))
+        }
+
+        // Posicionar el marcador del tope (100%)
+        val markerParams = binding.markerLimit.layoutParams as ViewGroup.MarginLayoutParams
+        markerParams.leftMargin = (binding.progressSavings.width * 1.0).toInt()
+        binding.markerLimit.layoutParams = markerParams
 
         // Cambiar color según progreso
         when {

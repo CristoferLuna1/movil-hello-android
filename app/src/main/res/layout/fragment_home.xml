@@ -116,15 +116,31 @@
                 android:textColor="#757575"
                 android:layout_marginBottom="12dp"/>
 
-            <ProgressBar
-                android:id="@+id/progressSavings"
-                style="?android:attr/progressBarStyleHorizontal"
+            <!-- Barra de progreso con marcador -->
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="8dp"
-                android:progress="75"
-                android:max="100"
-                android:progressTint="#4CAF50"
-                android:progressBackgroundTint="#E0E0E0"/>
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp">
+
+                <ProgressBar
+                    android:id="@+id/progressSavings"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:progress="75"
+                    android:max="100"
+                    android:progressTint="#4CAF50"
+                    android:progressBackgroundTint="#E0E0E0"/>
+
+                <!-- Marcador del tope (línea vertical) -->
+                <View
+                    android:id="@+id/markerLimit"
+                    android:layout_width="2dp"
+                    android:layout_height="16dp"
+                    android:background="#FF5722"
+                    android:layout_gravity="center_vertical"/>
+
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/txtProgressText"
@@ -134,6 +150,16 @@
                 android:textSize="12sp"
                 android:textColor="#757575"
                 android:layout_marginTop="8dp"/>
+
+            <TextView
+                android:id="@+id/txtRemaining"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Te quedan $300.000 para gastar sin tocar tu ahorro"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#4CAF50"
+                android:layout_marginTop="4dp"/>
 
         </LinearLayout>
 
