@@ -52,9 +52,9 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
             val type =
                 if (selectedRadioButton?.id == R.id.rbIncome)
-                    "income"
+                    "Ingreso"
                 else
-                    "expense"
+                    "Gasto"
 
             viewModel.validateAndSaveTransaction(
                 title,
