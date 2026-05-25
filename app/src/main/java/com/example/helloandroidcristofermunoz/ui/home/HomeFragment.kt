@@ -14,6 +14,8 @@ import com.example.helloandroidcristofermunoz.databinding.FragmentHomeBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutEmptyStateBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutErrorStateBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutLoadingStateBinding
+import java.text.NumberFormat
+import java.util.Locale
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -76,6 +78,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun observeData() {
+
+        viewModel.balance.observe(viewLifecycleOwner) { balance ->
+            val formattedBalance = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(balance)
+            binding.txtBalance.text = formattedBalance
+        }
 
         viewModel.transactions.observe(viewLifecycleOwner) { transactions ->
 
