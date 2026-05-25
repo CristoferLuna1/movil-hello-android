@@ -15,9 +15,11 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.data.AppDatabase
+import com.example.helloandroidcristofermunoz.data.model.SavingsGoal
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
 import com.example.helloandroidcristofermunoz.databinding.FragmentHomeBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutEmptyStateBinding
@@ -25,8 +27,10 @@ import com.example.helloandroidcristofermunoz.databinding.LayoutErrorStateBindin
 import com.example.helloandroidcristofermunoz.databinding.LayoutLoadingStateBinding
 import com.example.helloandroidcristofermunoz.ui.addtransaction.AddTransactionViewModel
 import com.example.helloandroidcristofermunoz.ui.addtransaction.AddTransactionViewModelFactory
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -45,6 +49,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private var loadingStateBinding: LayoutLoadingStateBinding? = null
     private var errorStateBinding: LayoutErrorStateBinding? = null
 
+    private var currentSavingsGoal: SavingsGoal? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHomeBinding.bind(view)
@@ -52,6 +58,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         setupStates()
         setupRecycler()
         observeData()
+        setupSavingsGoal()
     }
 
     private fun setupStates() {
@@ -100,6 +107,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             if (transactions.isNotEmpty()) {
                 showContentState()
             }
+
+            updateSavingsProgress(transactions)
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
@@ -118,6 +127,145 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             if (isEmpty) {
                 showEmptyState()
             }
+        }
+    }
+
+    private fun setupSavingsGoal() {
+        binding.btnSetGoal.setOnClickListener {
+            showSetGoalDialog()
+        }
+
+        loadCurrentGoal()
+    }
+
+    private fun loadCurrentGoal() {
+        val calendar = Calendar.getInstance()
+        val currentMonth = calendar.get(Calendar.MONTH)
+        val currentYear = calendar.get(Calendar.YEAR)
+
+        lifecycleScope.launch {
+            val dao = AppDatabase.getDatabase(requireContext()).savingsGoalDao()
+            currentSavingsGoal = dao.getGoalForMonth(currentMonth, currentYear)
+
+            updateGoalUI()
+        }
+    }
+
+    private fun updateGoalUI() {
+        if (currentSavingsGoal == null) {
+            binding.txtGoalAmount.text = "Sin meta configurada"
+            binding.txtAvailableBudget.text = "Configura tu meta de ahorro"
+            binding.txtSpent.text = ""
+            binding.progressSavings.progress = 0
+            binding.txtProgressText.text = ""
+            return
+        }
+
+        val formattedGoal = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(currentSavingsGoal!!.amount)
+        binding.txtGoalAmount.text = "Meta: $formattedGoal"
+    }
+
+    private fun updateSavingsProgress(transactions: List<com.example.helloandroidcristofermunoz.data.model.Transaction>) {
+        if (currentSavingsGoal == null) return
+
+        val calendar = Calendar.getInstance()
+        val currentMonth = calendar.get(Calendar.MONTH)
+        val currentYear = calendar.get(Calendar.YEAR)
+
+        // Filtrar transacciones del mes actual
+        val monthlyTransactions = transactions.filter { transaction ->
+            val txCalendar = Calendar.getInstance()
+            txCalendar.timeInMillis = transaction.date
+            txCalendar.get(Calendar.MONTH) == currentMonth && txCalendar.get(Calendar.YEAR) == currentYear
+        }
+
+        // Calcular ingresos y gastos del mes
+        val monthlyIncome = monthlyTransactions.filter { it.type == "Ingreso" }.sumOf { it.amount }
+        val monthlyExpenses = monthlyTransactions.filter { it.type == "Gasto" }.sumOf { it.amount }
+
+        // Calcular presupuesto disponible (ingresos - meta de ahorro)
+        val availableBudget = monthlyIncome - currentSavingsGoal!!.amount
+
+        // Calcular porcentaje gastado
+        val spentPercentage = if (availableBudget > 0) {
+            (monthlyExpenses / availableBudget * 100).toInt()
+        } else {
+            100
+        }
+
+        // Actualizar UI
+        val formattedBudget = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(availableBudget)
+        val formattedSpent = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(monthlyExpenses)
+
+        binding.txtAvailableBudget.text = "Presupuesto disponible: $formattedBudget"
+        binding.txtSpent.text = "Gastado: $formattedSpent"
+        binding.progressSavings.progress = spentPercentage.coerceAtMost(100)
+        binding.txtProgressText.text = "$spentPercentage% del presupuesto gastado"
+
+        // Cambiar color según progreso
+        when {
+            spentPercentage >= 90 -> {
+                binding.progressSavings.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#F44336"))
+                binding.txtAvailableBudget.setTextColor(Color.parseColor("#F44336"))
+                binding.txtProgressText.text = "$spentPercentage% - ¡Cuidado! Estás cerca de tu meta de ahorro"
+            }
+            spentPercentage >= 70 -> {
+                binding.progressSavings.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#FF9800"))
+                binding.txtAvailableBudget.setTextColor(Color.parseColor("#FF9800"))
+            }
+            else -> {
+                binding.progressSavings.progressTintList = android.content.res.ColorStateList.valueOf(Color.parseColor("#4CAF50"))
+                binding.txtAvailableBudget.setTextColor(Color.parseColor("#4CAF50"))
+            }
+        }
+    }
+
+    private fun showSetGoalDialog() {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_set_goal, null)
+        val edtGoalAmount = dialogView.findViewById<EditText>(R.id.edtGoalAmount)
+
+        if (currentSavingsGoal != null) {
+            edtGoalAmount.setText(currentSavingsGoal!!.amount.toString())
+        }
+
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Configurar Meta de Ahorro")
+            .setView(dialogView)
+            .setPositiveButton("Guardar") { _, _ ->
+                val amountStr = edtGoalAmount.text.toString().trim()
+                if (amountStr.isNotEmpty()) {
+                    val amount = amountStr.toDoubleOrNull() ?: 0.0
+                    saveSavingsGoal(amount)
+                } else {
+                    Toast.makeText(requireContext(), "Ingresa un monto válido", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
+    }
+
+    private fun saveSavingsGoal(amount: Double) {
+        val calendar = Calendar.getInstance()
+        val currentMonth = calendar.get(Calendar.MONTH)
+        val currentYear = calendar.get(Calendar.YEAR)
+
+        lifecycleScope.launch {
+            val dao = AppDatabase.getDatabase(requireContext()).savingsGoalDao()
+
+            if (currentSavingsGoal == null) {
+                val newGoal = SavingsGoal(
+                    amount = amount,
+                    month = currentMonth,
+                    year = currentYear
+                )
+                dao.insert(newGoal)
+            } else {
+                val updatedGoal = currentSavingsGoal!!.copy(amount = amount)
+                dao.update(updatedGoal)
+            }
+
+            loadCurrentGoal()
+            Toast.makeText(requireContext(), "Meta de ahorro guardada", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -145,7 +293,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val formattedAmount = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(transaction.amount)
         txtDetailAmount.text = formattedAmount
 
-        // Color del monto según tipo
         if (transaction.type == "Ingreso") {
             txtDetailAmount.setTextColor(Color.parseColor("#4CAF50"))
         } else {

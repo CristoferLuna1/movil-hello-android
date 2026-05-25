@@ -46,6 +46,99 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <!-- Meta de Ahorro Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="#FFFFFF">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Meta de Ahorro"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#212121"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnSetGoal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Configurar"
+                    android:textSize="12sp"
+                    app:cornerRadius="8dp"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txtGoalAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Meta: $200.000"
+                android:textSize="14sp"
+                android:textColor="#757575"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/txtAvailableBudget"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Presupuesto disponible: $1.800.000"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#4CAF50"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/txtSpent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gastado: $1.500.000"
+                android:textSize="14sp"
+                android:textColor="#757575"
+                android:layout_marginBottom="12dp"/>
+
+            <ProgressBar
+                android:id="@+id/progressSavings"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:progress="75"
+                android:max="100"
+                android:progressTint="#4CAF50"
+                android:progressBackgroundTint="#E0E0E0"/>
+
+            <TextView
+                android:id="@+id/txtProgressText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="75% del presupuesto gastado"
+                android:textSize="12sp"
+                android:textColor="#757575"
+                android:layout_marginTop="8dp"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
     <!-- Search and Filter -->
     <LinearLayout
         android:layout_width="match_parent"

@@ -4,15 +4,18 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.helloandroidcristofermunoz.data.dao.SavingsGoalDao
 import com.example.helloandroidcristofermunoz.data.dao.TransactionDao
 import com.example.helloandroidcristofermunoz.data.dao.UserDao
+import com.example.helloandroidcristofermunoz.data.model.SavingsGoal
 import com.example.helloandroidcristofermunoz.data.model.Transaction
 import com.example.helloandroidcristofermunoz.data.model.User
 
-@Database(entities = [Transaction::class, User::class], version = 2)
+@Database(entities = [Transaction::class, User::class, SavingsGoal::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun userDao(): UserDao
+    abstract fun savingsGoalDao(): SavingsGoalDao
 
     companion object {
         @Volatile
