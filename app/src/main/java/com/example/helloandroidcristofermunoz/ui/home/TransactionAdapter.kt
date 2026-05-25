@@ -12,7 +12,7 @@ import java.util.Locale
 
 class TransactionAdapter(
     private val transactions: List<Transaction>,
-    private val onItemClick: (Transaction) -> Unit = {}
+    private val onItemClick: (Transaction) -> Unit
 ) : RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
 
     inner class ViewHolder(
@@ -40,6 +40,10 @@ class TransactionAdapter(
                 Color.parseColor("#F44336")
             }
             binding.txtAmount.setTextColor(color)
+
+            binding.cardTransaction.setOnClickListener {
+                onItemClick(transaction)
+            }
         }
     }
 
