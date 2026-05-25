@@ -163,6 +163,22 @@ class AddTransactionViewModel(
         }
     }
 
+    fun updateTransaction(transaction: Transaction) {
+        _isLoading.value = true
+
+        viewModelScope.launch {
+            try {
+                repository.update(transaction)
+                _isLoading.value = false
+                _isSuccess.value = true
+                _editingTransaction.value = null
+            } catch (e: Exception) {
+                _isLoading.value = false
+                _errorMessage.value = "Error al actualizar la transacción"
+            }
+        }
+    }
+
     fun resetSuccessState() {
         _isSuccess.value = false
     }

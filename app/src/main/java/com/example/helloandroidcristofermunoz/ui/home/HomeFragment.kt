@@ -4,6 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
@@ -136,10 +139,64 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun showEditDialog(transaction: com.example.helloandroidcristofermunoz.data.model.Transaction) {
+        val dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.fragment_add_transaction, null)
+        
+        val edtTitle = dialogView.findViewById<EditText>(R.id.edtTitle)
+        val edtAmount = dialogView.findViewById<EditText>(R.id.edtAmount)
+        val edtCategory = dialogView.findViewById<EditText>(R.id.edtCategory)
+        val radioGroupType = dialogView.findViewById<RadioGroup>(R.id.radioGroupType)
+
+        edtTitle.setText(transaction.title)
+        edtAmount.setText(transaction.amount.toString())
+        edtCategory.setText(transaction.category)
+
+        if (transaction.type == "Ingreso") {
+            radioGroupType.check(R.id.rbIncome)
+        } else {
+            radioGroupType.check(R.id.rbExpense)
+        }
+
         AlertDialog.Builder(requireContext())
             .setTitle("Editar Transacción")
-            .setMessage("Funcionalidad de edición en desarrollo")
-            .setPositiveButton("OK", null)
+            .setView(dialogView)
+            .setPositiveButton("Guardar") { _, _ ->
+                val title = edtTitle.text.toString().trim()
+                val amountStr = edtAmount.text.toString().trim()
+                val category = edtCategory.text.toString().trim()
+
+                val selectedTypeId = radioGroupType.checkedRadioButtonId
+                val selectedRadioButton = dialogView.findViewById<RadioButton>(selectedTypeId)
+                val type = if (selectedRadioButton?.id == R.id.rbIncome) "Ingreso" else "Gasto"
+
+                if (title.isNotEmpty() && amountStr.isNotEmpty() && category.isNotEmpty()) {
+                    val amount = amountStr.toDoubleOrNull() ?: 0.0
+                    
+                    val updatedTransaction = transaction.copy(
+                        title = title,
+                        amount = amount,
+                        category = category,
+                        type = type
+                    )
+
+                    val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
+                    val repository = TransactionRepository(dao)
+                    val factory = AddTransactionViewModelFactory(repository)
+                    val editViewModel = ViewModelProvider(this, factory)[AddTransactionViewModel::class.java]
+
+                    editViewModel.updateTransaction(updatedTransaction)
+
+                    editViewModel.isSuccess.observe(viewLifecycleOwner) { isSuccess ->
+                        if (isSuccess) {
+                            Toast.makeText(requireContext(), "Transacción actualizada", Toast.LENGTH_SHORT).show()
+                            editViewModel.resetSuccessState()
+                            viewModel.retryLoad()
+                        }
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Completa todos los campos", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancelar", null)
             .show()
     }
 
