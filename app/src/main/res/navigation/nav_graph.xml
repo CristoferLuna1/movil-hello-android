@@ -35,7 +35,9 @@
 
         <action
             android:id="@+id/action_profileFragment_to_historyFragment"
-            app:destination="@id/historyFragment" />
+            app:destination="@id/historyFragment"
+            app:popUpTo="@id/profileFragment"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <!-- HISTORY -->
