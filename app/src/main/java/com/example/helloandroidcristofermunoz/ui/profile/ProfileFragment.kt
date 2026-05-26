@@ -1,8 +1,11 @@
 package com.example.helloandroidcristofermunoz.ui.profile
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -19,6 +22,13 @@ class ProfileFragment :
 
     private val viewModel:
             ProfileViewModel by viewModels()
+
+    private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            viewModel.updateProfileImage(it.toString())
+            binding.imgProfile.setImageURI(it)
+        }
+    }
 
     override fun onViewCreated(
         view: View,
@@ -57,10 +67,7 @@ class ProfileFragment :
         }
 
         binding.fabChangeImage.setOnClickListener {
-            // TODO: Implementar cambio de imagen de perfil
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
-            startActivityForResult(intent, 1000)
+            pickImage.launch("image/*")
         }
 
         binding.btnLogout.setOnClickListener {

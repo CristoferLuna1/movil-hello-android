@@ -39,5 +39,20 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
+    fun updateProfileImage(imageUri: String) {
+        viewModelScope.launch {
+            try {
+                val userDao = AppDatabase.getDatabase(context).userDao()
+                val currentUser = userDao.getLoggedInUser()
+                currentUser?.let {
+                    val updatedUser = it.copy(profileImage = imageUri)
+                    userDao.update(updatedUser)
+                }
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
+    }
+
     private lateinit var context: android.content.Context
 }

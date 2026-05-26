@@ -27,6 +27,10 @@ class LoginViewModel : ViewModel() {
                 val user = userDao.login(email, password)
 
                 if (user != null) {
+                    // Establecer isLoggedIn = true para el usuario que hace login
+                    userDao.logoutAll()
+                    val updatedUser = user.copy(isLoggedIn = true)
+                    userDao.update(updatedUser)
                     _isSuccess.value = true
                 } else {
                     _errorMessage.value = "Credenciales incorrectas"

@@ -38,4 +38,7 @@ interface UserDao {
     
     @Query("UPDATE users SET isLoggedIn = 0")
     suspend fun logoutAll()
+    
+    @Query("SELECT * FROM users WHERE isLoggedIn = 1 LIMIT 1")
+    suspend fun getLoggedInUser(): User?
 }
