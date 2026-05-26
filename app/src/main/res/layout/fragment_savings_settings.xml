@@ -29,15 +29,46 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Define tu meta de ahorro mensual"
+                android:text="Define tu meta de ahorro"
                 android:textSize="14sp"
                 android:textColor="#666"
                 android:layout_marginBottom="24dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¿Cómo quieres configurar tu ahorro?"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
+
+        <RadioGroup
+            android:id="@+id/radioGroupSavingsType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/rbMonthly"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ahorro mensual fijo"
+                android:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/rbMultiMonth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Meta total a meses"
+                android:layout_marginTop="8dp"/>
+
+        </RadioGroup>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilMonthlyGoal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             app:errorEnabled="true"
             app:prefixText="$">
 
@@ -47,6 +78,23 @@
                 android:layout_height="wrap_content"
                 android:hint="Meta mensual de ahorro"
                 android:inputType="numberDecimal"
+                android:maxLines="1"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilMonths"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"
+            app:errorEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtMonths"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Número de meses"
+                android:inputType="number"
                 android:maxLines="1"/>
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -66,6 +114,17 @@
                 android:inputType="numberDecimal"
                 android:maxLines="1"/>
         </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/txtCalculatedSavings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Debes ahorrar: $0/mes"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#4CAF50"
+            android:layout_marginTop="16dp"
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/btnSave"

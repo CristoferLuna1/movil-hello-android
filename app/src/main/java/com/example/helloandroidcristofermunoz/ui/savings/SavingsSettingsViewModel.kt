@@ -23,14 +23,22 @@ class SavingsSettingsViewModel : ViewModel() {
     private val _currentSettings = MutableLiveData<SavingsPlan?>()
     val currentSettings: LiveData<SavingsPlan?> = _currentSettings
 
-    fun saveSettings(monthlyGoal: String, maxAmount: String) {
+    fun saveSettings(monthlyGoal: String, maxAmount: String, months: String, isMultiMonth: Boolean) {
         when {
             monthlyGoal.isBlank() -> {
-                _errorMessage.value = "La meta mensual es requerida"
+                _errorMessage.value = "La meta de ahorro es requerida"
                 return
             }
             maxAmount.isBlank() -> {
                 _errorMessage.value = "El monto máximo es requerido"
+                return
+            }
+            isMultiMonth && months.isBlank() -> {
+                _errorMessage.value = "El número de meses es requerido"
+                return
+            }
+            isMultiMonth && months.toIntOrNull() == null -> {
+                _errorMessage.value = "El número de meses debe ser válido"
                 return
             }
         }
@@ -50,18 +58,26 @@ class SavingsSettingsViewModel : ViewModel() {
                     val parsedMonthlyGoal = AmountFormatter.parse(monthlyGoal)
                     val parsedMaxAmount = AmountFormatter.parse(maxAmount)
 
+                    // Si es multimonth, calcular el ahorro mensual
+                    val finalMonthlyGoal = if (isMultiMonth) {
+                        val monthsCount = months.toIntOrNull() ?: 1
+                        parsedMonthlyGoal / monthsCount
+                    } else {
+                        parsedMonthlyGoal
+                    }
+
                     val existingPlan = savingsPlanDao.getActiveSavingsPlanForMonth(currentUser.id, monthYear)
 
                     if (existingPlan != null) {
                         val updatedPlan = existingPlan.copy(
-                            monthlyGoal = parsedMonthlyGoal,
+                            monthlyGoal = finalMonthlyGoal,
                             maxAmount = parsedMaxAmount
                         )
                         savingsPlanDao.update(updatedPlan)
                     } else {
                         val newPlan = SavingsPlan(
                             userId = currentUser.id,
-                            monthlyGoal = parsedMonthlyGoal,
+                            monthlyGoal = finalMonthlyGoal,
                             maxAmount = parsedMaxAmount,
                             currentSaved = 0.0,
                             monthYear = monthYear,

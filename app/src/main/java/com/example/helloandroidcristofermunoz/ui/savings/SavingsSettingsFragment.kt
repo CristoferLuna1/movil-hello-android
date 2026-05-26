@@ -34,10 +34,63 @@ class SavingsSettingsFragment : Fragment(R.layout.fragment_savings_settings) {
     }
 
     private fun setupListeners() {
+        binding.radioGroupSavingsType.setOnCheckedChangeListener { _, checkedId ->
+            when (checkedId) {
+                R.id.rbMonthly -> {
+                    binding.tilMonths.visibility = View.GONE
+                    binding.txtCalculatedSavings.visibility = View.GONE
+                    binding.edtMonthlyGoal.hint = "Meta mensual de ahorro"
+                }
+                R.id.rbMultiMonth -> {
+                    binding.tilMonths.visibility = View.VISIBLE
+                    binding.txtCalculatedSavings.visibility = View.VISIBLE
+                    binding.edtMonthlyGoal.hint = "Meta total de ahorro"
+                    calculateSavings()
+                }
+            }
+        }
+
+        binding.edtMonthlyGoal.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (binding.rbMultiMonth.isChecked) {
+                    calculateSavings()
+                }
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        binding.edtMonths.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (binding.rbMultiMonth.isChecked) {
+                    calculateSavings()
+                }
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
         binding.btnSave.setOnClickListener {
             val monthlyGoal = binding.edtMonthlyGoal.text.toString().trim()
             val maxAmount = binding.edtMaxAmount.text.toString().trim()
-            viewModel.saveSettings(monthlyGoal, maxAmount)
+            val months = binding.edtMonths.text.toString().trim()
+            val isMultiMonth = binding.rbMultiMonth.isChecked
+            viewModel.saveSettings(monthlyGoal, maxAmount, months, isMultiMonth)
+        }
+    }
+
+    private fun calculateSavings() {
+        val totalGoal = binding.edtMonthlyGoal.text.toString().trim()
+        val months = binding.edtMonths.text.toString().trim()
+
+        if (totalGoal.isNotEmpty() && months.isNotEmpty()) {
+            val total = AmountFormatter.parse(totalGoal)
+            val monthsCount = months.toIntOrNull() ?: 1
+
+            if (monthsCount > 0) {
+                val monthlySavings = total / monthsCount
+                binding.txtCalculatedSavings.text = "Debes ahorrar: $${AmountFormatter.format(monthlySavings)}/mes"
+            }
         }
     }
 
