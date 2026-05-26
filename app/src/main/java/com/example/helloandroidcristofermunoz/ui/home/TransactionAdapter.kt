@@ -28,7 +28,7 @@ class TransactionAdapter(
             val date = Date(transaction.date)
             binding.txtDate.text = dateFormat.format(date)
 
-            val amountText = if (transaction.type == "income") {
+            val amountText = if (transaction.type == "Ingreso") {
                 "+ $${transaction.amount}"
             } else {
                 "- $${transaction.amount}"
@@ -36,7 +36,7 @@ class TransactionAdapter(
 
             binding.txtAmount.text = amountText
 
-            val color = if (transaction.type == "income") {
+            val color = if (transaction.type == "Ingreso") {
                 Color.parseColor("#4CAF50")
             } else {
                 Color.parseColor("#F44336")

@@ -9,6 +9,8 @@ data class Transaction(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
+    val firebaseId: String = "",
+
     // Antes title
     val title: String,
 
@@ -20,5 +22,8 @@ data class Transaction(
     // "Ingreso" o "Gasto"
     val type: String,
 
-    val date: Long
+    val date: Long,
+    
+    val updatedAt: Long = System.currentTimeMillis()
+
 )

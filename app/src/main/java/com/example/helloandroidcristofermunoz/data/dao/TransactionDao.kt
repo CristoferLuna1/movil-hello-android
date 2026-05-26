@@ -36,6 +36,12 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions WHERE id = :id")
     suspend fun getTransactionById(id: Int): Transaction?
 
+    @Query("SELECT * FROM transactions WHERE firebaseId = :firebaseId")
+    suspend fun getByFirebaseId(firebaseId: String): Transaction?
+
+    @Query("SELECT * FROM transactions")
+    suspend fun getAllOnce(): List<Transaction>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(transaction: Transaction)
 

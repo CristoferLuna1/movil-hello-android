@@ -1,7 +1,6 @@
 package com.example.helloandroidcristofermunoz.ui.home
 
 import android.app.Dialog
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,11 +9,9 @@ import android.view.Window
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.helloandroidcristofermunoz.R
@@ -27,17 +24,17 @@ import com.example.helloandroidcristofermunoz.databinding.LayoutErrorStateBindin
 import com.example.helloandroidcristofermunoz.databinding.LayoutLoadingStateBinding
 import com.example.helloandroidcristofermunoz.utils.NetworkMonitor
 import com.example.helloandroidcristofermunoz.utils.NetworkState
-import kotlinx.coroutines.launch
+import com.example.helloandroidcristofermunoz.data.model.Transaction
 import java.text.NumberFormat
-import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private var _binding: FragmentHomeBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
 
     private val viewModel: HomeViewModel by viewModels {
         val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
@@ -60,29 +57,40 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         NetworkState.isConnected.observe(viewLifecycleOwner) { connected ->
             binding.txtNetworkStatus.text =
-                if (connected) "🟢 Conectado a Internet"
-                else "🔴 Sin conexión"
+                    if (connected) "🟢 Conectado a Internet" else "🔴 Sin conexión"
+            if (connected) {
+                lifecycleScope.launch {
+                    val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
+                    val repository = TransactionRepository(dao)
+                    repository.syncTransactions()
+                }
+            }
         }
 
         setupStates()
         setupRecycler()
         observeData()
         setupSavingsGoal()
-    }
-
-    private fun setupStates() {
-        emptyStateBinding = LayoutEmptyStateBinding.inflate(layoutInflater, binding.root as ViewGroup, false)
-        loadingStateBinding = LayoutLoadingStateBinding.inflate(layoutInflater, binding.root as ViewGroup, false)
-        errorStateBinding = LayoutErrorStateBinding.inflate(layoutInflater, binding.root as ViewGroup, false)
-
-        errorStateBinding?.btnRetry?.setOnClickListener {
-            viewModel.retryLoad()
+        lifecycleScope.launch {
+            val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
+            val repository = TransactionRepository(dao)
+            repository.syncTransactions()
         }
     }
 
+    private fun setupStates() {
+        emptyStateBinding =
+                LayoutEmptyStateBinding.inflate(layoutInflater, binding.root as ViewGroup, false)
+        loadingStateBinding =
+                LayoutLoadingStateBinding.inflate(layoutInflater, binding.root as ViewGroup, false)
+        errorStateBinding =
+                LayoutErrorStateBinding.inflate(layoutInflater, binding.root as ViewGroup, false)
+
+        errorStateBinding?.btnRetry?.setOnClickListener { viewModel.retryLoad() }
+    }
+
     private fun setupRecycler() {
-        binding.recyclerTransactions.layoutManager =
-            LinearLayoutManager(requireContext())
+        binding.recyclerTransactions.layoutManager = LinearLayoutManager(requireContext())
     }
 
     private fun observeData() {
@@ -93,9 +101,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         viewModel.transactions.observe(viewLifecycleOwner) { transactions ->
             binding.recyclerTransactions.adapter =
-                TransactionAdapter(transactions) { transaction ->
-                    showTransactionDetailDialog(transaction)
-                }
+                    TransactionAdapter(transactions) { transaction ->
+                        showTransactionDetailDialog(transaction)
+                    }
 
             if (transactions.isNotEmpty()) showContentState()
 
@@ -118,7 +126,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         lifecycleScope.launch {
             val dao = AppDatabase.getDatabase(requireContext()).savingsGoalDao()
             currentSavingsGoal =
-                dao.getGoalForMonth(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR))
+                    dao.getGoalForMonth(calendar.get(Calendar.MONTH), calendar.get(Calendar.YEAR))
 
             updateGoalUI()
         }
@@ -138,18 +146,21 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding.markerLimit.visibility = View.VISIBLE
     }
 
-    private fun updateSavingsProgress(transactions: List<com.example.helloandroidcristofermunoz.data.model.Transaction>) {
+    private fun updateSavingsProgress(
+            transactions: List<com.example.helloandroidcristofermunoz.data.model.Transaction>
+    ) {
         val goal = currentSavingsGoal ?: return
 
         val calendar = Calendar.getInstance()
         val month = calendar.get(Calendar.MONTH)
         val year = calendar.get(Calendar.YEAR)
 
-        val monthly = transactions.filter {
-            val c = Calendar.getInstance()
-            c.timeInMillis = it.date
-            c.get(Calendar.MONTH) == month && c.get(Calendar.YEAR) == year
-        }
+        val monthly =
+                transactions.filter {
+                    val c = Calendar.getInstance()
+                    c.timeInMillis = it.date
+                    c.get(Calendar.MONTH) == month && c.get(Calendar.YEAR) == year
+                }
 
         val income = monthly.filter { it.type == "Ingreso" }.sumOf { it.amount }
         val expenses = monthly.filter { it.type == "Gasto" }.sumOf { it.amount }
@@ -158,10 +169,10 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val spentPercent = if (available > 0) (expenses / available * 100).toInt() else 100
 
         binding.txtAvailableBudget.text =
-            "Presupuesto: ${NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(available)}"
+                "Presupuesto: ${NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(available)}"
 
         binding.txtSpent.text =
-            "Gastado: ${NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(expenses)}"
+                "Gastado: ${NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(expenses)}"
 
         binding.progressSavings.progress = spentPercent.coerceAtMost(100)
     }
@@ -170,19 +181,17 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_set_goal, null)
         val edt = view.findViewById<EditText>(R.id.edtGoalAmount)
 
-        currentSavingsGoal?.let {
-            edt.setText(it.amount.toString())
-        }
+        currentSavingsGoal?.let { edt.setText(it.amount.toString()) }
 
         AlertDialog.Builder(requireContext())
-            .setTitle("Meta de ahorro")
-            .setView(view)
-            .setPositiveButton("Guardar") { _, _ ->
-                val amount = edt.text.toString().toDoubleOrNull() ?: return@setPositiveButton
-                saveGoal(amount)
-            }
-            .setNegativeButton("Cancelar", null)
-            .show()
+                .setTitle("Meta de ahorro")
+                .setView(view)
+                .setPositiveButton("Guardar") { _, _ ->
+                    val amount = edt.text.toString().toDoubleOrNull() ?: return@setPositiveButton
+                    saveGoal(amount)
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
     }
 
     private fun saveGoal(amount: Double) {
@@ -194,11 +203,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
             if (goal == null) {
                 dao.insert(
-                    SavingsGoal(
-                        amount = amount,
-                        month = calendar.get(Calendar.MONTH),
-                        year = calendar.get(Calendar.YEAR)
-                    )
+                        SavingsGoal(
+                                amount = amount,
+                                month = calendar.get(Calendar.MONTH),
+                                year = calendar.get(Calendar.YEAR)
+                        )
                 )
             } else {
                 dao.update(goal.copy(amount = amount))
@@ -208,39 +217,101 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
-    private fun showTransactionDetailDialog(transaction: com.example.helloandroidcristofermunoz.data.model.Transaction) {
+    private fun showTransactionDetailDialog(
+            transaction: com.example.helloandroidcristofermunoz.data.model.Transaction
+    ) {
+
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_transaction_detail_improved)
 
         dialog.findViewById<TextView>(R.id.txtDetailTitle).text = transaction.title
+
         dialog.findViewById<TextView>(R.id.txtDetailCategory).text = transaction.category
+
         dialog.findViewById<TextView>(R.id.txtDetailType).text = transaction.type
+
+        // BOTÓN EDITAR
+        dialog.findViewById<View>(R.id.btnEdit).setOnClickListener {
+            dialog.dismiss()
+
+            showEditDialog(transaction)
+        }
+
+        // BOTÓN ELIMINAR
+        dialog.findViewById<View>(R.id.btnDelete).setOnClickListener {
+            AlertDialog.Builder(requireContext())
+                    .setTitle("Eliminar transacción")
+                    .setMessage("¿Seguro que deseas eliminar esta transacción?")
+                    .setPositiveButton("Eliminar") { _, _ ->
+                        viewModel.deleteTransaction(transaction)
+
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton("Cancelar", null)
+                    .show()
+        }
 
         dialog.show()
     }
 
-    private fun showEditDialog(transaction: com.example.helloandroidcristofermunoz.data.model.Transaction) {
-        val view = LayoutInflater.from(requireContext())
-            .inflate(R.layout.fragment_add_transaction, null)
+    private fun showEditDialog(
+            transaction: com.example.helloandroidcristofermunoz.data.model.Transaction
+    ) {
 
+        val view =
+                LayoutInflater.from(requireContext())
+                        .inflate(R.layout.fragment_add_transaction, null)
+
+        val edtTitle = view.findViewById<EditText>(R.id.edtTitle)
+        val edtAmount = view.findViewById<EditText>(R.id.edtAmount)
+        val edtCategory = view.findViewById<EditText>(R.id.edtCategory)
         val radioGroup = view.findViewById<RadioGroup>(R.id.radioGroupType)
 
-        val type = when (radioGroup.checkedRadioButtonId) {
-            R.id.rbIncome -> "Ingreso"
-            R.id.rbExpense -> "Gasto"
-            else -> "Gasto"
+        // 🔥 RELLENAR DATOS
+        edtTitle.setText(transaction.title)
+        edtAmount.setText(transaction.amount.toString())
+        edtCategory.setText(transaction.category)
+
+        if (transaction.type == "Ingreso") {
+            radioGroup.check(R.id.rbIncome)
+        } else {
+            radioGroup.check(R.id.rbExpense)
         }
 
-        // Aquí ya puedes actualizar con ViewModel si quieres
+        AlertDialog.Builder(requireContext())
+                .setTitle("Editar transacción")
+                .setView(view)
+                .setPositiveButton("Guardar") { _, _ ->
+                    val type =
+                            when (radioGroup.checkedRadioButtonId) {
+                                R.id.rbIncome -> "Ingreso"
+                                else -> "Gasto"
+                            }
+
+                    val updated =
+                            transaction.copy(
+                                    title = edtTitle.text.toString(),
+                                    amount = edtAmount.text.toString().toDoubleOrNull() ?: 0.0,
+                                    category = edtCategory.text.toString(),
+                                    type = type,
+                                    updatedAt = System.currentTimeMillis()
+                            )
+
+                    viewModel.updateTransaction(updated)
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
     }
 
-    private fun showDeleteDialog(transaction: com.example.helloandroidcristofermunoz.data.model.Transaction) {
-        lifecycleScope.launch {
-            val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
-            dao.delete(transaction)
-            viewModel.retryLoad()
-        }
+    private fun showDeleteDialog(transaction: Transaction) {
+
+        AlertDialog.Builder(requireContext())
+                .setTitle("Eliminar")
+                .setMessage("¿Deseas eliminar esta transacción?")
+                .setPositiveButton("Sí") { _, _ -> viewModel.deleteTransaction(transaction) }
+                .setNegativeButton("Cancelar", null)
+                .show()
     }
 
     private fun showLoadingState() {

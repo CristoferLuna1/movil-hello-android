@@ -27,11 +27,19 @@ class HomeViewModel(private val repository: TransactionRepository) : ViewModel()
     val isEmpty: LiveData<Boolean> = _isEmpty
 
     init {
-        syncFirebase()
 
-        loadTransactions()
+        viewModelScope.launch {
+            repository.syncTransactions()
+
+            repository.allTransactions.collect { list ->
+                _transactions.value = list
+                _isEmpty.value = list.isEmpty()
+                _isLoading.value = false
+
+                calculateBalance(list)
+            }
+        }
     }
-
     private fun loadTransactions() {
 
         _isLoading.value = true
@@ -74,7 +82,8 @@ class HomeViewModel(private val repository: TransactionRepository) : ViewModel()
 
         viewModelScope.launch {
             try {
-                repository.getTransactionsByDateRange(startDate, endDate).collect { transactionList ->
+                repository.getTransactionsByDateRange(startDate, endDate).collect { transactionList
+                    ->
                     _transactions.value = transactionList
                     _isEmpty.value = transactionList.isEmpty()
                     _isLoading.value = false
@@ -84,6 +93,23 @@ class HomeViewModel(private val repository: TransactionRepository) : ViewModel()
                 _isLoading.value = false
                 _isError.value = true
             }
+        }
+    }
+    private fun observeTransactions() {
+        viewModelScope.launch {
+            repository.allTransactions.collect { list ->
+                _transactions.value = list
+                _isEmpty.value = list.isEmpty()
+                _isLoading.value = false
+                calculateBalance(list)
+            }
+        }
+    }
+    private fun syncAndLoad() {
+        viewModelScope.launch {
+            _isLoading.value = true
+
+            repository.syncTransactions()
         }
     }
 
@@ -114,6 +140,21 @@ class HomeViewModel(private val repository: TransactionRepository) : ViewModel()
     fun retryLoad() {
         loadTransactions()
     }
+
+    fun deleteTransaction(transaction: Transaction) {
+        viewModelScope.launch {
+            try {
+                repository.delete(transaction)
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error deleting transaction: ${e.message}")
+            }
+        }
+    }
+
+    fun updateTransaction(transaction: Transaction) {
+
+        viewModelScope.launch { repository.update(transaction) }
+    }
     // test api
 
     fun testApi() {
@@ -125,11 +166,4 @@ class HomeViewModel(private val repository: TransactionRepository) : ViewModel()
             }
         }
     }
-    private fun syncFirebase() {
-
-        viewModelScope.launch {
-             repository.syncTransactions() 
-        }
-    }
 }
-
