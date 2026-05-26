@@ -109,4 +109,10 @@
         android:name="com.example.helloandroidcristofermunoz.ui.profile.EditProfileFragment"
         android:label="EditProfile" />
 
+    <!-- CHANGE PASSWORD -->
+    <fragment
+        android:id="@+id/changePasswordFragment"
+        android:name="com.example.helloandroidcristofermunoz.ui.profile.ChangePasswordFragment"
+        android:label="ChangePassword" />
+
 </navigation>

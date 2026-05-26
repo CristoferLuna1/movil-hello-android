@@ -51,7 +51,8 @@ class ProfileFragment :
         }
 
         binding.btnChangePassword.setOnClickListener {
-            // TODO: Implementar cambio de contraseña
+            val action = ProfileFragmentDirections.actionProfileFragmentToChangePasswordFragment()
+            findNavController().navigate(action)
         }
 
         binding.btnSavingsSettings.setOnClickListener {
