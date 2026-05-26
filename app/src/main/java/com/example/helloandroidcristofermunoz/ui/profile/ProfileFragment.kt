@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.databinding.FragmentProfileBinding
 
@@ -48,6 +49,11 @@ class ProfileFragment :
 
         binding.btnNotifications.setOnClickListener {
             // TODO: Implementar configuración de notificaciones
+        }
+
+        binding.btnHistory.setOnClickListener {
+            val action = ProfileFragmentDirections.actionProfileFragmentToHistoryFragment()
+            findNavController().navigate(action)
         }
 
         binding.fabChangeImage.setOnClickListener {
