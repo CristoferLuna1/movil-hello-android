@@ -10,12 +10,17 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.data.AppDatabase
+import com.example.helloandroidcristofermunoz.data.dao.SavingsPlanDao
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
 import com.example.helloandroidcristofermunoz.databinding.FragmentHomeBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutEmptyStateBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutErrorStateBinding
 import com.example.helloandroidcristofermunoz.databinding.LayoutLoadingStateBinding
+import com.example.helloandroidcristofermunoz.utils.AmountFormatter
 import androidx.navigation.fragment.findNavController
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import java.util.Calendar
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -33,9 +38,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         HomeViewModelFactory(repository)
     }
 
+    private val savingsPlanDao: SavingsPlanDao by lazy {
+        AppDatabase.getDatabase(requireContext()).savingsPlanDao()
+    }
+
     private var emptyStateBinding: LayoutEmptyStateBinding? = null
     private var loadingStateBinding: LayoutLoadingStateBinding? = null
     private var errorStateBinding: LayoutErrorStateBinding? = null
+
+    private val currentUserId = 1 // TODO: Obtener del usuario actual
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -43,7 +54,42 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         setupStates()
         setupRecycler()
+        loadSavingsPlan()
         observeData()
+    }
+
+    private fun loadSavingsPlan() {
+        val calendar = Calendar.getInstance()
+        val currentMonthYear = calendar.get(Calendar.YEAR) * 100 + (calendar.get(Calendar.MONTH) + 1)
+
+        runBlocking {
+            val savingsPlan = savingsPlanDao.getActiveSavingsPlanForMonth(currentUserId, currentMonthYear)
+            
+            if (savingsPlan != null) {
+                val progress = ((savingsPlan.currentSaved / savingsPlan.monthlyGoal) * 100).toInt()
+                val availableWithoutSavings = savingsPlan.maxAmount - savingsPlan.currentSaved
+
+                binding.txtSavingsGoal.text = "Meta: $${AmountFormatter.format(savingsPlan.monthlyGoal)}"
+                binding.txtSavingsProgress.text = "${progress}%"
+                binding.progressSavings.progress = progress
+                binding.txtAvailableWithoutSavings.text = "Disponible sin tocar ahorro: $${AmountFormatter.format(availableWithoutSavings)}"
+
+                // Cambiar color de la barra según progreso
+                when {
+                    progress >= 90 -> binding.progressSavings.progressTintList = 
+                        android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F44336"))
+                    progress >= 70 -> binding.progressSavings.progressTintList = 
+                        android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#FF9800"))
+                    else -> binding.progressSavings.progressTintList = 
+                        android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#4CAF50"))
+                }
+            } else {
+                binding.txtSavingsGoal.text = "Sin plan de ahorro"
+                binding.txtSavingsProgress.text = "0%"
+                binding.progressSavings.progress = 0
+                binding.txtAvailableWithoutSavings.text = "Configura tu plan de ahorro"
+            }
+        }
     }
 
     private fun setupStates() {
@@ -90,6 +136,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             }
 
             binding.recyclerTransactions.adapter = adapter
+
+            // Calcular balance total
+            val balance = transactions.filter { it.type == "income" }
+                .sumOf { it.amount } - transactions.filter { it.type == "expense" }
+                .sumOf { it.amount }
+            
+            binding.txtBalance.text = "$${AmountFormatter.format(balance)}"
 
             if (transactions.isNotEmpty()) {
                 showContentState()
