@@ -42,7 +42,13 @@
     <fragment
         android:id="@+id/historyFragment"
         android:name="com.example.helloandroidcristofermunoz.ui.history.HistoryFragment"
-        android:label="History" />
+        android:label="History">
+
+        <argument
+            android:name="fromProfile"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </fragment>
 
     <!-- DETAIL (CLAVE) -->
     <fragment

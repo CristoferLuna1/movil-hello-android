@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.data.AppDatabase
@@ -30,9 +31,16 @@ class HistoryFragment : Fragment(R.layout.fragment_history) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHistoryBinding.bind(view)
 
+        setupToolbar()
         setupMonthSelector()
         setupRecycler()
         observeData()
+    }
+
+    private fun setupToolbar() {
+        binding.toolbarHistory.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
     }
 
     private fun setupMonthSelector() {
