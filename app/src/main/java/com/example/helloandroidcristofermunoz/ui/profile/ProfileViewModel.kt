@@ -22,10 +22,22 @@ class ProfileViewModel : ViewModel() {
         get() = _email
 
     init {
+        loadUserProfile()
+    }
 
-        _name.value = "Juan Pérez"
-
-        _email.value = "juan@email.com"
+    fun loadUserProfile() {
+        viewModelScope.launch {
+            try {
+                val userDao = AppDatabase.getDatabase(context).userDao()
+                val currentUser = userDao.getLoggedInUser()
+                currentUser?.let {
+                    _name.value = it.name
+                    _email.value = it.email
+                }
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
     }
 
     fun logout() {

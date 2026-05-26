@@ -20,9 +20,16 @@ class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
         _binding = FragmentEditProfileBinding.bind(view)
 
         viewModel.setContext(requireContext())
+        setupToolbar()
         setupListeners()
         observeData()
         loadCurrentProfile()
+    }
+
+    private fun setupToolbar() {
+        binding.toolbarEditProfile.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
     }
 
     private fun setupListeners() {

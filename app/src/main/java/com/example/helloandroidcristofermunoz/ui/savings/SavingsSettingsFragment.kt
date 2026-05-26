@@ -21,9 +21,16 @@ class SavingsSettingsFragment : Fragment(R.layout.fragment_savings_settings) {
         _binding = FragmentSavingsSettingsBinding.bind(view)
 
         viewModel.setContext(requireContext())
+        setupToolbar()
         setupListeners()
         observeData()
         loadCurrentSettings()
+    }
+
+    private fun setupToolbar() {
+        binding.toolbarSavingsSettings.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
     }
 
     private fun setupListeners() {

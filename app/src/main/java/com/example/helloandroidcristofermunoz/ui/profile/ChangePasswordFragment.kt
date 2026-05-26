@@ -20,8 +20,15 @@ class ChangePasswordFragment : Fragment(R.layout.fragment_change_password) {
         _binding = FragmentChangePasswordBinding.bind(view)
 
         viewModel.setContext(requireContext())
+        setupToolbar()
         setupListeners()
         observeData()
+    }
+
+    private fun setupToolbar() {
+        binding.toolbarChangePassword.setNavigationOnClickListener {
+            findNavController().navigateUp()
+        }
     }
 
     private fun setupListeners() {

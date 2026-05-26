@@ -78,29 +78,24 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     binding.txtSavingsProgress.text = "${progress}%"
                     binding.progressSavings.progress = progress
                     binding.txtAvailableWithoutSavings.text = "Disponible sin tocar ahorro: $${AmountFormatter.format(availableWithoutSavings)}"
+                    binding.cardSavings.visibility = View.VISIBLE
 
                     // Cambiar color de la barra según progreso
                     when {
-                        progress >= 90 -> binding.progressSavings.progressTintList = 
+                        progress >= 90 -> binding.progressSavings.progressTintList =
                             android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F44336"))
-                        progress >= 70 -> binding.progressSavings.progressTintList = 
+                        progress >= 70 -> binding.progressSavings.progressTintList =
                             android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#FF9800"))
-                        else -> binding.progressSavings.progressTintList = 
+                        else -> binding.progressSavings.progressTintList =
                             android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#4CAF50"))
                     }
                 } else {
-                    binding.txtSavingsGoal.text = "Sin plan de ahorro"
-                    binding.txtSavingsProgress.text = "0%"
-                    binding.progressSavings.progress = 0
-                    binding.txtAvailableWithoutSavings.text = "Configura tu plan de ahorro"
+                    binding.cardSavings.visibility = View.GONE
                 }
             }
         } catch (e: Exception) {
             // Manejar error silenciosamente para evitar cierre de app
-            binding.txtSavingsGoal.text = "Sin plan de ahorro"
-            binding.txtSavingsProgress.text = "0%"
-            binding.progressSavings.progress = 0
-            binding.txtAvailableWithoutSavings.text = "Configura tu plan de ahorro"
+            binding.cardSavings.visibility = View.GONE
         }
     }
 
