@@ -1,12 +1,20 @@
 package com.example.helloandroidcristofermunoz.ui.history
 
 import android.app.DatePickerDialog
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,15 +31,12 @@ import java.io.FileOutputStream
 import java.text.NumberFormat
 import java.util.Calendar
 import java.util.Locale
-
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import androidx.core.app.NotificationCompat
-import androidx.core.content.FileProvider
+import com.itextpdf.text.BaseColor
+import com.itextpdf.text.Element
+import com.itextpdf.text.Font
+import com.itextpdf.text.pdf.draw.LineSeparator
+import java.util.Date
+import java.text.SimpleDateFormat
 
 class HistoryFragment : Fragment(R.layout.fragment_history) {
 
@@ -167,58 +172,169 @@ class HistoryFragment : Fragment(R.layout.fragment_history) {
 
         try {
 
-            val transactions = viewModel.transactions.value ?: emptyList()
-
-            if (transactions.isEmpty()) {
-                Toast.makeText(requireContext(), "No hay transacciones", Toast.LENGTH_SHORT).show()
-                return
-            }
-
             val document = Document()
-
-            val downloads =
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
             val fileName = "Historial_${System.currentTimeMillis()}.pdf"
 
-            val file = File(downloads, fileName)
+            val file =
+                    File(
+                            requireContext().getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS),
+                            fileName
+                    )
 
             PdfWriter.getInstance(document, FileOutputStream(file))
 
             document.open()
 
-            document.add(Paragraph("Historial Financiero"))
-            document.add(Paragraph(" "))
+            // ===== FUENTES =====
 
-            transactions.forEach { transaction ->
-                val tipo = if (transaction.type == "Ingreso") "+" else "-"
+            val titleFont = Font(Font.FontFamily.HELVETICA, 24f, Font.BOLD, BaseColor(46, 125, 50))
 
-                val text =
-                        """
-                Título: ${transaction.title}
-                Categoría: ${transaction.category}
-                Tipo: ${transaction.type}
-                Monto: $tipo ${transaction.amount}
-                
-                """.trimIndent()
+            val subtitleFont = Font(Font.FontFamily.HELVETICA, 14f, Font.NORMAL, BaseColor.GRAY)
 
-                document.add(Paragraph(text))
+            val sectionFont = Font(Font.FontFamily.HELVETICA, 18f, Font.BOLD, BaseColor(33, 33, 33))
+
+            val normalFont = Font(Font.FontFamily.HELVETICA, 12f, Font.NORMAL, BaseColor.DARK_GRAY)
+
+            val incomeFont = Font(Font.FontFamily.HELVETICA, 14f, Font.BOLD, BaseColor(76, 175, 80))
+
+            val expenseFont =
+                    Font(Font.FontFamily.HELVETICA, 14f, Font.BOLD, BaseColor(244, 67, 54))
+
+            // ===== TITULO =====
+
+            val title = Paragraph("FinanTrack", titleFont)
+            title.alignment = Element.ALIGN_CENTER
+            title.spacingAfter = 6f
+
+            document.add(title)
+
+            val subtitle = Paragraph("Reporte financiero mensual", subtitleFont)
+
+            subtitle.alignment = Element.ALIGN_CENTER
+            subtitle.spacingAfter = 30f
+
+            document.add(subtitle)
+
+            // ===== FECHA =====
+
+            val currentDate =
+                    java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", Locale("es", "CO"))
+                            .format(Date())
+
+            val generated = Paragraph("Generado el: $currentDate", normalFont)
+
+            generated.spacingAfter = 25f
+
+            document.add(generated)
+
+            // ===== RESUMEN =====
+
+            val resumen = Paragraph("Resumen del Mes", sectionFont)
+
+            resumen.spacingAfter = 15f
+
+            document.add(resumen)
+
+            val income = binding.txtMonthIncome.text.toString()
+            val expenses = binding.txtMonthExpenses.text.toString()
+            val balance = binding.txtMonthBalance.text.toString()
+
+            val incomeParagraph = Paragraph("Ingresos: $income", incomeFont)
+
+            incomeParagraph.spacingAfter = 8f
+
+            val expenseParagraph = Paragraph("Gastos: $expenses", expenseFont)
+
+            expenseParagraph.spacingAfter = 8f
+
+            val balanceParagraph = Paragraph("Balance Total: $balance", sectionFont)
+
+            balanceParagraph.spacingAfter = 30f
+
+            document.add(incomeParagraph)
+            document.add(expenseParagraph)
+            document.add(balanceParagraph)
+
+            // ===== TRANSACCIONES =====
+
+            val transactionsTitle = Paragraph("Transacciones", sectionFont)
+
+            transactionsTitle.spacingAfter = 15f
+
+            document.add(transactionsTitle)
+
+            val transactions = viewModel.transactions.value ?: emptyList()
+
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale("es", "CO"))
+
+            transactions.forEachIndexed { index, transaction ->
+                val symbol = if (transaction.type == "Ingreso") "＋" else "－"
+
+                val amount =
+                        NumberFormat.getCurrencyInstance(Locale("es", "CO"))
+                                .format(transaction.amount)
+
+                val transactionFont = if (transaction.type == "Ingreso") incomeFont else expenseFont
+
+                val cardTitle = Paragraph("${index + 1}. ${transaction.title}", sectionFont)
+
+                cardTitle.spacingAfter = 4f
+
+                document.add(cardTitle)
+
+                document.add(Paragraph("Categoría: ${transaction.category}", normalFont))
+
+                document.add(Paragraph("Tipo: ${transaction.type}", normalFont))
+
+                document.add(
+                        Paragraph(
+                                "Fecha: ${
+                        dateFormat.format(
+                            Date(transaction.date)
+                        )
+                    }",
+                                normalFont
+                        )
+                )
+
+                val amountParagraph = Paragraph("Monto: $symbol $amount", transactionFont)
+
+                amountParagraph.spacingAfter = 15f
+
+                document.add(amountParagraph)
+
+                // Línea separadora
+                val separator = LineSeparator()
+                separator.lineColor = BaseColor(220, 220, 220)
+
+                document.add(separator)
+
                 document.add(Paragraph(" "))
             }
+
+            // ===== FOOTER =====
+
+            val footer = Paragraph("Generado automáticamente por FinanTrack", subtitleFont)
+
+            footer.alignment = Element.ALIGN_CENTER
+            footer.spacingBefore = 30f
+
+            document.add(footer)
 
             document.close()
 
             showPdfNotification(file)
 
-            Toast.makeText(requireContext(), "PDF guardado en Descargas", Toast.LENGTH_LONG).show()
+            Toast.makeText(requireContext(), "PDF exportado correctamente", Toast.LENGTH_LONG)
+                    .show()
         } catch (e: Exception) {
 
             e.printStackTrace()
 
-            Toast.makeText(requireContext(), "Error al generar PDF", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Error al exportar PDF", Toast.LENGTH_LONG).show()
         }
     }
-
     private fun showPdfNotification(file: File) {
 
         val channelId = "pdf_channel"
