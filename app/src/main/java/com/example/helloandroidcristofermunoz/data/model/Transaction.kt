@@ -35,8 +35,8 @@ data class Transaction(
     val isMonthlyPersistent: Boolean = false,
 
     // Mes y año de la transacción (formato: YYYYMM)
-    val monthYear: Int,
+    val monthYear: Int = 0,
 
     // ID del usuario que creó la transacción
-    val userId: Int
+    val userId: Int = 0
 )
