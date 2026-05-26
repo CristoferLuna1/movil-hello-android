@@ -62,33 +62,45 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val calendar = Calendar.getInstance()
         val currentMonthYear = calendar.get(Calendar.YEAR) * 100 + (calendar.get(Calendar.MONTH) + 1)
 
-        runBlocking {
-            val savingsPlan = savingsPlanDao.getActiveSavingsPlanForMonth(currentUserId, currentMonthYear)
-            
-            if (savingsPlan != null) {
-                val progress = ((savingsPlan.currentSaved / savingsPlan.monthlyGoal) * 100).toInt()
-                val availableWithoutSavings = savingsPlan.maxAmount - savingsPlan.currentSaved
+        try {
+            runBlocking {
+                val savingsPlan = savingsPlanDao.getActiveSavingsPlanForMonth(currentUserId, currentMonthYear)
+                
+                if (savingsPlan != null) {
+                    val progress = if (savingsPlan.monthlyGoal > 0) {
+                        ((savingsPlan.currentSaved / savingsPlan.monthlyGoal) * 100).toInt()
+                    } else {
+                        0
+                    }
+                    val availableWithoutSavings = savingsPlan.maxAmount - savingsPlan.currentSaved
 
-                binding.txtSavingsGoal.text = "Meta: $${AmountFormatter.format(savingsPlan.monthlyGoal)}"
-                binding.txtSavingsProgress.text = "${progress}%"
-                binding.progressSavings.progress = progress
-                binding.txtAvailableWithoutSavings.text = "Disponible sin tocar ahorro: $${AmountFormatter.format(availableWithoutSavings)}"
+                    binding.txtSavingsGoal.text = "Meta: $${AmountFormatter.format(savingsPlan.monthlyGoal)}"
+                    binding.txtSavingsProgress.text = "${progress}%"
+                    binding.progressSavings.progress = progress
+                    binding.txtAvailableWithoutSavings.text = "Disponible sin tocar ahorro: $${AmountFormatter.format(availableWithoutSavings)}"
 
-                // Cambiar color de la barra según progreso
-                when {
-                    progress >= 90 -> binding.progressSavings.progressTintList = 
-                        android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F44336"))
-                    progress >= 70 -> binding.progressSavings.progressTintList = 
-                        android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#FF9800"))
-                    else -> binding.progressSavings.progressTintList = 
-                        android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#4CAF50"))
+                    // Cambiar color de la barra según progreso
+                    when {
+                        progress >= 90 -> binding.progressSavings.progressTintList = 
+                            android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#F44336"))
+                        progress >= 70 -> binding.progressSavings.progressTintList = 
+                            android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#FF9800"))
+                        else -> binding.progressSavings.progressTintList = 
+                            android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#4CAF50"))
+                    }
+                } else {
+                    binding.txtSavingsGoal.text = "Sin plan de ahorro"
+                    binding.txtSavingsProgress.text = "0%"
+                    binding.progressSavings.progress = 0
+                    binding.txtAvailableWithoutSavings.text = "Configura tu plan de ahorro"
                 }
-            } else {
-                binding.txtSavingsGoal.text = "Sin plan de ahorro"
-                binding.txtSavingsProgress.text = "0%"
-                binding.progressSavings.progress = 0
-                binding.txtAvailableWithoutSavings.text = "Configura tu plan de ahorro"
             }
+        } catch (e: Exception) {
+            // Manejar error silenciosamente para evitar cierre de app
+            binding.txtSavingsGoal.text = "Sin plan de ahorro"
+            binding.txtSavingsProgress.text = "0%"
+            binding.progressSavings.progress = 0
+            binding.txtAvailableWithoutSavings.text = "Configura tu plan de ahorro"
         }
     }
 
