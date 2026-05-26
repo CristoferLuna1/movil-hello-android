@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.helloandroidcristofermunoz.data.model.Transaction
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
+import com.example.helloandroidcristofermunoz.utils.AmountFormatter
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class AddTransactionViewModel(
     private val repository: TransactionRepository
@@ -30,16 +32,23 @@ class AddTransactionViewModel(
     private val _categoryError = MutableLiveData<String?>()
     val categoryError: LiveData<String?> = _categoryError
 
+    private val _paymentDayError = MutableLiveData<String?>()
+    val paymentDayError: LiveData<String?> = _paymentDayError
+
     fun validateAndSaveTransaction(
         title: String,
         amount: String,
         category: String,
-        type: String
+        type: String,
+        paymentDay: String,
+        endDate: Long?,
+        isMonthlyPersistent: Boolean
     ) {
 
         _titleError.value = null
         _amountError.value = null
         _categoryError.value = null
+        _paymentDayError.value = null
 
         var isValid = true
 
@@ -58,16 +67,25 @@ class AddTransactionViewModel(
             isValid = false
         }
 
+        // Validar día de pago si es deuda mensual
+        if (isMonthlyPersistent && paymentDay.isBlank()) {
+            _paymentDayError.value = "El día de pago es requerido para deudas mensuales"
+            isValid = false
+        }
+
         if (!isValid) return
 
-        saveTransaction(title, amount, category, type)
+        saveTransaction(title, amount, category, type, paymentDay, endDate, isMonthlyPersistent)
     }
 
     private fun saveTransaction(
         title: String,
         amount: String,
         category: String,
-        type: String
+        type: String,
+        paymentDay: String,
+        endDate: Long?,
+        isMonthlyPersistent: Boolean
     ) {
 
         _isLoading.value = true
@@ -76,12 +94,24 @@ class AddTransactionViewModel(
 
             try {
 
+                val calendar = Calendar.getInstance()
+                val monthYear = calendar.get(Calendar.YEAR) * 100 + (calendar.get(Calendar.MONTH) + 1)
+
+                val parsedAmount = AmountFormatter.parse(amount)
+                val parsedPaymentDay = if (paymentDay.isNotBlank()) paymentDay.toIntOrNull() else null
+
                 val transaction = Transaction(
                     title = title,
-                    amount = amount.toDouble(),
+                    amount = parsedAmount,
                     category = category,
+                    customCategory = if (category == "Otro") category else null,
                     type = type,
-                    date = System.currentTimeMillis()
+                    date = System.currentTimeMillis(),
+                    paymentDay = parsedPaymentDay,
+                    endDate = endDate,
+                    isMonthlyPersistent = isMonthlyPersistent,
+                    monthYear = monthYear,
+                    userId = 1 // TODO: Obtener el ID del usuario actual
                 )
 
                 repository.insert(transaction)
