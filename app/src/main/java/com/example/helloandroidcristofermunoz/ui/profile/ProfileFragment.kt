@@ -46,7 +46,8 @@ class ProfileFragment :
 
     private fun setupListeners() {
         binding.btnEditProfile.setOnClickListener {
-            // TODO: Implementar edición de perfil
+            val action = ProfileFragmentDirections.actionProfileFragmentToEditProfileFragment()
+            findNavController().navigate(action)
         }
 
         binding.btnChangePassword.setOnClickListener {

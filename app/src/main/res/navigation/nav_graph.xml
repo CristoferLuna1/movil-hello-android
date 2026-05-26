@@ -103,4 +103,10 @@
         android:name="com.example.helloandroidcristofermunoz.ui.savings.SavingsSettingsFragment"
         android:label="SavingsSettings" />
 
+    <!-- EDIT PROFILE -->
+    <fragment
+        android:id="@+id/editProfileFragment"
+        android:name="com.example.helloandroidcristofermunoz.ui.profile.EditProfileFragment"
+        android:label="EditProfile" />
+
 </navigation>
