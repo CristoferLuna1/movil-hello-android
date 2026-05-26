@@ -46,18 +46,15 @@ class ProfileFragment :
 
     private fun setupListeners() {
         binding.btnEditProfile.setOnClickListener {
-            val action = ProfileFragmentDirections.actionProfileFragmentToEditProfileFragment()
-            findNavController().navigate(action)
+            findNavController().navigate(R.id.editProfileFragment)
         }
 
         binding.btnChangePassword.setOnClickListener {
-            val action = ProfileFragmentDirections.actionProfileFragmentToChangePasswordFragment()
-            findNavController().navigate(action)
+            findNavController().navigate(R.id.changePasswordFragment)
         }
 
         binding.btnSavingsSettings.setOnClickListener {
-            val action = ProfileFragmentDirections.actionProfileFragmentToSavingsSettingsFragment()
-            findNavController().navigate(action)
+            findNavController().navigate(R.id.savingsSettingsFragment)
         }
 
         binding.btnNotifications.setOnClickListener {
@@ -65,8 +62,7 @@ class ProfileFragment :
         }
 
         binding.btnHistory.setOnClickListener {
-            val action = ProfileFragmentDirections.actionProfileFragmentToHistoryFragment()
-            findNavController().navigate(action)
+            findNavController().navigate(R.id.historyFragment)
         }
 
         binding.fabChangeImage.setOnClickListener {
@@ -75,8 +71,7 @@ class ProfileFragment :
 
         binding.btnLogout.setOnClickListener {
             viewModel.logout()
-            val action = ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
-            findNavController().navigate(action)
+            findNavController().navigate(R.id.loginFragment)
         }
     }
 

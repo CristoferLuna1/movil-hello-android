@@ -5,6 +5,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.databinding.FragmentLoginBinding
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
@@ -30,8 +31,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         }
 
         binding.txtRegister.setOnClickListener {
-            val action = LoginFragmentDirections.actionLoginFragmentToRegisterFragment()
-            findNavController().navigate(action)
+            findNavController().navigate(R.id.registerFragment)
         }
     }
 
@@ -43,8 +43,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
         viewModel.isSuccess.observe(viewLifecycleOwner) { isSuccess ->
             if (isSuccess) {
-                val action = LoginFragmentDirections.actionLoginFragmentToHomeFragment()
-                findNavController().navigate(action)
+                findNavController().navigate(R.id.homeFragment)
                 viewModel.resetSuccessState()
             }
         }

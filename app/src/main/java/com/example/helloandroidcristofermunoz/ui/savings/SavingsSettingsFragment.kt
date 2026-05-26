@@ -5,6 +5,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.databinding.FragmentSavingsSettingsBinding
 import com.example.helloandroidcristofermunoz.utils.AmountFormatter
 
