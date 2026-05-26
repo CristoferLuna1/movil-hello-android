@@ -3,6 +3,9 @@ package com.example.helloandroidcristofermunoz.ui.statistics
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.helloandroidcristofermunoz.data.AppDatabase
+import kotlinx.coroutines.launch
 
 class StatisticsViewModel : ViewModel() {
 
@@ -19,15 +22,34 @@ class StatisticsViewModel : ViewModel() {
         get() = _expenses
 
     init {
-
-        loadStatistics()
+        // No cargar datos en init, esperar a que se establezca el context
     }
 
-    private fun loadStatistics() {
+    fun loadStatistics() {
+        viewModelScope.launch {
+            try {
+                val transactionDao = AppDatabase.getDatabase(context).transactionDao()
+                val userDao = AppDatabase.getDatabase(context).userDao()
+                val currentUser = userDao.getLoggedInUser()
 
-        // Datos temporales
-        _income.value = 2500000.0
+                if (currentUser != null) {
+                    val transactions = transactionDao.getAllTransactionsByUser(currentUser.id)
 
-        _expenses.value = 158000.0
+                    val income = transactions.filter { it.type == "income" }.sumOf { it.amount }
+                    val expenses = transactions.filter { it.type == "expense" }.sumOf { it.amount }
+
+                    _income.value = income
+                    _expenses.value = expenses
+                }
+            } catch (e: Exception) {
+                // Handle error
+            }
+        }
     }
+
+    fun setContext(context: android.content.Context) {
+        this.context = context
+    }
+
+    private lateinit var context: android.content.Context
 }

@@ -29,6 +29,8 @@ class StatisticsFragment :
 
         _binding = FragmentStatisticsBinding.bind(view)
 
+        viewModel.setContext(requireContext())
+        viewModel.loadStatistics()
         observeData()
     }
 
