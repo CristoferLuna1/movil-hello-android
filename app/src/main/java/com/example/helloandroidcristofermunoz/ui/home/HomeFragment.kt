@@ -190,8 +190,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         loadingStateBinding?.root?.visibility = View.VISIBLE
         emptyStateBinding?.root?.visibility = View.GONE
         errorStateBinding?.root?.visibility = View.GONE
-
-        (binding.root as ViewGroup).addView(loadingStateBinding?.root)
     }
 
     private fun showErrorState() {
@@ -201,8 +199,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         loadingStateBinding?.root?.visibility = View.GONE
         emptyStateBinding?.root?.visibility = View.GONE
         errorStateBinding?.root?.visibility = View.VISIBLE
-
-        (binding.root as ViewGroup).addView(errorStateBinding?.root)
     }
 
     private fun showEmptyState() {
@@ -212,8 +208,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         loadingStateBinding?.root?.visibility = View.GONE
         emptyStateBinding?.root?.visibility = View.VISIBLE
         errorStateBinding?.root?.visibility = View.GONE
-
-        (binding.root as ViewGroup).addView(emptyStateBinding?.root)
     }
 
     private fun showContentState() {

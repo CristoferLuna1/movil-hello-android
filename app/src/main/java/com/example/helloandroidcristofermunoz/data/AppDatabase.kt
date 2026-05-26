@@ -11,7 +11,7 @@ import com.example.helloandroidcristofermunoz.data.model.Transaction
 import com.example.helloandroidcristofermunoz.data.model.User
 import com.example.helloandroidcristofermunoz.data.model.SavingsPlan
 
-@Database(entities = [Transaction::class, User::class, SavingsPlan::class], version = 2)
+@Database(entities = [Transaction::class, User::class, SavingsPlan::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun userDao(): UserDao
