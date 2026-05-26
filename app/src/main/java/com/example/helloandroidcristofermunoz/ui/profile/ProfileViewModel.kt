@@ -22,7 +22,7 @@ class ProfileViewModel : ViewModel() {
         get() = _email
 
     init {
-        loadUserProfile()
+        // No cargar datos en init, esperar a que se establezca el context
     }
 
     fun loadUserProfile() {

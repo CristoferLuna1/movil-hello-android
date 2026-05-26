@@ -42,20 +42,38 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         AppDatabase.getDatabase(requireContext()).savingsPlanDao()
     }
 
+    private val userDao by lazy {
+        AppDatabase.getDatabase(requireContext()).userDao()
+    }
+
     private var emptyStateBinding: LayoutEmptyStateBinding? = null
     private var loadingStateBinding: LayoutLoadingStateBinding? = null
     private var errorStateBinding: LayoutErrorStateBinding? = null
 
-    private val currentUserId = 1 // TODO: Obtener del usuario actual
+    private var currentUserId = 1
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentHomeBinding.bind(view)
 
+        loadCurrentUser()
         setupStates()
         setupRecycler()
         loadSavingsPlan()
         observeData()
+    }
+
+    private fun loadCurrentUser() {
+        try {
+            runBlocking {
+                val currentUser = userDao.getLoggedInUser()
+                currentUser?.let {
+                    currentUserId = it.id
+                }
+            }
+        } catch (e: Exception) {
+            // Manejar error
+        }
     }
 
     private fun loadSavingsPlan() {

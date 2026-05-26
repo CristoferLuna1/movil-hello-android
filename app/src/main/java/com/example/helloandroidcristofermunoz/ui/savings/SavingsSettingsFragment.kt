@@ -34,6 +34,30 @@ class SavingsSettingsFragment : Fragment(R.layout.fragment_savings_settings) {
     }
 
     private fun setupListeners() {
+        binding.edtMonthlyIncome.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                calculateAvailable()
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        binding.edtFixedExpenses.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                calculateAvailable()
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
+        binding.edtMonthlyDebts.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                calculateAvailable()
+            }
+            override fun afterTextChanged(s: android.text.Editable?) {}
+        })
+
         binding.radioGroupSavingsType.setOnCheckedChangeListener { _, checkedId ->
             when (checkedId) {
                 R.id.rbMonthly -> {
@@ -71,11 +95,28 @@ class SavingsSettingsFragment : Fragment(R.layout.fragment_savings_settings) {
         })
 
         binding.btnSave.setOnClickListener {
+            val monthlyIncome = binding.edtMonthlyIncome.text.toString().trim()
+            val fixedExpenses = binding.edtFixedExpenses.text.toString().trim()
+            val monthlyDebts = binding.edtMonthlyDebts.text.toString().trim()
             val monthlyGoal = binding.edtMonthlyGoal.text.toString().trim()
-            val maxAmount = binding.edtMaxAmount.text.toString().trim()
             val months = binding.edtMonths.text.toString().trim()
             val isMultiMonth = binding.rbMultiMonth.isChecked
-            viewModel.saveSettings(monthlyGoal, maxAmount, months, isMultiMonth)
+            viewModel.saveSettings(monthlyIncome, fixedExpenses, monthlyDebts, monthlyGoal, months, isMultiMonth)
+        }
+    }
+
+    private fun calculateAvailable() {
+        val income = binding.edtMonthlyIncome.text.toString().trim()
+        val expenses = binding.edtFixedExpenses.text.toString().trim()
+        val debts = binding.edtMonthlyDebts.text.toString().trim()
+
+        if (income.isNotEmpty()) {
+            val incomeValue = AmountFormatter.parse(income)
+            val expensesValue = if (expenses.isNotEmpty()) AmountFormatter.parse(expenses) else 0.0
+            val debtsValue = if (debts.isNotEmpty()) AmountFormatter.parse(debts) else 0.0
+
+            val available = incomeValue - expensesValue - debtsValue
+            binding.txtAvailable.text = "Disponible para ahorro: $${AmountFormatter.format(available)}"
         }
     }
 

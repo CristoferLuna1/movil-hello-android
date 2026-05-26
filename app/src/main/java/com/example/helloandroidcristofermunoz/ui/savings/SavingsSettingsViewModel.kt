@@ -23,14 +23,14 @@ class SavingsSettingsViewModel : ViewModel() {
     private val _currentSettings = MutableLiveData<SavingsPlan?>()
     val currentSettings: LiveData<SavingsPlan?> = _currentSettings
 
-    fun saveSettings(monthlyGoal: String, maxAmount: String, months: String, isMultiMonth: Boolean) {
+    fun saveSettings(monthlyIncome: String, fixedExpenses: String, monthlyDebts: String, monthlyGoal: String, months: String, isMultiMonth: Boolean) {
         when {
-            monthlyGoal.isBlank() -> {
-                _errorMessage.value = "La meta de ahorro es requerida"
+            monthlyIncome.isBlank() -> {
+                _errorMessage.value = "Los ingresos mensuales son requeridos"
                 return
             }
-            maxAmount.isBlank() -> {
-                _errorMessage.value = "El monto máximo es requerido"
+            monthlyGoal.isBlank() -> {
+                _errorMessage.value = "La meta de ahorro es requerida"
                 return
             }
             isMultiMonth && months.isBlank() -> {
@@ -55,8 +55,13 @@ class SavingsSettingsViewModel : ViewModel() {
                     val calendar = java.util.Calendar.getInstance()
                     val monthYear = calendar.get(java.util.Calendar.YEAR) * 100 + (calendar.get(java.util.Calendar.MONTH) + 1)
 
+                    val parsedIncome = AmountFormatter.parse(monthlyIncome)
+                    val parsedExpenses = if (fixedExpenses.isNotEmpty()) AmountFormatter.parse(fixedExpenses) else 0.0
+                    val parsedDebts = if (monthlyDebts.isNotEmpty()) AmountFormatter.parse(monthlyDebts) else 0.0
                     val parsedMonthlyGoal = AmountFormatter.parse(monthlyGoal)
-                    val parsedMaxAmount = AmountFormatter.parse(maxAmount)
+
+                    // Calcular el disponible para ahorro
+                    val availableForSavings = parsedIncome - parsedExpenses - parsedDebts
 
                     // Si es multimonth, calcular el ahorro mensual
                     val finalMonthlyGoal = if (isMultiMonth) {
@@ -66,19 +71,26 @@ class SavingsSettingsViewModel : ViewModel() {
                         parsedMonthlyGoal
                     }
 
+                    // Validar que la meta no supere el disponible
+                    if (finalMonthlyGoal > availableForSavings) {
+                        _errorMessage.value = "La meta de ahorro supera tu disponible ($${AmountFormatter.format(availableForSavings)})"
+                        _isLoading.value = false
+                        return@launch
+                    }
+
                     val existingPlan = savingsPlanDao.getActiveSavingsPlanForMonth(currentUser.id, monthYear)
 
                     if (existingPlan != null) {
                         val updatedPlan = existingPlan.copy(
                             monthlyGoal = finalMonthlyGoal,
-                            maxAmount = parsedMaxAmount
+                            maxAmount = availableForSavings
                         )
                         savingsPlanDao.update(updatedPlan)
                     } else {
                         val newPlan = SavingsPlan(
                             userId = currentUser.id,
                             monthlyGoal = finalMonthlyGoal,
-                            maxAmount = parsedMaxAmount,
+                            maxAmount = availableForSavings,
                             currentSaved = 0.0,
                             monthYear = monthYear,
                             isActive = true

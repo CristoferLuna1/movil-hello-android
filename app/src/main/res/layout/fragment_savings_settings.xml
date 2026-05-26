@@ -29,7 +29,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Define tu meta de ahorro"
+                android:text="Configura tu plan de ahorro inteligente"
                 android:textSize="14sp"
                 android:textColor="#666"
                 android:layout_marginBottom="24dp"/>
@@ -37,9 +37,86 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="¿Cómo quieres configurar tu ahorro?"
+            android:text="Información financiera mensual"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilMonthlyIncome"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:errorEnabled="true"
+            app:prefixText="$">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtMonthlyIncome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Ingresos mensuales"
+                android:inputType="numberDecimal"
+                android:maxLines="1"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilFixedExpenses"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:errorEnabled="true"
+            app:prefixText="$">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtFixedExpenses"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Gastos fijos mensuales"
+                android:inputType="numberDecimal"
+                android:maxLines="1"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilMonthlyDebts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:errorEnabled="true"
+            app:prefixText="$">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtMonthlyDebts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Deudas mensuales"
+                android:inputType="numberDecimal"
+                android:maxLines="1"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/txtAvailable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Disponible para ahorro: $0"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#4CAF50"
+            android:layout_marginTop="16dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Meta de ahorro"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¿Cómo quieres configurar tu ahorro?"
+            android:textSize="14sp"
+            android:textColor="#666"
             android:layout_marginBottom="12dp"/>
 
         <RadioGroup
@@ -95,23 +172,6 @@
                 android:layout_height="wrap_content"
                 android:hint="Número de meses"
                 android:inputType="number"
-                android:maxLines="1"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilMaxAmount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:errorEnabled="true"
-            app:prefixText="$">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtMaxAmount"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Monto máximo disponible"
-                android:inputType="numberDecimal"
                 android:maxLines="1"/>
         </com.google.android.material.textfield.TextInputLayout>
 
