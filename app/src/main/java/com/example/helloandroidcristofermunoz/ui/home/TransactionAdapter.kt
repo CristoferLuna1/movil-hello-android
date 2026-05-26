@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.helloandroidcristofermunoz.data.model.Transaction
 import com.example.helloandroidcristofermunoz.databinding.ItemTransactionBinding
+import com.example.helloandroidcristofermunoz.utils.AmountFormatter
 
 class TransactionAdapter(
     private val transactions: List<Transaction>,
@@ -22,9 +23,9 @@ class TransactionAdapter(
             binding.txtCategory.text = transaction.category
 
             val amountText = if (transaction.type == "income") {
-                "+ $${transaction.amount}"
+                "+ $${AmountFormatter.format(transaction.amount)}"
             } else {
-                "- $${transaction.amount}"
+                "- $${AmountFormatter.format(transaction.amount)}"
             }
 
             binding.txtAmount.text = amountText

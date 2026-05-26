@@ -11,6 +11,7 @@ import androidx.navigation.fragment.navArgs
 import com.example.helloandroidcristofermunoz.data.AppDatabase
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
 import com.example.helloandroidcristofermunoz.databinding.FragmentTransactionDetailBinding
+import com.example.helloandroidcristofermunoz.utils.AmountFormatter
 
 class TransactionDetailFragment : Fragment() {
 
@@ -47,7 +48,7 @@ class TransactionDetailFragment : Fragment() {
 
             if (transaction != null) {
                 binding.txtTitle.text = transaction.title
-                binding.txtAmount.text = transaction.amount.toString()
+                binding.txtAmount.text = "$${AmountFormatter.format(transaction.amount)}"
                 binding.txtCategory.text = transaction.category
                 binding.txtType.text = transaction.type
             }
