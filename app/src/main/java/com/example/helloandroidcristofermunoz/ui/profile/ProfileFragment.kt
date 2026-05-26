@@ -54,7 +54,8 @@ class ProfileFragment :
         }
 
         binding.btnSavingsSettings.setOnClickListener {
-            // TODO: Implementar configuración de ahorro
+            val action = ProfileFragmentDirections.actionProfileFragmentToSavingsSettingsFragment()
+            findNavController().navigate(action)
         }
 
         binding.btnNotifications.setOnClickListener {

@@ -97,4 +97,10 @@
             app:argType="integer" />
     </fragment>
 
+    <!-- SAVINGS SETTINGS -->
+    <fragment
+        android:id="@+id/savingsSettingsFragment"
+        android:name="com.example.helloandroidcristofermunoz.ui.savings.SavingsSettingsFragment"
+        android:label="SavingsSettings" />
+
 </navigation>
