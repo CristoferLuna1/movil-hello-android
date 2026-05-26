@@ -16,7 +16,7 @@
         android:textSize="24sp"
         android:textStyle="bold"
         android:textColor="#212121"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -24,18 +24,18 @@
         android:text="Selecciona un mes para ver el resumen"
         android:textSize="14sp"
         android:textColor="#757575"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="16dp" />
 
-    <!-- Selector de mes con DatePicker -->
+    <!-- Selector de mes -->
     <LinearLayout
         android:id="@+id/monthSelector"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="16dp" />
 
-    <!-- Resumen del mes seleccionado -->
+    <!-- Resumen -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -50,6 +50,7 @@
             android:orientation="horizontal"
             android:padding="16dp">
 
+            <!-- Ingresos -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -62,7 +63,7 @@
                     android:layout_height="wrap_content"
                     android:text="Ingresos"
                     android:textSize="12sp"
-                    android:textColor="#757575"/>
+                    android:textColor="#757575" />
 
                 <TextView
                     android:id="@+id/txtMonthIncome"
@@ -72,15 +73,16 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="#4CAF50"
-                    android:layout_marginTop="4dp"/>
+                    android:layout_marginTop="4dp" />
 
             </LinearLayout>
 
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:background="#E0E0E0"/>
+                android:background="#E0E0E0" />
 
+            <!-- Gastos -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -93,7 +95,7 @@
                     android:layout_height="wrap_content"
                     android:text="Gastos"
                     android:textSize="12sp"
-                    android:textColor="#757575"/>
+                    android:textColor="#757575" />
 
                 <TextView
                     android:id="@+id/txtMonthExpenses"
@@ -103,15 +105,16 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="#F44336"
-                    android:layout_marginTop="4dp"/>
+                    android:layout_marginTop="4dp" />
 
             </LinearLayout>
 
             <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
-                android:background="#E0E0E0"/>
+                android:background="#E0E0E0" />
 
+            <!-- Balance -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -124,7 +127,7 @@
                     android:layout_height="wrap_content"
                     android:text="Balance"
                     android:textSize="12sp"
-                    android:textColor="#757575"/>
+                    android:textColor="#757575" />
 
                 <TextView
                     android:id="@+id/txtMonthBalance"
@@ -134,7 +137,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:textColor="#212121"
-                    android:layout_marginTop="4dp"/>
+                    android:layout_marginTop="4dp" />
 
             </LinearLayout>
 
@@ -142,10 +145,22 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Lista de transacciones del mes -->
+    <!-- Lista -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerHistory"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Botón exportar -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnExportPdf"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Exportar PDF"
+        android:layout_marginTop="12dp"
+        app:cornerRadius="12dp"
+        app:backgroundTint="#2E7D32"
+        app:icon="@android:drawable/ic_menu_save" />
 
 </LinearLayout>

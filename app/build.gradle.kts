@@ -91,4 +91,6 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
 
+    //PDF
+    implementation("com.itextpdf:itextg:5.5.10")
 }
