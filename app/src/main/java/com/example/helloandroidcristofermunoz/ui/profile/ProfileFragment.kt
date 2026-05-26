@@ -1,5 +1,6 @@
 package com.example.helloandroidcristofermunoz.ui.profile
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -28,7 +29,38 @@ class ProfileFragment :
         _binding =
             FragmentProfileBinding.bind(view)
 
+        setupListeners()
         observeData()
+    }
+
+    private fun setupListeners() {
+        binding.btnEditProfile.setOnClickListener {
+            // TODO: Implementar edición de perfil
+        }
+
+        binding.btnChangePassword.setOnClickListener {
+            // TODO: Implementar cambio de contraseña
+        }
+
+        binding.btnSavingsSettings.setOnClickListener {
+            // TODO: Implementar configuración de ahorro
+        }
+
+        binding.btnNotifications.setOnClickListener {
+            // TODO: Implementar configuración de notificaciones
+        }
+
+        binding.fabChangeImage.setOnClickListener {
+            // TODO: Implementar cambio de imagen de perfil
+            val intent = Intent(Intent.ACTION_PICK)
+            intent.type = "image/*"
+            startActivityForResult(intent, 1000)
+        }
+
+        binding.btnLogout.setOnClickListener {
+            // TODO: Implementar cierre de sesión
+            requireActivity().finish()
+        }
     }
 
     private fun observeData() {
