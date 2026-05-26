@@ -150,8 +150,9 @@ class SavingsSettingsFragment : Fragment(R.layout.fragment_savings_settings) {
 
         viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
-                binding.tilMonthlyGoal.error = if (it.contains("mensual")) it else null
-                binding.tilMaxAmount.error = if (it.contains("máximo")) it else null
+                binding.tilMonthlyGoal.error = if (it.contains("mensual") || it.contains("meta")) it else null
+                binding.tilMonthlyIncome.error = if (it.contains("ingresos")) it else null
+                binding.tilMonths.error = if (it.contains("meses")) it else null
                 viewModel.resetErrorState()
             }
         }
@@ -162,7 +163,6 @@ class SavingsSettingsFragment : Fragment(R.layout.fragment_savings_settings) {
         viewModel.currentSettings.observe(viewLifecycleOwner) { settings ->
             settings?.let {
                 binding.edtMonthlyGoal.setText(AmountFormatter.format(it.monthlyGoal))
-                binding.edtMaxAmount.setText(AmountFormatter.format(it.maxAmount))
             }
         }
     }
