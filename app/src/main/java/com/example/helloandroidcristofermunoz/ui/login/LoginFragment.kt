@@ -1,0 +1,65 @@
+package com.example.helloandroidcristofermunoz.ui.login
+
+import android.os.Bundle
+import android.view.View
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.example.helloandroidcristofermunoz.databinding.FragmentLoginBinding
+
+class LoginFragment : Fragment(R.layout.fragment_login) {
+
+    private var _binding: FragmentLoginBinding? = null
+    private val binding get() = _binding!!
+
+    private val viewModel: LoginViewModel by viewModels()
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        _binding = FragmentLoginBinding.bind(view)
+
+        setupListeners()
+        observeData()
+    }
+
+    private fun setupListeners() {
+        binding.btnLogin.setOnClickListener {
+            val email = binding.edtEmail.text.toString().trim()
+            val password = binding.edtPassword.text.toString().trim()
+            viewModel.login(email, password)
+        }
+
+        binding.txtRegister.setOnClickListener {
+            val action = LoginFragmentDirections.actionLoginFragmentToRegisterFragment()
+            findNavController().navigate(action)
+        }
+    }
+
+    private fun observeData() {
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.btnLogin.isEnabled = !isLoading
+        }
+
+        viewModel.isSuccess.observe(viewLifecycleOwner) { isSuccess ->
+            if (isSuccess) {
+                val action = LoginFragmentDirections.actionLoginFragmentToHomeFragment()
+                findNavController().navigate(action)
+                viewModel.resetSuccessState()
+            }
+        }
+
+        viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
+            errorMessage?.let {
+                binding.tilEmail.error = if (it.contains("email")) it else null
+                binding.tilPassword.error = if (it.contains("contraseña")) it else null
+                viewModel.resetErrorState()
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}

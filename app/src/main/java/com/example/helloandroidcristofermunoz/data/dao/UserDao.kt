@@ -35,4 +35,7 @@ interface UserDao {
     
     @Query("DELETE FROM users WHERE id = :id")
     suspend fun deleteById(id: Int)
+    
+    @Query("UPDATE users SET isLoggedIn = 0")
+    suspend fun logoutAll()
 }

@@ -12,6 +12,7 @@ data class User(
     val email: String,
     val password: String,
     
+    val isLoggedIn: Boolean = false,
     val profileImage: String? = null,
     val createdAt: Long = System.currentTimeMillis()
 )

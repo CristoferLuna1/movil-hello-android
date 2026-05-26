@@ -64,8 +64,9 @@ class ProfileFragment :
         }
 
         binding.btnLogout.setOnClickListener {
-            // TODO: Implementar cierre de sesión
-            requireActivity().finish()
+            viewModel.logout()
+            val action = ProfileFragmentDirections.actionProfileFragmentToLoginFragment()
+            findNavController().navigate(action)
         }
     }
 
