@@ -19,6 +19,7 @@ class ChangePasswordFragment : Fragment(R.layout.fragment_change_password) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentChangePasswordBinding.bind(view)
 
+        viewModel.setContext(requireContext())
         setupListeners()
         observeData()
     }

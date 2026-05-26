@@ -87,5 +87,9 @@ class EditProfileViewModel : ViewModel() {
         _errorMessage.value = null
     }
 
+    fun setContext(context: android.content.Context) {
+        this.context = context
+    }
+
     private lateinit var context: android.content.Context
 }

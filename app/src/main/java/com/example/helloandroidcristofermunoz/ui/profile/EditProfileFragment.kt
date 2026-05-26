@@ -19,6 +19,7 @@ class EditProfileFragment : Fragment(R.layout.fragment_edit_profile) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentEditProfileBinding.bind(view)
 
+        viewModel.setContext(requireContext())
         setupListeners()
         observeData()
         loadCurrentProfile()

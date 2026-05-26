@@ -19,6 +19,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentRegisterBinding.bind(view)
 
+        viewModel.setContext(requireContext())
         setupListeners()
         observeData()
     }

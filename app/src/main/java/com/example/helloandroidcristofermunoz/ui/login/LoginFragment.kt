@@ -19,6 +19,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentLoginBinding.bind(view)
 
+        viewModel.setContext(requireContext())
         setupListeners()
         observeData()
     }

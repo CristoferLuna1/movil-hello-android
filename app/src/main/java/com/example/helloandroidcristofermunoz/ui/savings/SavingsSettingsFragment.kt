@@ -20,6 +20,7 @@ class SavingsSettingsFragment : Fragment(R.layout.fragment_savings_settings) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentSavingsSettingsBinding.bind(view)
 
+        viewModel.setContext(requireContext())
         setupListeners()
         observeData()
         loadCurrentSettings()

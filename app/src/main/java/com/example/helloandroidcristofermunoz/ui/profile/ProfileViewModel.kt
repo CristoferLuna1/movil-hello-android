@@ -54,5 +54,9 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
+    fun setContext(context: android.content.Context) {
+        this.context = context
+    }
+
     private lateinit var context: android.content.Context
 }

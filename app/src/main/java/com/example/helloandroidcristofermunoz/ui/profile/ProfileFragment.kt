@@ -40,6 +40,7 @@ class ProfileFragment :
         _binding =
             FragmentProfileBinding.bind(view)
 
+        viewModel.setContext(requireContext())
         setupListeners()
         observeData()
     }

@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
+import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -24,6 +25,17 @@ class MainActivity : AppCompatActivity() {
 
         if (navController != null) {
             binding.bottomNavigation.setupWithNavController(navController)
+
+            navController.addOnDestinationChangedListener { _, destination, _ ->
+                when (destination.id) {
+                    R.id.loginFragment, R.id.registerFragment -> {
+                        binding.bottomNavigation.visibility = android.view.View.GONE
+                    }
+                    else -> {
+                        binding.bottomNavigation.visibility = android.view.View.VISIBLE
+                    }
+                }
+            }
         }
     }
 }
