@@ -36,6 +36,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
     }
 
     private var selectedCategory: String = ""
+    private var selectedPaymentDay: Int? = null
     private var selectedEndDate: Long? = null
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale("es", "CL"))
 
@@ -112,6 +113,26 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
     }
 
     private fun setupDatePicker() {
+        binding.edtPaymentDay.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val year = calendar.get(Calendar.YEAR)
+            val month = calendar.get(Calendar.MONTH)
+            val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+            val datePickerDialog = DatePickerDialog(
+                requireContext(),
+                { _, selectedYear, selectedMonth, selectedDay ->
+                    calendar.set(selectedYear, selectedMonth, selectedDay)
+                    selectedPaymentDay = selectedDay
+                    binding.edtPaymentDay.setText("$selectedDay de ${getMonthName(selectedMonth)} de $selectedYear")
+                },
+                year,
+                month,
+                day
+            )
+            datePickerDialog.show()
+        }
+
         binding.edtEndDate.setOnClickListener {
             val calendar = Calendar.getInstance()
             val year = calendar.get(Calendar.YEAR)
@@ -133,6 +154,14 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
         }
     }
 
+    private fun getMonthName(month: Int): String {
+        val months = arrayOf(
+            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        )
+        return months[month]
+    }
+
     private fun setupListeners() {
 
         binding.btnSave.setOnClickListener {
@@ -140,7 +169,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
             val title = binding.edtTitle.text.toString().trim()
             val amount = binding.edtAmount.text.toString().trim()
             val customCategory = binding.edtCustomCategory.text.toString().trim()
-            val paymentDay = binding.edtPaymentDay.text.toString().trim()
+            val paymentDay = if (selectedPaymentDay != null) selectedPaymentDay.toString() else ""
 
             val selectedTypeId =
                 binding.radioGroupType.checkedRadioButtonId
@@ -243,6 +272,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
         binding.spinnerCategory.setSelection(0)
         selectedCategory = Categories.PREDEFINED_CATEGORIES[0]
+        selectedPaymentDay = null
         selectedEndDate = null
 
         handleCategorySelection(selectedCategory)
