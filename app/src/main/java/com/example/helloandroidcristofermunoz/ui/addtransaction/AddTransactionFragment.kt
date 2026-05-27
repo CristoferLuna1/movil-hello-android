@@ -9,6 +9,7 @@ import android.widget.RadioButton
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.navArgs
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.data.AppDatabase
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
@@ -24,13 +25,19 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
     private var _binding: FragmentAddTransactionBinding? = null
     private val binding get() = _binding!!
 
+    private val args: AddTransactionFragmentArgs by navArgs()
+
     private val viewModel: AddTransactionViewModel by viewModels {
 
         val dao = AppDatabase
             .getDatabase(requireContext())
             .transactionDao()
 
-        val repository = TransactionRepository(dao)
+        val savingsDao = AppDatabase
+            .getDatabase(requireContext())
+            .savingsPlanDao()
+
+        val repository = TransactionRepository(dao, savingsDao)
 
         AddTransactionViewModelFactory(repository)
     }
@@ -39,17 +46,28 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
     private var selectedPaymentDay: Int? = null
     private var selectedEndDate: Long? = null
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale("es", "CL"))
+    private var isEditMode = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         _binding = FragmentAddTransactionBinding.bind(view)
 
+        isEditMode = args.transactionId != -1
+
         setupCategorySpinner()
         setupAmountFormatter()
         setupDatePicker()
         setupListeners()
         observeViewModel()
+
+        if (isEditMode) {
+            loadTransactionForEdit()
+        }
+    }
+
+    private fun loadTransactionForEdit() {
+        viewModel.loadTransaction(args.transactionId)
     }
 
     private fun setupCategorySpinner() {
@@ -100,12 +118,21 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
             override fun afterTextChanged(s: android.text.Editable?) {
                 if (s != null && s.isNotEmpty()) {
                     val text = s.toString()
-                    if (!text.contains(".") && !text.contains(",")) {
-                        val formatted = AmountFormatter.format(text.toDouble())
-                        binding.edtAmount.removeTextChangedListener(this)
-                        binding.edtAmount.setText(formatted)
-                        binding.edtAmount.setSelection(formatted.length)
-                        binding.edtAmount.addTextChangedListener(this)
+                    // Eliminar todos los puntos y comas para obtener el número limpio
+                    val cleanText = text.replace(".", "").replace(",", "")
+                    if (cleanText.isNotEmpty() && cleanText != "0") {
+                        try {
+                            val number = cleanText.toDouble()
+                            if (number > 0) {
+                                val formatted = AmountFormatter.format(number)
+                                binding.edtAmount.removeTextChangedListener(this)
+                                binding.edtAmount.setText(formatted)
+                                binding.edtAmount.setSelection(formatted.length)
+                                binding.edtAmount.addTextChangedListener(this)
+                            }
+                        } catch (e: Exception) {
+                            // Si hay error al convertir, no hacer nada
+                        }
                     }
                 }
             }
@@ -196,12 +223,47 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
                 type,
                 paymentDay,
                 selectedEndDate,
-                Categories.isMonthlyPersistent(selectedCategory)
+                Categories.isMonthlyPersistent(selectedCategory),
+                if (isEditMode) args.transactionId else -1
             )
         }
     }
 
     private fun observeViewModel() {
+
+        viewModel.transactionToEdit.observe(viewLifecycleOwner) { transaction ->
+            transaction?.let {
+                // Llenar el formulario con los datos de la transacción
+                binding.edtTitle.setText(it.title)
+                binding.edtAmount.setText(AmountFormatter.format(it.amount))
+                
+                // Seleccionar categoría
+                val categoryIndex = Categories.PREDEFINED_CATEGORIES.indexOf(it.category)
+                if (categoryIndex >= 0) {
+                    binding.spinnerCategory.setSelection(categoryIndex)
+                    selectedCategory = it.category
+                }
+                
+                // Seleccionar tipo
+                if (it.type == "income") {
+                    binding.rbIncome.isChecked = true
+                } else {
+                    binding.rbExpense.isChecked = true
+                }
+                
+                // Día de pago
+                it.paymentDay?.let { day ->
+                    selectedPaymentDay = day
+                    binding.edtPaymentDay.setText("$day de cada mes")
+                }
+                
+                // Fecha fin
+                it.endDate?.let { endDate ->
+                    selectedEndDate = endDate
+                    binding.edtEndDate.setText(dateFormat.format(java.util.Date(endDate)))
+                }
+            }
+        }
 
         viewModel.titleError.observe(viewLifecycleOwner) { error ->
 
@@ -237,11 +299,15 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
                 Toast.makeText(
                     requireContext(),
-                    "Transacción guardada exitosamente",
+                    if (isEditMode) "Transacción actualizada exitosamente" else "Transacción guardada exitosamente",
                     Toast.LENGTH_SHORT
                 ).show()
 
-                clearForm()
+                if (isEditMode) {
+                    requireActivity().onBackPressed()
+                } else {
+                    clearForm()
+                }
 
                 viewModel.resetSuccessState()
             }

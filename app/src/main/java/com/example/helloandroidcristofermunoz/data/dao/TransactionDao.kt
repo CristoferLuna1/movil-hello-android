@@ -36,6 +36,9 @@ interface TransactionDao {
     @Delete
     suspend fun delete(transaction: Transaction)
     
+    @Query("DELETE FROM transactions WHERE id = :id")
+    suspend fun deleteById(id: Int)
+    
     @Query("DELETE FROM transactions WHERE userId = :userId AND monthYear = :monthYear")
     suspend fun deleteTransactionsByUserAndMonth(userId: Int, monthYear: Int)
 }

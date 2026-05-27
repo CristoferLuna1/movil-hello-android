@@ -18,4 +18,18 @@ class TransactionDetailViewModel(
             _transaction.postValue(result)
         }
     }
+
+    fun deleteTransaction(id: Int) {
+        viewModelScope.launch {
+            val transaction = repository.getTransactionById(id)
+            repository.deleteTransaction(id)
+            
+            // Si es una transacción de ahorro, decrementar las cuotas pagadas
+            transaction?.let {
+                if (it.category == "Ahorro") {
+                    repository.decrementSavingsInstallments(it.userId, it.monthYear, it.amount)
+                }
+            }
+        }
+    }
 }

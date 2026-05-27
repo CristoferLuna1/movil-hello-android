@@ -35,6 +35,16 @@ class AddTransactionViewModel(
     private val _paymentDayError = MutableLiveData<String?>()
     val paymentDayError: LiveData<String?> = _paymentDayError
 
+    private val _transactionToEdit = MutableLiveData<Transaction?>()
+    val transactionToEdit: LiveData<Transaction?> = _transactionToEdit
+
+    fun loadTransaction(id: Int) {
+        viewModelScope.launch {
+            val transaction = repository.getTransactionById(id)
+            _transactionToEdit.postValue(transaction)
+        }
+    }
+
     fun validateAndSaveTransaction(
         title: String,
         amount: String,
@@ -42,7 +52,8 @@ class AddTransactionViewModel(
         type: String,
         paymentDay: String,
         endDate: Long?,
-        isMonthlyPersistent: Boolean
+        isMonthlyPersistent: Boolean,
+        transactionId: Int = -1
     ) {
 
         _titleError.value = null
@@ -67,15 +78,15 @@ class AddTransactionViewModel(
             isValid = false
         }
 
-        // Validar día de pago si es deuda mensual
-        if (isMonthlyPersistent && paymentDay.isBlank()) {
+        // Validar día de pago solo para deudas mensuales (no para gastos fijos)
+        if (category == "Deudas Mensuales" && paymentDay.isBlank()) {
             _paymentDayError.value = "El día de pago es requerido para deudas mensuales"
             isValid = false
         }
 
         if (!isValid) return
 
-        saveTransaction(title, amount, category, type, paymentDay, endDate, isMonthlyPersistent)
+        saveTransaction(title, amount, category, type, paymentDay, endDate, isMonthlyPersistent, transactionId)
     }
 
     private fun saveTransaction(
@@ -85,7 +96,8 @@ class AddTransactionViewModel(
         type: String,
         paymentDay: String,
         endDate: Long?,
-        isMonthlyPersistent: Boolean
+        isMonthlyPersistent: Boolean,
+        transactionId: Int
     ) {
 
         _isLoading.value = true
@@ -100,21 +112,39 @@ class AddTransactionViewModel(
                 val parsedAmount = AmountFormatter.parse(amount)
                 val parsedPaymentDay = if (paymentDay.isNotBlank()) paymentDay.toIntOrNull() else null
 
-                val transaction = Transaction(
-                    title = title,
-                    amount = parsedAmount,
-                    category = category,
-                    customCategory = if (category == "Otro") category else null,
-                    type = type,
-                    date = System.currentTimeMillis(),
-                    paymentDay = parsedPaymentDay,
-                    endDate = endDate,
-                    isMonthlyPersistent = isMonthlyPersistent,
-                    monthYear = monthYear,
-                    userId = 1 // TODO: Obtener el ID del usuario actual
-                )
-
-                repository.insert(transaction)
+                if (transactionId != -1) {
+                    // Modo edición - actualizar transacción existente
+                    val existingTransaction = repository.getTransactionById(transactionId)
+                    existingTransaction?.let {
+                        val updatedTransaction = it.copy(
+                            title = title,
+                            amount = parsedAmount,
+                            category = category,
+                            customCategory = if (category == "Otro") category else null,
+                            type = type,
+                            paymentDay = parsedPaymentDay,
+                            endDate = endDate,
+                            isMonthlyPersistent = isMonthlyPersistent
+                        )
+                        repository.update(updatedTransaction)
+                    }
+                } else {
+                    // Modo creación - nueva transacción
+                    val transaction = Transaction(
+                        title = title,
+                        amount = parsedAmount,
+                        category = category,
+                        customCategory = if (category == "Otro") category else null,
+                        type = type,
+                        date = System.currentTimeMillis(),
+                        paymentDay = parsedPaymentDay,
+                        endDate = endDate,
+                        isMonthlyPersistent = isMonthlyPersistent,
+                        monthYear = monthYear,
+                        userId = 1 // TODO: Obtener el ID del usuario actual
+                    )
+                    repository.insert(transaction)
+                }
 
                 _isLoading.value = false
                 _isSuccess.value = true

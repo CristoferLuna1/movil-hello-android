@@ -21,7 +21,8 @@ class HistoryFragment : Fragment(R.layout.fragment_history) {
 
     private val viewModel: HistoryViewModel by viewModels {
         val dao = AppDatabase.getDatabase(requireContext()).transactionDao()
-        val repository = TransactionRepository(dao)
+        val savingsDao = AppDatabase.getDatabase(requireContext()).savingsPlanDao()
+        val repository = TransactionRepository(dao, savingsDao)
         HistoryViewModelFactory(repository)
     }
 

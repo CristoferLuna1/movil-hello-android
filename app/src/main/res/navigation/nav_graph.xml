@@ -47,7 +47,13 @@
     <fragment
         android:id="@+id/addTransactionFragment"
         android:name="com.example.helloandroidcristofermunoz.ui.addtransaction.AddTransactionFragment"
-        android:label="Add" />
+        android:label="Add">
+
+        <argument
+            android:name="transactionId"
+            android:defaultValue="-1"
+            app:argType="integer" />
+    </fragment>
 
     <!-- STATISTICS -->
     <fragment
@@ -95,6 +101,10 @@
         <argument
             android:name="transactionId"
             app:argType="integer" />
+
+        <action
+            android:id="@+id/action_transactionDetailFragment_to_addTransactionFragment"
+            app:destination="@id/addTransactionFragment" />
     </fragment>
 
     <!-- SAVINGS SETTINGS -->

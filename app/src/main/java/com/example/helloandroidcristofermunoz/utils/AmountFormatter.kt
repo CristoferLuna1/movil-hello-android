@@ -6,8 +6,11 @@ import java.util.Locale
 
 object AmountFormatter {
     
-    private val decimalFormat = DecimalFormat("#,###").apply {
-        decimalFormatSymbols = DecimalFormatSymbols(Locale("es", "CL"))
+    private val decimalFormat = DecimalFormat("#,##0").apply {
+        decimalFormatSymbols = DecimalFormatSymbols(Locale("es", "CL")).apply {
+            groupingSeparator = '.'
+            decimalSeparator = ','
+        }
     }
     
     fun format(amount: Double): String {

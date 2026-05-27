@@ -37,75 +37,67 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Información financiera mensual"
+            android:text="Información financiera mensual (calculada automáticamente)"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginBottom="12dp"/>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilMonthlyIncome"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:errorEnabled="true"
-            app:prefixText="$">
+            android:text="Ingresos: $0"
+            android:textSize="16sp"
+            android:id="@+id/txtIncome"
+            android:layout_marginBottom="8dp"/>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtMonthlyIncome"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Ingresos mensuales"
-                android:inputType="numberDecimal"
-                android:maxLines="1"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilFixedExpenses"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:errorEnabled="true"
-            app:prefixText="$">
+            android:text="Gastos fijos: $0"
+            android:textSize="16sp"
+            android:id="@+id/txtFixedExpenses"
+            android:layout_marginBottom="8dp"/>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtFixedExpenses"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Gastos fijos mensuales"
-                android:inputType="numberDecimal"
-                android:maxLines="1"/>
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilMonthlyDebts"
-            android:layout_width="match_parent"
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            app:errorEnabled="true"
-            app:prefixText="$">
+            android:text="Deudas mensuales: $0"
+            android:textSize="16sp"
+            android:id="@+id/txtMonthlyDebts"
+            android:layout_marginBottom="8dp"/>
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/edtMonthlyDebts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Deudas mensuales"
-                android:inputType="numberDecimal"
-                android:maxLines="1"/>
-        </com.google.android.material.textfield.TextInputLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Deudas únicas este mes: $0"
+            android:textSize="16sp"
+            android:id="@+id/txtOneTimeDebts"
+            android:layout_marginBottom="8dp"/>
 
         <TextView
             android:id="@+id/txtAvailable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Disponible para ahorro: $0"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#4CAF50"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/txtRecommendedSavings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ahorro recomendado este mes: $0"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#2196F3"
+            android:layout_marginTop="8dp"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Meta de ahorro"
+            android:text="Meta de ahorro total"
             android:textSize="16sp"
             android:textStyle="bold"
             android:layout_marginTop="24dp"
@@ -153,7 +145,7 @@
                 android:id="@+id/edtMonthlyGoal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Meta mensual de ahorro"
+                android:hint="Meta total de ahorro"
                 android:inputType="numberDecimal"
                 android:maxLines="1"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -192,6 +184,14 @@
             android:layout_height="wrap_content"
             android:text="Guardar configuración"
             android:layout_marginTop="24dp"/>
+
+        <Button
+            android:id="@+id/btnCancelPlan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cancelar plan de ahorro"
+            android:backgroundTint="#F44336"
+            android:layout_marginTop="8dp"/>
 
         <ProgressBar
             android:id="@+id/progressBar"
