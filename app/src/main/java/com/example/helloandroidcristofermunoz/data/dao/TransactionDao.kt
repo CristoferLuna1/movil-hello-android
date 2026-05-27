@@ -15,6 +15,15 @@ interface TransactionDao {
     @Query("SELECT * FROM transactions ORDER BY date DESC")
     fun getAllTransactions(): Flow<List<Transaction>>
 
+    @Query("SELECT * FROM transactions WHERE userId = :userId ORDER BY date DESC")
+    fun getTransactionsByUser(userId: Int): Flow<List<Transaction>>
+
+    @Query("SELECT * FROM transactions WHERE userId = :userId")
+    suspend fun getAllTransactionsByUser(userId: Int): List<Transaction>
+
+    @Query("SELECT * FROM transactions WHERE userId = :userId AND monthYear = :monthYear ORDER BY date DESC")
+    fun getTransactionsByUserAndMonth(userId: Int, monthYear: Int): Flow<List<Transaction>>
+
     @Query("SELECT * FROM transactions WHERE id = :id")
     suspend fun getTransactionById(id: Int): Transaction?
 
@@ -26,4 +35,10 @@ interface TransactionDao {
 
     @Delete
     suspend fun delete(transaction: Transaction)
+    
+    @Query("DELETE FROM transactions WHERE id = :id")
+    suspend fun deleteById(id: Int)
+    
+    @Query("DELETE FROM transactions WHERE userId = :userId AND monthYear = :monthYear")
+    suspend fun deleteTransactionsByUserAndMonth(userId: Int, monthYear: Int)
 }

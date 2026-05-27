@@ -1,0 +1,18 @@
+package com.example.helloandroidcristofermunoz.data.model
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "users")
+data class User(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    
+    val name: String,
+    val email: String,
+    val password: String,
+    
+    val isLoggedIn: Boolean = false,
+    val profileImage: String? = null,
+    val createdAt: Long = System.currentTimeMillis()
+)

@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.databinding.FragmentStatisticsBinding
+import com.example.helloandroidcristofermunoz.utils.AmountFormatter
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
@@ -29,85 +30,85 @@ class StatisticsFragment :
 
         _binding = FragmentStatisticsBinding.bind(view)
 
+        viewModel.setContext(requireContext())
+        viewModel.loadStatistics()
         observeData()
     }
 
     private fun observeData() {
 
         viewModel.income.observe(viewLifecycleOwner) { income ->
-
-            binding.txtIncome.text = "$ $income"
-
-            val expenses =
-                viewModel.expenses.value ?: 0.0
-
-            setupChart(
-                income.toFloat(),
-                expenses.toFloat()
-            )
+            binding.txtIncome.text = "$${AmountFormatter.format(income)}"
+            updateChart()
         }
 
         viewModel.expenses.observe(viewLifecycleOwner) { expenses ->
+            binding.txtExpenses.text = "$${AmountFormatter.format(expenses)}"
+            updateChart()
+        }
 
-            binding.txtExpenses.text = "$ $expenses"
+        viewModel.balance.observe(viewLifecycleOwner) { balance ->
+            binding.txtBalance.text = "Balance: $${AmountFormatter.format(balance)}"
+        }
 
-            val income =
-                viewModel.income.value ?: 0.0
-
-            setupChart(
-                income.toFloat(),
-                expenses.toFloat()
-            )
+        viewModel.categoryExpenses.observe(viewLifecycleOwner) { categoryExpenses ->
+            updateCategoryChart(categoryExpenses)
         }
     }
 
-    private fun setupChart(
-        income: Float,
-        expenses: Float
-    ) {
+    private fun updateChart() {
+        val income = viewModel.income.value?.toFloat() ?: 0f
+        val expenses = viewModel.expenses.value?.toFloat() ?: 0f
 
         val entries = arrayListOf(
-
-            PieEntry(
-                income,
-                "Ingresos"
-            ),
-
-            PieEntry(
-                expenses,
-                "Gastos"
-            )
+            PieEntry(income, "Ingresos"),
+            PieEntry(expenses, "Gastos")
         )
 
-        val dataSet =
-            PieDataSet(entries, "Finanzas")
-
+        val dataSet = PieDataSet(entries, "Finanzas")
         dataSet.valueTextSize = 14f
-        
         dataSet.colors = listOf(
             android.graphics.Color.parseColor("#4CAF50"),
             android.graphics.Color.parseColor("#F44336")
         )
 
         val data = PieData(dataSet)
-
         binding.pieChart.data = data
-
         binding.pieChart.description.isEnabled = false
-
         binding.pieChart.centerText = "Resumen"
-
         binding.pieChart.setEntryLabelTextSize(14f)
-
         binding.pieChart.animateY(1000)
-
         binding.pieChart.invalidate()
     }
 
+    private fun updateCategoryChart(categoryExpenses: Map<String, Double>) {
+        val entries = categoryExpenses.map { (category, amount) ->
+            PieEntry(amount.toFloat(), category)
+        }
+
+        if (entries.isNotEmpty()) {
+            val dataSet = PieDataSet(entries, "Gastos por Categoría")
+            dataSet.valueTextSize = 12f
+            dataSet.colors = listOf(
+                android.graphics.Color.parseColor("#F44336"),
+                android.graphics.Color.parseColor("#FF9800"),
+                android.graphics.Color.parseColor("#FFC107"),
+                android.graphics.Color.parseColor("#9C27B0"),
+                android.graphics.Color.parseColor("#2196F3")
+            )
+
+            val data = PieData(dataSet)
+            binding.categoryPieChart.data = data
+            binding.categoryPieChart.description.isEnabled = false
+            binding.categoryPieChart.centerText = "Categorías"
+            binding.categoryPieChart.setEntryLabelTextSize(12f)
+            binding.categoryPieChart.animateY(1000)
+            binding.categoryPieChart.invalidate()
+        }
+    }
+
     override fun onDestroyView() {
-
         super.onDestroyView()
-
         _binding = null
     }
 }

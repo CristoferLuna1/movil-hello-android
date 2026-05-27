@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.helloandroidcristofermunoz.data.model.Transaction
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
+import com.example.helloandroidcristofermunoz.utils.AmountFormatter
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class AddTransactionViewModel(
     private val repository: TransactionRepository
@@ -30,16 +32,34 @@ class AddTransactionViewModel(
     private val _categoryError = MutableLiveData<String?>()
     val categoryError: LiveData<String?> = _categoryError
 
+    private val _paymentDayError = MutableLiveData<String?>()
+    val paymentDayError: LiveData<String?> = _paymentDayError
+
+    private val _transactionToEdit = MutableLiveData<Transaction?>()
+    val transactionToEdit: LiveData<Transaction?> = _transactionToEdit
+
+    fun loadTransaction(id: Int) {
+        viewModelScope.launch {
+            val transaction = repository.getTransactionById(id)
+            _transactionToEdit.postValue(transaction)
+        }
+    }
+
     fun validateAndSaveTransaction(
         title: String,
         amount: String,
         category: String,
-        type: String
+        type: String,
+        paymentDay: String,
+        endDate: Long?,
+        isMonthlyPersistent: Boolean,
+        transactionId: Int = -1
     ) {
 
         _titleError.value = null
         _amountError.value = null
         _categoryError.value = null
+        _paymentDayError.value = null
 
         var isValid = true
 
@@ -58,16 +78,26 @@ class AddTransactionViewModel(
             isValid = false
         }
 
+        // Validar día de pago solo para deudas mensuales (no para gastos fijos)
+        if (category == "Deudas Mensuales" && paymentDay.isBlank()) {
+            _paymentDayError.value = "El día de pago es requerido para deudas mensuales"
+            isValid = false
+        }
+
         if (!isValid) return
 
-        saveTransaction(title, amount, category, type)
+        saveTransaction(title, amount, category, type, paymentDay, endDate, isMonthlyPersistent, transactionId)
     }
 
     private fun saveTransaction(
         title: String,
         amount: String,
         category: String,
-        type: String
+        type: String,
+        paymentDay: String,
+        endDate: Long?,
+        isMonthlyPersistent: Boolean,
+        transactionId: Int
     ) {
 
         _isLoading.value = true
@@ -76,15 +106,45 @@ class AddTransactionViewModel(
 
             try {
 
-                val transaction = Transaction(
-                    title = title,
-                    amount = amount.toDouble(),
-                    category = category,
-                    type = type,
-                    date = System.currentTimeMillis()
-                )
+                val calendar = Calendar.getInstance()
+                val monthYear = calendar.get(Calendar.YEAR) * 100 + (calendar.get(Calendar.MONTH) + 1)
 
-                repository.insert(transaction)
+                val parsedAmount = AmountFormatter.parse(amount)
+                val parsedPaymentDay = if (paymentDay.isNotBlank()) paymentDay.toIntOrNull() else null
+
+                if (transactionId != -1) {
+                    // Modo edición - actualizar transacción existente
+                    val existingTransaction = repository.getTransactionById(transactionId)
+                    existingTransaction?.let {
+                        val updatedTransaction = it.copy(
+                            title = title,
+                            amount = parsedAmount,
+                            category = category,
+                            customCategory = if (category == "Otro") category else null,
+                            type = type,
+                            paymentDay = parsedPaymentDay,
+                            endDate = endDate,
+                            isMonthlyPersistent = isMonthlyPersistent
+                        )
+                        repository.update(updatedTransaction)
+                    }
+                } else {
+                    // Modo creación - nueva transacción
+                    val transaction = Transaction(
+                        title = title,
+                        amount = parsedAmount,
+                        category = category,
+                        customCategory = if (category == "Otro") category else null,
+                        type = type,
+                        date = System.currentTimeMillis(),
+                        paymentDay = parsedPaymentDay,
+                        endDate = endDate,
+                        isMonthlyPersistent = isMonthlyPersistent,
+                        monthYear = monthYear,
+                        userId = 1 // TODO: Obtener el ID del usuario actual
+                    )
+                    repository.insert(transaction)
+                }
 
                 _isLoading.value = false
                 _isSuccess.value = true

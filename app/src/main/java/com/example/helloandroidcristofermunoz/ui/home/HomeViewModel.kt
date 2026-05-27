@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import com.example.helloandroidcristofermunoz.data.model.Transaction
 import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class HomeViewModel(
     private val repository: TransactionRepository
@@ -21,6 +22,8 @@ class HomeViewModel(
     private val _isEmpty = MutableLiveData<Boolean>()
     val isEmpty: LiveData<Boolean> = _isEmpty
 
+    private val currentUserId = 1 // TODO: Obtener del usuario actual
+
     init {
         loadTransactions()
     }
@@ -36,8 +39,16 @@ class HomeViewModel(
 
                 repository.allTransactions.collect { transactionList ->
 
-                    _transactions.value = transactionList
-                    _isEmpty.value = transactionList.isEmpty()
+                    val calendar = Calendar.getInstance()
+                    val currentMonthYear = calendar.get(Calendar.YEAR) * 100 + (calendar.get(Calendar.MONTH) + 1)
+
+                    val filteredTransactions = transactionList.filter { 
+                        it.userId == currentUserId && 
+                        it.monthYear == currentMonthYear 
+                    }
+
+                    _transactions.value = filteredTransactions
+                    _isEmpty.value = filteredTransactions.isEmpty()
                     _isLoading.value = false
                 }
 
