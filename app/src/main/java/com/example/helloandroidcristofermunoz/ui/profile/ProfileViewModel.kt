@@ -1,74 +1,74 @@
 package com.example.helloandroidcristofermunoz.ui.profile
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.helloandroidcristofermunoz.data.AppDatabase
+import androidx.lifecycle.*
+import com.example.helloandroidcristofermunoz.data.repository.UserRepository
 import kotlinx.coroutines.launch
 
-class ProfileViewModel : ViewModel() {
+class ProfileViewModel(private val userRepository: UserRepository) : ViewModel() {
 
-    private val _name =
-        MutableLiveData<String>()
+    private val _name = MutableLiveData<String>()
+    val name: LiveData<String> = _name
 
-    val name: LiveData<String>
-        get() = _name
+    private val _email = MutableLiveData<String>()
+    val email: LiveData<String> = _email
 
-    private val _email =
-        MutableLiveData<String>()
+    private val _isLoggedIn = MutableLiveData<Boolean>()
+    val isLoggedIn: LiveData<Boolean> = _isLoggedIn
 
-    val email: LiveData<String>
-        get() = _email
+    private val _isLoggingOut = MutableLiveData<Boolean>()
+    val isLoggingOut: LiveData<Boolean> = _isLoggingOut
 
     init {
-        // No cargar datos en init, esperar a que se establezca el context
+        loadUserProfile()
     }
 
     fun loadUserProfile() {
         viewModelScope.launch {
             try {
-                val userDao = AppDatabase.getDatabase(context).userDao()
-                val currentUser = userDao.getLoggedInUser()
-                currentUser?.let {
-                    _name.value = it.name
-                    _email.value = it.email
+                val user = userRepository.getLoggedInUser()
+
+                if (user != null) {
+                    _name.value = user.name
+                    _email.value = user.email
+                    _isLoggedIn.value = true
+                } else {
+                    _isLoggedIn.value = false
+                    _name.value = "Invitado"
+                    _email.value = "No ha iniciado sesión"
                 }
             } catch (e: Exception) {
-                // Handle error
+                _isLoggedIn.value = false
+                _name.value = "Error"
+                _email.value = "Error al cargar perfil"
             }
         }
     }
 
     fun logout() {
         viewModelScope.launch {
+            _isLoggingOut.value = true
+
             try {
-                val userDao = AppDatabase.getDatabase(context).userDao()
-                userDao.logoutAll()
-            } catch (e: Exception) {
-                // Handle error
+                userRepository.logout()
+
+                _isLoggedIn.value = false
+                _name.value = "Invitado"
+                _email.value = "No ha iniciado sesión"
+            } finally {
+                _isLoggingOut.value = false
             }
         }
     }
 
-    fun updateProfileImage(imageUri: String) {
+    fun refreshProfile() {
+        loadUserProfile()
+    }
+    fun updateProfileImage(url: String) {
         viewModelScope.launch {
-            try {
-                val userDao = AppDatabase.getDatabase(context).userDao()
-                val currentUser = userDao.getLoggedInUser()
-                currentUser?.let {
-                    val updatedUser = it.copy(profileImage = imageUri)
-                    userDao.update(updatedUser)
-                }
-            } catch (e: Exception) {
-                // Handle error
+            val user = userRepository.getLoggedInUser()
+            if (user != null) {
+                userRepository.updateUser(user.copy(profileImage = url))
             }
         }
     }
-
-    fun setContext(context: android.content.Context) {
-        this.context = context
-    }
-
-    private lateinit var context: android.content.Context
 }

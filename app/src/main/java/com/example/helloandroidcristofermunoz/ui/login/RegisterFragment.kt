@@ -3,25 +3,29 @@ package com.example.helloandroidcristofermunoz.ui.login
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.databinding.FragmentRegisterBinding
+import com.example.helloandroidcristofermunoz.ui.register.RegisterViewModel
+import com.example.helloandroidcristofermunoz.data.AppDatabase
+import com.example.helloandroidcristofermunoz.data.repository.UserRepository
 
 class RegisterFragment : Fragment(R.layout.fragment_register) {
 
     private var _binding: FragmentRegisterBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
 
-    private val viewModel: RegisterViewModel by viewModels()
+    private lateinit var viewModel: RegisterViewModel
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentRegisterBinding.bind(view)
 
-        viewModel.setContext(requireContext())
-        setupListeners()
-        observeData()
+        val dao = AppDatabase.getDatabase(requireContext()).userDao()
+        val repository = UserRepository(dao)
+
+        viewModel = RegisterViewModel(repository)
     }
 
     private fun setupListeners() {
@@ -30,12 +34,10 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
             val email = binding.edtEmail.text.toString().trim()
             val password = binding.edtPassword.text.toString().trim()
             val confirmPassword = binding.edtConfirmPassword.text.toString().trim()
-            viewModel.register(name, email, password, confirmPassword)
+            viewModel.validateAndRegister(name, email, password, confirmPassword)
         }
 
-        binding.txtLogin.setOnClickListener {
-            findNavController().navigate(R.id.loginFragment)
-        }
+        binding.txtLogin.setOnClickListener { findNavController().navigate(R.id.loginFragment) }
     }
 
     private fun observeData() {

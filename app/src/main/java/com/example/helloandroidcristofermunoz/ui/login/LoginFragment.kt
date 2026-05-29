@@ -7,19 +7,28 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.databinding.FragmentLoginBinding
+import com.example.helloandroidcristofermunoz.data.repository.UserRepository
+import com.example.helloandroidcristofermunoz.data.AppDatabase
+
 
 class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: LoginViewModel by viewModels()
+    // ✔️ USANDO FACTORY CORRECTAMENTE
+    private val viewModel: LoginViewModel by viewModels {
+        LoginViewModelFactory(
+            UserRepository(
+                AppDatabase.getDatabase(requireContext()).userDao()
+            )
+        )
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentLoginBinding.bind(view)
 
-        viewModel.setContext(requireContext())
         setupListeners()
         observeData()
     }
@@ -28,7 +37,7 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
         binding.btnLogin.setOnClickListener {
             val email = binding.edtEmail.text.toString().trim()
             val password = binding.edtPassword.text.toString().trim()
-            viewModel.login(email, password)
+            viewModel.validateAndLogin(email, password)
         }
 
         binding.txtRegister.setOnClickListener {
@@ -38,7 +47,8 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
     private fun observeData() {
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            binding.progressBar.visibility =
+                if (isLoading) View.VISIBLE else View.GONE
             binding.btnLogin.isEnabled = !isLoading
         }
 
@@ -51,8 +61,12 @@ class LoginFragment : Fragment(R.layout.fragment_login) {
 
         viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
             errorMessage?.let {
-                binding.tilEmail.error = if (it.contains("email")) it else null
-                binding.tilPassword.error = if (it.contains("contraseña")) it else null
+                binding.tilEmail.error =
+                    if (it.contains("email")) it else null
+
+                binding.tilPassword.error =
+                    if (it.contains("contraseña")) it else null
+
                 viewModel.resetErrorState()
             }
         }

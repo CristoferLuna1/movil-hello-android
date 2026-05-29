@@ -1,45 +1,71 @@
 package com.example.helloandroidcristofermunoz.ui.statistics
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.helloandroidcristofermunoz.R
+import com.example.helloandroidcristofermunoz.data.AppDatabase
+import com.example.helloandroidcristofermunoz.data.repository.TransactionRepository
 import com.example.helloandroidcristofermunoz.databinding.FragmentStatisticsBinding
 import com.example.helloandroidcristofermunoz.utils.AmountFormatter
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import java.text.NumberFormat
+import java.util.Locale
 import kotlin.collections.listOf
 
 class StatisticsFragment :
     Fragment(R.layout.fragment_statistics) {
 
     private var _binding: FragmentStatisticsBinding? = null
-
     private val binding get() = _binding!!
 
-    private val viewModel: StatisticsViewModel by viewModels()
+    private val viewModel: StatisticsViewModel by viewModels {
+        val dao = AppDatabase
+            .getDatabase(requireContext())
+            .transactionDao()
 
-    override fun onViewCreated(
-        view: View,
-        savedInstanceState: Bundle?
-    ) {
+        val savingsDao = AppDatabase
+            .getDatabase(requireContext())
+            .savingsPlanDao()
 
+        val repository = TransactionRepository(dao, savingsDao)
+
+        StatisticsViewModelFactory(repository)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         _binding = FragmentStatisticsBinding.bind(view)
 
-        viewModel.setContext(requireContext())
-        viewModel.loadStatistics()
+        val userId = 1 // 👈 TEMPORAL (cámbialo por sesión real)
+
+        viewModel.loadStatistics(userId)
         observeData()
     }
 
     private fun observeData() {
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            Log.d("StatisticsFragment", "Loading: $isLoading")
+        }
+
+        viewModel.isError.observe(viewLifecycleOwner) { isError ->
+            Log.d("StatisticsFragment", "Error: $isError")
+            if (isError) {
+                binding.txtIncome.text = "Error"
+                binding.txtExpenses.text = "Error"
+            }
+        }
 
         viewModel.income.observe(viewLifecycleOwner) { income ->
-            binding.txtIncome.text = "$${AmountFormatter.format(income)}"
-            updateChart()
+            val formattedIncome = NumberFormat.getCurrencyInstance(Locale("es", "CO")).format(income)
+            binding.txtIncome.text = formattedIncome
+
+            val expenses = viewModel.expenses.value ?: 0.0
+
         }
 
         viewModel.expenses.observe(viewLifecycleOwner) { expenses ->

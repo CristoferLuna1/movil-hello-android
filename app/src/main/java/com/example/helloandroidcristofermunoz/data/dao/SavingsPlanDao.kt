@@ -33,6 +33,9 @@ interface SavingsPlanDao {
     @Delete
     suspend fun delete(savingsPlan: SavingsPlan)
     
+    @Query("""Select * FROM savings_plans WHERE monthYear = :monthYear LIMIT 1""")
+    suspend fun getGoalForMonth( monthYear: Int ): SavingsPlan?
+
     @Query("DELETE FROM savings_plans WHERE id = :id")
     suspend fun deleteById(id: Int)
 }

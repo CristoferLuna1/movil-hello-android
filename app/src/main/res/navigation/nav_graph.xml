@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/homeFragment">
 
     <!-- LOGIN -->
     <fragment
@@ -61,6 +61,18 @@
         android:name="com.example.helloandroidcristofermunoz.ui.statistics.StatisticsFragment"
         android:label="Statistics" />
 
+    <!-- HISTORY (SOLO UNA VEZ) -->
+    <fragment
+        android:id="@+id/historyFragment"
+        android:name="com.example.helloandroidcristofermunoz.ui.history.HistoryFragment"
+        android:label="History">
+
+        <argument
+            android:name="fromProfile"
+            android:defaultValue="false"
+            app:argType="boolean" />
+    </fragment>
+
     <!-- PROFILE -->
     <fragment
         android:id="@+id/profileFragment"
@@ -80,19 +92,7 @@
             app:popUpToInclusive="true" />
     </fragment>
 
-    <!-- HISTORY -->
-    <fragment
-        android:id="@+id/historyFragment"
-        android:name="com.example.helloandroidcristofermunoz.ui.history.HistoryFragment"
-        android:label="History">
-
-        <argument
-            android:name="fromProfile"
-            android:defaultValue="false"
-            app:argType="boolean" />
-    </fragment>
-
-    <!-- DETAIL (CLAVE) -->
+    <!-- DETAIL -->
     <fragment
         android:id="@+id/transactionDetailFragment"
         android:name="com.example.helloandroidcristofermunoz.ui.detail.TransactionDetailFragment"
@@ -107,7 +107,7 @@
             app:destination="@id/addTransactionFragment" />
     </fragment>
 
-    <!-- SAVINGS SETTINGS -->
+    <!-- SAVINGS -->
     <fragment
         android:id="@+id/savingsSettingsFragment"
         android:name="com.example.helloandroidcristofermunoz.ui.savings.SavingsSettingsFragment"

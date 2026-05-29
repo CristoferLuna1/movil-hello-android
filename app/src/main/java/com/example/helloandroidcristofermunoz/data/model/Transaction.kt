@@ -9,6 +9,8 @@ data class Transaction(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
+    val firebaseId: String = "",
+
     // Antes title
     val title: String,
 
@@ -38,5 +40,8 @@ data class Transaction(
     val monthYear: Int = 0,
 
     // ID del usuario que creó la transacción
-    val userId: Int = 0
+    val userId: Int = 0,
+    
+    // Timestamp para sincronización
+    val updatedAt: Long = System.currentTimeMillis()
 )

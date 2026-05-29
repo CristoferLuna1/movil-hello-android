@@ -39,8 +39,12 @@ class AddTransactionViewModel(
     val transactionToEdit: LiveData<Transaction?> = _transactionToEdit
 
     fun loadTransaction(id: Int) {
+
         viewModelScope.launch {
-            val transaction = repository.getTransactionById(id)
+
+            val transaction =
+                repository.getTransactionById(id)
+
             _transactionToEdit.postValue(transaction)
         }
     }
@@ -50,7 +54,7 @@ class AddTransactionViewModel(
         amount: String,
         category: String,
         type: String,
-        paymentDay: String,
+        paymentDay: Int?,
         endDate: Long?,
         isMonthlyPersistent: Boolean,
         transactionId: Int = -1
@@ -64,29 +68,52 @@ class AddTransactionViewModel(
         var isValid = true
 
         if (title.isBlank()) {
-            _titleError.value = "El título es requerido"
+
+            _titleError.value =
+                "El título es requerido"
+
             isValid = false
         }
 
         if (amount.isBlank()) {
-            _amountError.value = "El monto es requerido"
+
+            _amountError.value =
+                "El monto es requerido"
+
             isValid = false
         }
 
         if (category.isBlank()) {
-            _categoryError.value = "La categoría es requerida"
+
+            _categoryError.value =
+                "La categoría es requerida"
+
             isValid = false
         }
 
-        // Validar día de pago solo para deudas mensuales (no para gastos fijos)
-        if (category == "Deudas Mensuales" && paymentDay.isBlank()) {
-            _paymentDayError.value = "El día de pago es requerido para deudas mensuales"
+        if (
+            category == "Deudas Mensuales" &&
+            paymentDay == null
+        ) {
+
+            _paymentDayError.value =
+                "El día de pago es requerido"
+
             isValid = false
         }
 
         if (!isValid) return
 
-        saveTransaction(title, amount, category, type, paymentDay, endDate, isMonthlyPersistent, transactionId)
+        saveTransaction(
+            title,
+            amount,
+            category,
+            type,
+            paymentDay,
+            endDate,
+            isMonthlyPersistent,
+            transactionId
+        )
     }
 
     private fun saveTransaction(
@@ -94,7 +121,7 @@ class AddTransactionViewModel(
         amount: String,
         category: String,
         type: String,
-        paymentDay: String,
+        paymentDay: Int?,
         endDate: Long?,
         isMonthlyPersistent: Boolean,
         transactionId: Int
@@ -106,43 +133,67 @@ class AddTransactionViewModel(
 
             try {
 
-                val calendar = Calendar.getInstance()
-                val monthYear = calendar.get(Calendar.YEAR) * 100 + (calendar.get(Calendar.MONTH) + 1)
+                val calendar =
+                    Calendar.getInstance()
 
-                val parsedAmount = AmountFormatter.parse(amount)
-                val parsedPaymentDay = if (paymentDay.isNotBlank()) paymentDay.toIntOrNull() else null
+                val monthYear =
+                    calendar.get(Calendar.YEAR) * 100 +
+                            (calendar.get(Calendar.MONTH) + 1)
+
+                val parsedAmount =
+                    AmountFormatter.parse(amount)
 
                 if (transactionId != -1) {
-                    // Modo edición - actualizar transacción existente
-                    val existingTransaction = repository.getTransactionById(transactionId)
+
+                    val existingTransaction =
+                        repository.getTransactionById(
+                            transactionId
+                        )
+
                     existingTransaction?.let {
-                        val updatedTransaction = it.copy(
+
+                        val updatedTransaction =
+                            it.copy(
+                                title = title,
+                                amount = parsedAmount,
+                                category = category,
+                                customCategory =
+                                    if (category == "Otro")
+                                        category
+                                    else
+                                        null,
+                                type = type,
+                                paymentDay = paymentDay,
+                                endDate = endDate,
+                                isMonthlyPersistent =
+                                    isMonthlyPersistent
+                            )
+
+                        repository.update(updatedTransaction)
+                    }
+
+                } else {
+
+                    val transaction =
+                        Transaction(
                             title = title,
                             amount = parsedAmount,
                             category = category,
-                            customCategory = if (category == "Otro") category else null,
+                            customCategory =
+                                if (category == "Otro")
+                                    category
+                                else
+                                    null,
                             type = type,
-                            paymentDay = parsedPaymentDay,
+                            date = System.currentTimeMillis(),
+                            paymentDay = paymentDay,
                             endDate = endDate,
-                            isMonthlyPersistent = isMonthlyPersistent
+                            isMonthlyPersistent =
+                                isMonthlyPersistent,
+                            monthYear = monthYear,
+                            userId = 1
                         )
-                        repository.update(updatedTransaction)
-                    }
-                } else {
-                    // Modo creación - nueva transacción
-                    val transaction = Transaction(
-                        title = title,
-                        amount = parsedAmount,
-                        category = category,
-                        customCategory = if (category == "Otro") category else null,
-                        type = type,
-                        date = System.currentTimeMillis(),
-                        paymentDay = parsedPaymentDay,
-                        endDate = endDate,
-                        isMonthlyPersistent = isMonthlyPersistent,
-                        monthYear = monthYear,
-                        userId = 1 // TODO: Obtener el ID del usuario actual
-                    )
+
                     repository.insert(transaction)
                 }
 
@@ -152,7 +203,59 @@ class AddTransactionViewModel(
             } catch (e: Exception) {
 
                 _isLoading.value = false
-                _errorMessage.value = "Error al guardar la transacción"
+
+                _errorMessage.value =
+                    "Error al guardar la transacción"
+            }
+        }
+    }
+
+    fun deleteTransaction(
+        transaction: Transaction
+    ) {
+
+        _isLoading.value = true
+
+        viewModelScope.launch {
+
+            try {
+
+                repository.delete(transaction)
+
+                _isLoading.value = false
+                _isSuccess.value = true
+
+            } catch (e: Exception) {
+
+                _isLoading.value = false
+
+                _errorMessage.value =
+                    "Error al eliminar la transacción"
+            }
+        }
+    }
+
+    fun updateTransaction(
+        transaction: Transaction
+    ) {
+
+        _isLoading.value = true
+
+        viewModelScope.launch {
+
+            try {
+
+                repository.update(transaction)
+
+                _isLoading.value = false
+                _isSuccess.value = true
+
+            } catch (e: Exception) {
+
+                _isLoading.value = false
+
+                _errorMessage.value =
+                    "Error al actualizar la transacción"
             }
         }
     }
@@ -163,5 +266,9 @@ class AddTransactionViewModel(
 
     fun resetErrorState() {
         _errorMessage.value = null
+    }
+
+    fun clearEditing() {
+        _transactionToEdit.value = null
     }
 }

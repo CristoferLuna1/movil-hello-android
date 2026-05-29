@@ -7,6 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.helloandroidcristofermunoz.data.model.Transaction
 import com.example.helloandroidcristofermunoz.databinding.ItemTransactionBinding
 import com.example.helloandroidcristofermunoz.utils.AmountFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class TransactionAdapter(
     private val transactions: List<Transaction>,
@@ -22,15 +25,19 @@ class TransactionAdapter(
             binding.txtTitle.text = transaction.title
             binding.txtCategory.text = transaction.category
 
-            val amountText = if (transaction.type == "income") {
-                "+ $${AmountFormatter.format(transaction.amount)}"
+            val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale("es", "CO"))
+            val date = Date(transaction.date)
+            binding.txtDate.text = dateFormat.format(date)
+
+            val amountText = if (transaction.type == "Ingreso") {
+                "+ $${transaction.amount}"
             } else {
                 "- $${AmountFormatter.format(transaction.amount)}"
             }
 
             binding.txtAmount.text = amountText
 
-            val color = if (transaction.type == "income") {
+            val color = if (transaction.type == "Ingreso") {
                 Color.parseColor("#4CAF50")
             } else {
                 Color.parseColor("#F44336")
@@ -38,7 +45,7 @@ class TransactionAdapter(
 
             binding.txtAmount.setTextColor(color)
 
-            binding.root.setOnClickListener {
+            binding.cardTransaction.setOnClickListener {
                 onItemClick(transaction)
             }
         }

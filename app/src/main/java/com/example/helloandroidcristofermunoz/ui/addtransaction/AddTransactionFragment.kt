@@ -2,13 +2,17 @@ package com.example.helloandroidcristofermunoz.ui.addtransaction
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.RadioButton
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.navArgs
 import com.example.helloandroidcristofermunoz.R
 import com.example.helloandroidcristofermunoz.data.AppDatabase
@@ -16,6 +20,9 @@ import com.example.helloandroidcristofermunoz.data.repository.TransactionReposit
 import com.example.helloandroidcristofermunoz.databinding.FragmentAddTransactionBinding
 import com.example.helloandroidcristofermunoz.utils.AmountFormatter
 import com.example.helloandroidcristofermunoz.utils.Categories
+import com.example.helloandroidcristofermunoz.utils.NotificationHelper
+import kotlinx.coroutines.launch
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -45,7 +52,10 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
     private var selectedCategory: String = ""
     private var selectedPaymentDay: Int? = null
     private var selectedEndDate: Long? = null
-    private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale("es", "CL"))
+
+    private val dateFormat =
+        SimpleDateFormat("dd/MM/yyyy", Locale("es", "CO"))
+
     private var isEditMode = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -71,121 +81,190 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
     }
 
     private fun setupCategorySpinner() {
+
         val adapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_item,
             Categories.PREDEFINED_CATEGORIES
         )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        adapter.setDropDownViewResource(
+            android.R.layout.simple_spinner_dropdown_item
+        )
+
         binding.spinnerCategory.adapter = adapter
 
-        binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                selectedCategory = Categories.PREDEFINED_CATEGORIES[position]
-                handleCategorySelection(selectedCategory)
-            }
+        binding.spinnerCategory.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
 
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
+                override fun onItemSelected(
+                    parent: AdapterView<*>,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+
+                    selectedCategory =
+                        Categories.PREDEFINED_CATEGORIES[position]
+
+                    handleCategorySelection(selectedCategory)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>) {}
+            }
     }
 
     private fun handleCategorySelection(category: String) {
-        // Mostrar campo de categoría personalizada si selecciona "Otro"
+
         if (category == "Otro") {
+
             binding.tilCustomCategory.visibility = View.VISIBLE
+
         } else {
+
             binding.tilCustomCategory.visibility = View.GONE
             binding.edtCustomCategory.text?.clear()
         }
 
-        // Mostrar campos de deuda mensual si selecciona "Deudas Mensuales"
         if (category == "Deudas Mensuales") {
+
             binding.tilPaymentDay.visibility = View.VISIBLE
             binding.tilEndDate.visibility = View.VISIBLE
+
         } else {
+
             binding.tilPaymentDay.visibility = View.GONE
             binding.tilEndDate.visibility = View.GONE
+
             binding.edtPaymentDay.text?.clear()
             binding.edtEndDate.text?.clear()
+
+            selectedPaymentDay = null
             selectedEndDate = null
         }
     }
 
     private fun setupAmountFormatter() {
-        binding.edtAmount.addTextChangedListener(object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) {
-                if (s != null && s.isNotEmpty()) {
-                    val text = s.toString()
-                    // Eliminar todos los puntos y comas para obtener el número limpio
-                    val cleanText = text.replace(".", "").replace(",", "")
-                    if (cleanText.isNotEmpty() && cleanText != "0") {
-                        try {
-                            val number = cleanText.toDouble()
-                            if (number > 0) {
-                                val formatted = AmountFormatter.format(number)
-                                binding.edtAmount.removeTextChangedListener(this)
-                                binding.edtAmount.setText(formatted)
-                                binding.edtAmount.setSelection(formatted.length)
-                                binding.edtAmount.addTextChangedListener(this)
+
+        binding.edtAmount.addTextChangedListener(
+            object : TextWatcher {
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {}
+
+                override fun onTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    before: Int,
+                    count: Int
+                ) {}
+
+                override fun afterTextChanged(s: Editable?) {
+
+                    if (s != null && s.isNotEmpty()) {
+
+                        val text = s.toString()
+
+                        val cleanText =
+                            text.replace(".", "")
+                                .replace(",", "")
+
+                        if (cleanText.isNotEmpty() && cleanText != "0") {
+
+                            try {
+
+                                val number = cleanText.toDouble()
+
+                                if (number > 0) {
+
+                                    val formatted =
+                                        AmountFormatter.format(number)
+
+                                    binding.edtAmount.removeTextChangedListener(this)
+
+                                    binding.edtAmount.setText(formatted)
+
+                                    binding.edtAmount.setSelection(
+                                        formatted.length
+                                    )
+
+                                    binding.edtAmount.addTextChangedListener(this)
+                                }
+
+                            } catch (e: Exception) {
+
                             }
-                        } catch (e: Exception) {
-                            // Si hay error al convertir, no hacer nada
                         }
                     }
                 }
             }
-        })
+        )
     }
 
     private fun setupDatePicker() {
+
         binding.edtPaymentDay.setOnClickListener {
+
             val calendar = Calendar.getInstance()
-            val year = calendar.get(Calendar.YEAR)
-            val month = calendar.get(Calendar.MONTH)
-            val day = calendar.get(Calendar.DAY_OF_MONTH)
 
             val datePickerDialog = DatePickerDialog(
                 requireContext(),
-                { _, selectedYear, selectedMonth, selectedDay ->
-                    calendar.set(selectedYear, selectedMonth, selectedDay)
-                    selectedPaymentDay = selectedDay
-                    binding.edtPaymentDay.setText("$selectedDay de ${getMonthName(selectedMonth)} de $selectedYear")
+                { _, year, month, day ->
+
+                    calendar.set(year, month, day)
+
+                    selectedPaymentDay = day
+
+                    binding.edtPaymentDay.setText(
+                        "$day de ${getMonthName(month)} de $year"
+                    )
                 },
-                year,
-                month,
-                day
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
             )
+
             datePickerDialog.show()
         }
 
         binding.edtEndDate.setOnClickListener {
+
             val calendar = Calendar.getInstance()
-            val year = calendar.get(Calendar.YEAR)
-            val month = calendar.get(Calendar.MONTH)
-            val day = calendar.get(Calendar.DAY_OF_MONTH)
 
             val datePickerDialog = DatePickerDialog(
                 requireContext(),
-                { _, selectedYear, selectedMonth, selectedDay ->
-                    calendar.set(selectedYear, selectedMonth, selectedDay)
-                    selectedEndDate = calendar.timeInMillis
-                    binding.edtEndDate.setText(dateFormat.format(calendar.time))
+                { _, year, month, day ->
+
+                    calendar.set(year, month, day)
+
+                    selectedEndDate =
+                        calendar.timeInMillis
+
+                    binding.edtEndDate.setText(
+                        dateFormat.format(calendar.time)
+                    )
                 },
-                year,
-                month,
-                day
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
             )
+
             datePickerDialog.show()
         }
     }
 
     private fun getMonthName(month: Int): String {
+
         val months = arrayOf(
-            "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
-            "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+            "Enero", "Febrero", "Marzo", "Abril",
+            "Mayo", "Junio", "Julio", "Agosto",
+            "Septiembre", "Octubre", "Noviembre", "Diciembre"
         )
+
         return months[month]
     }
 
@@ -193,10 +272,14 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
         binding.btnSave.setOnClickListener {
 
-            val title = binding.edtTitle.text.toString().trim()
-            val amount = binding.edtAmount.text.toString().trim()
-            val customCategory = binding.edtCustomCategory.text.toString().trim()
-            val paymentDay = if (selectedPaymentDay != null) selectedPaymentDay.toString() else ""
+            val title =
+                binding.edtTitle.text.toString().trim()
+
+            val amount =
+                binding.edtAmount.text.toString().trim()
+
+            val customCategory =
+                binding.edtCustomCategory.text.toString().trim()
 
             val selectedTypeId =
                 binding.radioGroupType.checkedRadioButtonId
@@ -206,89 +289,283 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
             val type =
                 if (selectedRadioButton?.id == R.id.rbIncome)
-                    "income"
+                    "Ingreso"
                 else
-                    "expense"
+                    "Gasto"
 
-            val category = if (selectedCategory == "Otro") {
-                customCategory.ifEmpty { "Otro" }
+            val finalCategory =
+                if (selectedCategory == "Otro") {
+                    customCategory.ifEmpty { "Otro" }
+                } else {
+                    selectedCategory
+                }
+
+            if (type == "Gasto") {
+
+                checkBudgetBeforeSaving(
+                    title,
+                    amount,
+                    finalCategory,
+                    type
+                )
+
             } else {
-                selectedCategory
+
+                viewModel.validateAndSaveTransaction(
+                    title,
+                    amount,
+                    finalCategory,
+                    type,
+                    selectedPaymentDay,
+                    selectedEndDate,
+                    Categories.isMonthlyPersistent(selectedCategory),
+                    if (isEditMode)
+                        args.transactionId
+                    else
+                        -1
+                )
+            }
+        }
+    }
+
+    private fun checkBudgetBeforeSaving(
+        title: String,
+        amount: String,
+        category: String,
+        type: String
+    ) {
+
+        val amountValue =
+            amount.replace(".", "")
+                .replace(",", "")
+                .toDoubleOrNull() ?: 0.0
+
+        lifecycleScope.launch {
+
+            val calendar = Calendar.getInstance()
+
+            val currentMonth =
+                calendar.get(Calendar.MONTH)
+
+            val currentYear =
+                calendar.get(Calendar.YEAR)
+
+            val savingsPlanDao =
+                AppDatabase.getDatabase(requireContext())
+                .savingsPlanDao()
+            val monthYear =
+                currentYear * 100 + (currentMonth + 1)
+
+            val savingsPlan =
+                savingsPlanDao.getGoalForMonth(
+                monthYear
+            )
+
+            if (savingsPlan == null) {
+
+                viewModel.validateAndSaveTransaction(
+                    title,
+                    amount,
+                    category,
+                    type,
+                    selectedPaymentDay,
+                    selectedEndDate,
+                    Categories.isMonthlyPersistent(selectedCategory),
+                    if (isEditMode)
+                        args.transactionId
+                    else
+                        -1
+                )
+
+                return@launch
             }
 
-            viewModel.validateAndSaveTransaction(
-                title,
-                amount,
-                category,
-                type,
-                paymentDay,
-                selectedEndDate,
-                Categories.isMonthlyPersistent(selectedCategory),
-                if (isEditMode) args.transactionId else -1
-            )
+            val transactionDao =
+                AppDatabase.getDatabase(requireContext())
+                    .transactionDao()
+
+            val allTransactions =
+                transactionDao.getAll()
+
+            val monthlyTransactions =
+                allTransactions.filter { transaction ->
+
+                    val txCalendar =
+                        Calendar.getInstance()
+
+                    txCalendar.timeInMillis =
+                        transaction.date
+
+                    txCalendar.get(Calendar.MONTH) == currentMonth &&
+                            txCalendar.get(Calendar.YEAR) == currentYear
+                }
+
+            val monthlyIncome =
+                monthlyTransactions
+                    .filter { it.type == "Ingreso" }
+                    .sumOf { it.amount }
+
+            val monthlyExpenses =
+                monthlyTransactions
+                    .filter { it.type == "Gasto" }
+                    .sumOf { it.amount }
+
+            val availableBudget =
+                monthlyIncome - savingsPlan.monthlyGoal
+
+            val remainingBudget =
+                availableBudget - monthlyExpenses - amountValue
+
+            val formattedRemaining =
+                NumberFormat.getCurrencyInstance(
+                    Locale("es", "CO")
+                ).format(remainingBudget.toDouble())
+
+            val formattedAmount =
+                NumberFormat.getCurrencyInstance(
+                    Locale("es", "CO")
+                ).format(amountValue)
+
+            if (remainingBudget >= 0) {
+
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Presupuesto Disponible")
+                    .setMessage(
+                        "Puedes gastar este monto. " +
+                                "Te quedarán $formattedRemaining " +
+                                "disponibles sin tocar tu ahorro."
+                    )
+                    .setPositiveButton("Guardar") { _, _ ->
+
+                        viewModel.validateAndSaveTransaction(
+                            title,
+                            amount,
+                            category,
+                            type,
+                            selectedPaymentDay,
+                            selectedEndDate,
+                            Categories.isMonthlyPersistent(selectedCategory),
+                            if (isEditMode)
+                                args.transactionId
+                            else
+                                -1
+                        )
+                    }
+                    .setNegativeButton("Cancelar", null)
+                    .show()
+
+            } else {
+
+                val overspending =
+                    kotlin.math.abs(remainingBudget.toDouble())
+
+                val formattedOverspending =
+                    NumberFormat.getCurrencyInstance(
+                        Locale("es", "CO")
+                    ).format(overspending.toDouble())
+
+                AlertDialog.Builder(requireContext())
+                    .setTitle("¡Alerta!")
+                    .setMessage(
+                        "Este gasto de $formattedAmount " +
+                                "superará tu presupuesto máximo por " +
+                                "$formattedOverspending.\n\n" +
+                                "¿Deseas continuar?"
+                    )
+                    .setPositiveButton("Guardar") { _, _ ->
+
+                        viewModel.validateAndSaveTransaction(
+                            title,
+                            amount,
+                            category,
+                            type,
+                            selectedPaymentDay,
+                            selectedEndDate,
+                            Categories.isMonthlyPersistent(selectedCategory),
+                            if (isEditMode)
+                                args.transactionId
+                            else
+                                -1
+                        )
+                    }
+                    .setNegativeButton("Cancelar", null)
+                    .show()
+            }
         }
     }
 
     private fun observeViewModel() {
 
         viewModel.transactionToEdit.observe(viewLifecycleOwner) { transaction ->
+
             transaction?.let {
-                // Llenar el formulario con los datos de la transacción
+
                 binding.edtTitle.setText(it.title)
-                binding.edtAmount.setText(AmountFormatter.format(it.amount))
-                
-                // Seleccionar categoría
-                val categoryIndex = Categories.PREDEFINED_CATEGORIES.indexOf(it.category)
+
+                binding.edtAmount.setText(
+                    AmountFormatter.format(it.amount)
+                )
+
+                val categoryIndex =
+                    Categories.PREDEFINED_CATEGORIES.indexOf(it.category)
+
                 if (categoryIndex >= 0) {
+
                     binding.spinnerCategory.setSelection(categoryIndex)
+
                     selectedCategory = it.category
                 }
-                
-                // Seleccionar tipo
-                if (it.type == "income") {
+
+                if (it.type == "Ingreso") {
+
                     binding.rbIncome.isChecked = true
+
                 } else {
+
                     binding.rbExpense.isChecked = true
                 }
-                
-                // Día de pago
+
                 it.paymentDay?.let { day ->
+
                     selectedPaymentDay = day
-                    binding.edtPaymentDay.setText("$day de cada mes")
+
+                    binding.edtPaymentDay.setText(
+                        "$day de cada mes"
+                    )
                 }
-                
-                // Fecha fin
+
                 it.endDate?.let { endDate ->
+
                     selectedEndDate = endDate
-                    binding.edtEndDate.setText(dateFormat.format(java.util.Date(endDate)))
+
+                    binding.edtEndDate.setText(
+                        dateFormat.format(java.util.Date(endDate))
+                    )
                 }
             }
         }
 
-        viewModel.titleError.observe(viewLifecycleOwner) { error ->
-
-            binding.tilTitle.error = error
+        viewModel.titleError.observe(viewLifecycleOwner) {
+            binding.tilTitle.error = it
         }
 
-        viewModel.amountError.observe(viewLifecycleOwner) { error ->
-
-            binding.tilAmount.error = error
+        viewModel.amountError.observe(viewLifecycleOwner) {
+            binding.tilAmount.error = it
         }
 
-        viewModel.categoryError.observe(viewLifecycleOwner) { error ->
-
-            binding.tilCustomCategory.error = error
+        viewModel.categoryError.observe(viewLifecycleOwner) {
+            binding.tilCategory.error = it
         }
 
-        viewModel.paymentDayError.observe(viewLifecycleOwner) { error ->
-
-            binding.tilPaymentDay.error = error
+        viewModel.paymentDayError.observe(viewLifecycleOwner) {
+            binding.tilPaymentDay.error = it
         }
 
         viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
 
             binding.progressBar.visibility =
-                if (isLoading) View.VISIBLE else View.GONE
+                if (isLoading) View.VISIBLE
+                else View.GONE
 
             binding.btnSave.isEnabled = !isLoading
         }
@@ -299,13 +576,25 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
                 Toast.makeText(
                     requireContext(),
-                    if (isEditMode) "Transacción actualizada exitosamente" else "Transacción guardada exitosamente",
+                    if (isEditMode)
+                        "Transacción actualizada exitosamente"
+                    else
+                        "Transacción guardada exitosamente",
                     Toast.LENGTH_SHORT
                 ).show()
 
+                NotificationHelper.showNotification(
+                    requireContext(),
+                    "Transacción creada",
+                    "Se guardó correctamente"
+                )
+
                 if (isEditMode) {
+
                     requireActivity().onBackPressed()
+
                 } else {
+
                     clearForm()
                 }
 
@@ -313,13 +602,13 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
             }
         }
 
-        viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
+        viewModel.errorMessage.observe(viewLifecycleOwner) {
 
-            errorMessage?.let {
+            it?.let { error ->
 
                 Toast.makeText(
                     requireContext(),
-                    it,
+                    error,
                     Toast.LENGTH_SHORT
                 ).show()
 
@@ -337,7 +626,10 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
         binding.edtEndDate.text?.clear()
 
         binding.spinnerCategory.setSelection(0)
-        selectedCategory = Categories.PREDEFINED_CATEGORIES[0]
+
+        selectedCategory =
+            Categories.PREDEFINED_CATEGORIES[0]
+
         selectedPaymentDay = null
         selectedEndDate = null
 
@@ -347,9 +639,7 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
     }
 
     override fun onDestroyView() {
-
         super.onDestroyView()
-
         _binding = null
     }
 }
