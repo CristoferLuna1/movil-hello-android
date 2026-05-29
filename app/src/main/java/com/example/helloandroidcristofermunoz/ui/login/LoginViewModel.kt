@@ -1,15 +1,16 @@
 package com.example.helloandroidcristofermunoz.ui.login
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.helloandroidcristofermunoz.data.repository.UserRepository
 import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
+import com.example.helloandroidcristofermunoz.data.repository.AuthRepository
 
-class LoginViewModel(
-    private val userRepository: UserRepository
-) : ViewModel() {
+class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
 
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
@@ -27,8 +28,12 @@ class LoginViewModel(
     val passwordError: LiveData<String?> = _passwordError
 
     fun validateAndLogin(email: String, password: String) {
-
+        Log.d("AUTH_FLOW", "VALIDATE AND LOGIN -> email=$email password=$password")
         var isValid = true
+        Log.d(
+                "AUTH_FLOW",
+                "VALIDATE FIELDS -> email isBlank=${email.isBlank()} password isBlank=${password.isBlank()}"
+        )
 
         if (email.isBlank()) {
             _emailError.value = "Ingrese el correo"
@@ -51,40 +56,37 @@ class LoginViewModel(
 
     private fun login(email: String, password: String) {
 
+        Log.d("AUTH_FLOW", "START LOGIN PROCESS -> email=$email")
+
         _isLoading.value = true
 
         viewModelScope.launch {
-
             try {
 
-                val user = userRepository.login(email, password)
+                val result = authRepository.login(email, password)
 
-                if (user != null) {
+                if (result.isSuccess) {
 
-                    userRepository.logout()
-
-                    val updatedUser = user.copy(isLoggedIn = true)
-
-                    userRepository.updateUser(updatedUser)
+                    Log.d("AUTH_FLOW", "LOGIN SUCCESS")
 
                     _isSuccess.value = true
-
                 } else {
 
-                    _errorMessage.value = "Credenciales incorrectas"
-                }
+                    Log.e("AUTH_FLOW", "LOGIN FAILED -> ${result.exceptionOrNull()?.message}")
 
+                    _errorMessage.value = result.exceptionOrNull()?.message ?: "Error de login"
+                }
             } catch (e: Exception) {
 
-                _errorMessage.value = e.message
+                Log.e("AUTH_FLOW", "LOGIN EXCEPTION -> ${e.message}")
 
+                _errorMessage.value = e.message
             } finally {
 
                 _isLoading.value = false
             }
         }
     }
-
     fun resetSuccessState() {
         _isSuccess.value = false
     }

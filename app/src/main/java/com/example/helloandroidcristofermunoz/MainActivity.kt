@@ -3,28 +3,25 @@ package com.example.helloandroidcristofermunoz
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.example.helloandroidcristofermunoz.data.AppDatabase
-import com.example.helloandroidcristofermunoz.data.repository.UserRepository
 import com.example.helloandroidcristofermunoz.databinding.ActivityMainBinding
-import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var userRepository: UserRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Setup database
-        val database = AppDatabase.getDatabase(this)
-        userRepository = UserRepository(database.userDao())
+        // 🔥 Verificar sesión Firebase
+        if (FirebaseAuth.getInstance().currentUser == null) {
 
-        // Check authentication
-        checkAuthentication()
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+            return
+        }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -32,25 +29,15 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
     }
 
-    private fun checkAuthentication() {
-        lifecycleScope.launch {
-            val loggedInUser = userRepository.getLoggedInUser()
-            if (loggedInUser == null) {
-                // No user logged in, redirect to login
-                val intent = Intent(this@MainActivity, LoginActivity::class.java)
-                startActivity(intent)
-                finish()
-            }
-        }
-    }
-
     private fun setupNavigation() {
-        val navHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
 
-        val navController = navHost?.findNavController()
+        val navHostFragment =
+            supportFragmentManager
+                .findFragmentById(R.id.nav_host_fragment)
+                    as NavHostFragment
 
-        if (navController != null) {
-            binding.bottomNavigation.setupWithNavController(navController)
-        }
+        val navController = navHostFragment.navController
+
+        binding.bottomNavigation.setupWithNavController(navController)
     }
 }

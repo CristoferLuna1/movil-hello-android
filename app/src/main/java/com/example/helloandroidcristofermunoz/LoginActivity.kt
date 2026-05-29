@@ -2,123 +2,125 @@ package com.example.helloandroidcristofermunoz
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.example.helloandroidcristofermunoz.data.AppDatabase
-import com.example.helloandroidcristofermunoz.data.model.User
-import com.example.helloandroidcristofermunoz.data.repository.UserRepository
+import com.example.helloandroidcristofermunoz.data.repository.AuthRepository
 import com.example.helloandroidcristofermunoz.databinding.ActivityLoginBinding
 import com.example.helloandroidcristofermunoz.ui.login.LoginViewModel
 import com.example.helloandroidcristofermunoz.ui.login.LoginViewModelFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var viewModel: LoginViewModel
-    private lateinit var userRepository: UserRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupDatabase()
+        // 🔥 Si ya hay sesión iniciada -> entra directo
+        val user = FirebaseAuth.getInstance().currentUser
+
+        if (user != null) {
+
+            Log.d("AUTH_FLOW", "USER ALREADY LOGGED -> ${user.email}")
+
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+            return
+        }
+
         setupViewModel()
         setupClickListeners()
-        createTestUserIfNeeded()
-        checkLoggedInUser()
-    }
-
-    private fun setupDatabase() {
-        val database = AppDatabase.getDatabase(this)
-        userRepository = UserRepository(database.userDao())
+        observeViewModel()
     }
 
     private fun setupViewModel() {
-        val factory = LoginViewModelFactory(userRepository)
-        viewModel = ViewModelProvider(this, factory)[LoginViewModel::class.java]
+
+        val factory = LoginViewModelFactory(
+            AuthRepository()
+        )
+
+        viewModel =
+            ViewModelProvider(this, factory)[LoginViewModel::class.java]
     }
 
     private fun setupClickListeners() {
+
         binding.btnLogin.setOnClickListener {
-            val email = binding.edtEmail.text.toString()
-            val password = binding.edtPassword.text.toString()
+
+            val email = binding.edtEmail.text.toString().trim()
+            val password = binding.edtPassword.text.toString().trim()
+
+            Log.d("AUTH_FLOW", "LOGIN BUTTON CLICKED")
+            Log.d("AUTH_FLOW", "email=$email")
+
             viewModel.validateAndLogin(email, password)
         }
 
         binding.txtRegister.setOnClickListener {
-            // Navegar a RegisterActivity
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
-        }
 
-        viewModel.isSuccess.observe(this) { isSuccess ->
-            if (isSuccess) {
-                navigateToMain()
-                viewModel.resetSuccessState()
+            startActivity(
+                Intent(this, RegisterActivity::class.java)
+            )
+        }
+    }
+
+    private fun observeViewModel() {
+
+        viewModel.isSuccess.observe(this) { success ->
+
+            if (success) {
+
+                Log.d("AUTH_FLOW", "NAVIGATING TO MAIN")
+
+                val intent = Intent(this, MainActivity::class.java)
+
+                intent.flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+
+                startActivity(intent)
+                finish()
             }
         }
 
-        viewModel.errorMessage.observe(this) { errorMessage ->
-            errorMessage?.let {
-                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
-                viewModel.resetErrorState()
+        viewModel.errorMessage.observe(this) { error ->
+
+            error?.let {
+
+                Log.e("AUTH_FLOW", "LOGIN ERROR -> $it")
+
+                Toast.makeText(
+                    this,
+                    it,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
         viewModel.emailError.observe(this) { error ->
+
             binding.tilEmail.error = error
         }
 
         viewModel.passwordError.observe(this) { error ->
+
             binding.tilPassword.error = error
         }
 
         viewModel.isLoading.observe(this) { isLoading ->
-            binding.progressBar.visibility = if (isLoading) {
-                android.view.View.VISIBLE
-            } else {
-                android.view.View.GONE
-            }
+
+            binding.progressBar.visibility =
+                if (isLoading) View.VISIBLE else View.GONE
+
             binding.btnLogin.isEnabled = !isLoading
         }
-    }
-
-    private fun createTestUserIfNeeded() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val users = userRepository.getAllUsers()
-            if (users == null) {
-                // Crear usuario de prueba
-                val testUser = User(
-                    name = "Usuario Prueba",
-                    email = "test@test.com",
-                    password = "123456",
-                    isLoggedIn = false
-                )
-                userRepository.register(testUser)
-                runOnUiThread {
-                    Toast.makeText(this@LoginActivity, "Usuario de prueba creado: test@test.com / 123456", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-    }
-
-    private fun checkLoggedInUser() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val loggedInUser = userRepository.getLoggedInUser()
-            if (loggedInUser != null) {
-                navigateToMain()
-            }
-        }
-    }
-
-    private fun navigateToMain() {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish()
     }
 }
