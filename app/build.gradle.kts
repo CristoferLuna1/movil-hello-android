@@ -86,11 +86,14 @@ dependencies {
     //Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
-    // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
-    implementation("com.google.firebase:firebase-firestore-ktx")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
+     // Firebase Auth
+    implementation ("com.google.firebase:firebase-auth-ktx:22.3.1")
 
+    // (opcional pero recomendado si usas Firestore)
+    implementation ("com.google.firebase:firebase-firestore-ktx:24.10.0")
+
+    // Coroutines support for Firebase
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
     //PDF
     implementation("com.itextpdf:itextg:5.5.10")
 }

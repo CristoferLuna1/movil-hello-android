@@ -24,7 +24,7 @@
     <!-- REGISTER -->
     <fragment
         android:id="@+id/registerFragment"
-        android:name="com.example.helloandroidcristofermunoz.ui.login.RegisterFragment"
+        android:name="com.example.helloandroidcristofermunoz.ui.register.RegisterFragment"
         android:label="Register">
 
         <action
