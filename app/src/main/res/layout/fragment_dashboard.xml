@@ -1,0 +1,22 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <TextView android:id="@+id/title" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:text="Mi Balance" android:textSize="20sp" />
+
+    <TextView android:id="@+id/tv_balance" android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:layout_below="@id/title"
+        android:text="$ 1.250.000" android:textSize="36sp" android:textStyle="bold"
+        android:textColor="#2E7D32" />
+
+    <androidx.cardview.widget.CardView android:layout_width="match_parent"
+        android:layout_height="200dp" android:layout_below="@id/tv_balance"
+        android:layout_marginTop="20dp" app:cardCornerRadius="12dp" app:cardElevation="4dp">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="Gráfico de Gastos (Próximamente)" android:layout_gravity="center" />
+    </androidx.cardview.widget.CardView>
+
+    <include layout="@layout/layout_loading_state" android:visibility="gone" />
+</RelativeLayout>

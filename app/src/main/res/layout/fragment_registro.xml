@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:padding="24dp" android:gravity="center">
+
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="Crear Cuenta" android:textSize="28sp" android:textStyle="bold"
+        android:layout_marginBottom="32dp" />
+
+    <EditText android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="Nombre completo" android:layout_marginBottom="16dp" />
+
+    <EditText android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="Correo" android:layout_marginBottom="16dp" />
+
+    <EditText android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:hint="Contraseña" android:inputType="textPassword" android:layout_marginBottom="24dp" />
+
+    <Button android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Registrarse" />
+</LinearLayout>

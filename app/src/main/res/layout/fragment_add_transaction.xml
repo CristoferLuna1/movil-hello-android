@@ -110,6 +110,11 @@
             android:layout_gravity="center"
             android:layout_marginTop="16dp"
             android:visibility="gone"/>
+        
+        <include
+            android:id="@+id/loading_layout"
+            layout="@layout/layout_loading_state"
+            android:visibility="gone" />
 
     </LinearLayout>
 

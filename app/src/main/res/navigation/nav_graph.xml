@@ -1,8 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/loginFragment"> <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.helloandroidcristofermunoz.ui.fragments.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_login_to_dashboard"
+            app:destination="@id/dashboardFragment" />
+        <action
+            android:id="@+id/action_login_to_registro"
+            app:destination="@id/registroFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/registroFragment"
+        android:name="com.example.helloandroidcristofermunoz.ui.fragments.RegistroFragment"
+        android:label="Registro"
+        tools:layout="@layout/fragment_registro" />
+
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="com.example.helloandroidcristofermunoz.ui.fragments.DashboardFragment"
+        android:label="Dashboard"
+        tools:layout="@layout/fragment_dashboard">
+        <action
+            android:id="@+id/action_dashboard_to_list"
+            app:destination="@id/listTransactionsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/listTransactionsFragment"
+        android:name="com.example.helloandroidcristofermunoz.ui.fragments.ListTransactionsFragment"
+        android:label="Movimientos"
+        tools:layout="@layout/fragment_list_transactions" />
+
+    <fragment
+        android:id="@+id/categorySettingsFragment"
+        android:name="com.example.helloandroidcristofermunoz.ui.fragments.CategorySettingsFragment"
+        android:label="Categorías"
+        tools:layout="@layout/fragment_category_settings" />
+
+    <fragment
+        android:id="@+id/reportsFragment"
+        android:name="com.example.helloandroidcristofermunoz.ui.fragments.ReportsFragment"
+        android:label="Reportes"
+        tools:layout="@layout/fragment_reports" />
 
     <fragment
         android:id="@+id/homeFragment"
@@ -13,11 +59,6 @@
         android:id="@+id/addTransactionFragment"
         android:name="com.example.helloandroidcristofermunoz.ui.addtransaction.AddTransactionFragment"
         android:label="Add" />
-
-    <fragment
-        android:id="@+id/statisticsFragment"
-        android:name="com.example.helloandroidcristofermunoz.ui.statistics.StatisticsFragment"
-        android:label="Statistics" />
 
     <fragment
         android:id="@+id/profileFragment"
