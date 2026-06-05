@@ -8,8 +8,8 @@ import com.example.helloandroidcristofermunoz.data.remote.firebase.FirebaseRepos
 import kotlinx.coroutines.flow.Flow
 
 class TransactionRepository(
-    private val transactionDao: TransactionDao,
-    private val savingsPlanDao: SavingsPlanDao
+        private val transactionDao: TransactionDao,
+        private val savingsPlanDao: SavingsPlanDao
 ) {
 
     private val firebaseRepository = FirebaseRepository()
@@ -18,47 +18,55 @@ class TransactionRepository(
         private var isSyncing = false
     }
 
-    val allTransactions: Flow<List<Transaction>> =
-        transactionDao.getAllTransactions()
+    val allTransactions: Flow<List<Transaction>> = transactionDao.getAllTransactions()
 
-    suspend fun getTotalBalance(): Double =
-        transactionDao.getTotalBalance() ?: 0.0
+    suspend fun getTotalBalance(): Double = transactionDao.getTotalBalance() ?: 0.0
 
-    suspend fun getTotalIncome(): Double =
-        transactionDao.getTotalIncome() ?: 0.0
+    suspend fun getTotalIncome(): Double = transactionDao.getTotalIncome() ?: 0.0
 
-    suspend fun getTotalExpenses(): Double =
-        transactionDao.getTotalExpenses() ?: 0.0
+    suspend fun getTotalExpenses(): Double = transactionDao.getTotalExpenses() ?: 0.0
 
-    fun getTransactionsByDateRange(
-        startDate: Long,
-        endDate: Long
-    ): Flow<List<Transaction>> =
-        transactionDao.getTransactionsByDateRange(startDate, endDate)
+    fun getTransactionsByDateRange(startDate: Long, endDate: Long): Flow<List<Transaction>> =
+            transactionDao.getTransactionsByDateRange(startDate, endDate)
 
     fun searchTransactions(searchQuery: String): Flow<List<Transaction>> =
-        transactionDao.searchTransactions(searchQuery)
+            transactionDao.searchTransactions(searchQuery)
 
     fun getTransactionsByUser(userId: Int): Flow<List<Transaction>> =
-        transactionDao.getTransactionsByUser(userId)
+            transactionDao.getTransactionsByUser(userId)
 
     // INSERT + FIREBASE
     suspend fun insert(transaction: Transaction) {
 
-        val firebaseId =
-            if (transaction.firebaseId.isBlank()) {
-                firebaseRepository.saveTransaction(transaction)
-            } else {
-                transaction.firebaseId
-            }
+        Log.d("OFFLINE_CRISTOFER", "1 - Entró a insert()")
 
-        val newTransaction =
-            transaction.copy(
-                firebaseId = firebaseId,
-                updatedAt = System.currentTimeMillis()
+        try {
+
+            Log.d("OFFLINE_CRISTOFER", "2 - Antes de saveTransaction()")
+
+            val firebaseId = firebaseRepository.saveTransaction(transaction)
+
+            Log.d("OFFLINE_CRISTOFER", "3 - Firebase respondió")
+
+            transactionDao.insert(
+                    transaction.copy(
+                            firebaseId = firebaseId,
+                            pendingSync = false,
+                            updatedAt = System.currentTimeMillis()
+                    )
             )
 
-        transactionDao.insert(newTransaction)
+            Log.d("OFFLINE_CRISTOFER", "4 - Guardó en Room")
+        } catch (e: Exception) {
+
+            Log.e("OFFLINE_CRISTOFER", "ERROR EN FIREBASE", e)
+
+            transactionDao.insert(
+                    transaction.copy(pendingSync = true, updatedAt = System.currentTimeMillis())
+            )
+
+            Log.d("OFFLINE_CRISTOFER", "5 - Guardó offline")
+        }
     }
 
     suspend fun syncTransactions() {
@@ -74,6 +82,38 @@ class TransactionRepository(
 
             Log.d("SYNCCristofer", "🔥 INICIO SYNC")
 
+            // ==========================
+            // SUBIR PENDIENTES OFFLINE
+            // ==========================
+
+            val pending = transactionDao.getPendingTransactions()
+
+            Log.d("SYNCCristofer", "📤 Pendientes = ${pending.size}")
+
+            pending.forEach { transaction ->
+                try {
+
+                    val firebaseId = firebaseRepository.saveTransaction(transaction)
+
+                    transactionDao.update(
+                            transaction.copy(
+                                    firebaseId = firebaseId,
+                                    pendingSync = false,
+                                    updatedAt = System.currentTimeMillis()
+                            )
+                    )
+
+                    Log.d("SYNCCristofer", "✅ Pendiente sincronizada")
+                } catch (e: Exception) {
+
+                    Log.e("SYNCCristofer", "❌ Error sincronizando pendiente", e)
+                }
+            }
+
+            // ==========================
+            // DESCARGAR FIREBASE
+            // ==========================
+
             val remote = firebaseRepository.getTransactions()
             val local = transactionDao.getAllOnce()
 
@@ -83,40 +123,28 @@ class TransactionRepository(
             val localMap = local.associateBy { it.firebaseId }
 
             remote.forEach { remoteTx ->
-
                 val existing = localMap[remoteTx.firebaseId]
 
                 if (existing == null) {
 
-                    Log.d(
-                        "SYNCCristofer",
-                        "🆕 INSERTANDO EN ROOM: ${remoteTx.firebaseId}"
-                    )
+                    Log.d("SYNCCristofer", "🆕 INSERTANDO EN ROOM: ${remoteTx.firebaseId}")
 
                     transactionDao.insert(remoteTx)
-
                 } else {
-
-                    Log.d(
-                        "SYNCCristofer",
-                        "♻️ YA EXISTE: ${remoteTx.firebaseId}"
-                    )
 
                     if (remoteTx.updatedAt > existing.updatedAt) {
 
-                        transactionDao.update(
-                            remoteTx.copy(id = existing.id)
-                        )
+                        Log.d("SYNCCristofer", "♻️ ACTUALIZANDO: ${remoteTx.firebaseId}")
+
+                        transactionDao.update(remoteTx.copy(id = existing.id))
                     }
                 }
             }
 
             Log.d("SYNCCristofer", "✅ FIN SYNC")
-
         } catch (e: Exception) {
 
             Log.e("SYNCCristofer", "❌ ERROR", e)
-
         } finally {
 
             isSyncing = false
@@ -125,17 +153,13 @@ class TransactionRepository(
 
     suspend fun update(transaction: Transaction) {
 
-        val updated =
-            transaction.copy(
-                updatedAt = System.currentTimeMillis()
-            )
+        val updated = transaction.copy(updatedAt = System.currentTimeMillis())
 
         transactionDao.update(updated)
 
         try {
 
             firebaseRepository.updateTransaction(updated)
-
         } catch (e: Exception) {
 
             e.printStackTrace()
@@ -149,7 +173,6 @@ class TransactionRepository(
         try {
 
             firebaseRepository.deleteTransaction(transaction)
-
         } catch (e: Exception) {
 
             e.printStackTrace()
@@ -163,30 +186,18 @@ class TransactionRepository(
         return transactionDao.getTransactionById(id)
     }
 
-    suspend fun decrementSavingsInstallments(
-        userId: Int,
-        monthYear: Int,
-        amount: Double
-    ) {
+    suspend fun decrementSavingsInstallments(userId: Int, monthYear: Int, amount: Double) {
 
-        val currentPlan =
-            savingsPlanDao.getActiveSavingsPlanForMonth(
-                userId,
-                monthYear
-            )
+        val currentPlan = savingsPlanDao.getActiveSavingsPlanForMonth(userId, monthYear)
 
         currentPlan?.let {
-
             if (it.paidInstallments > 0) {
 
                 val updatedPlan =
-                    it.copy(
-                        currentSaved = maxOf(
-                            it.currentSaved - amount,
-                            0.0
-                        ),
-                        paidInstallments = it.paidInstallments - 1
-                    )
+                        it.copy(
+                                currentSaved = maxOf(0.0, it.currentSaved - amount),
+                                paidInstallments = it.paidInstallments - 1
+                        )
 
                 savingsPlanDao.update(updatedPlan)
             }

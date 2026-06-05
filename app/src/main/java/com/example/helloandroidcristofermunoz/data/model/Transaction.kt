@@ -43,5 +43,7 @@ data class Transaction(
     val userId: Int = 0,
     
     // Timestamp para sincronización
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+
+    val pendingSync: Boolean = false,
 )

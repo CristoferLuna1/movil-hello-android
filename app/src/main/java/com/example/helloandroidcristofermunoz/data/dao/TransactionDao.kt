@@ -38,6 +38,9 @@ interface TransactionDao {
 
     @Query("SELECT * FROM transactions WHERE userId = :userId")
     suspend fun getAllTransactionsByUser(userId: Int): List<Transaction>
+    
+    @Query("SELECT * FROM transactions WHERE pendingSync = 1")
+    suspend fun getPendingTransactions(): List<Transaction>
 
     @Query("SELECT * FROM transactions WHERE userId = :userId AND monthYear = :monthYear ORDER BY date DESC")
     fun getTransactionsByUserAndMonth(userId: Int, monthYear: Int): Flow<List<Transaction>>

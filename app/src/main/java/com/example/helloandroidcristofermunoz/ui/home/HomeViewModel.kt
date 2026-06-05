@@ -33,6 +33,9 @@ class HomeViewModel(
     private val currentUserId = 1 // TODO: obtener usuario actual
 
     init {
+        viewModelScope.launch {
+            repository.syncTransactions()
+        }
         loadTransactions()
     }
 
