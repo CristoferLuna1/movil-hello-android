@@ -63,9 +63,21 @@ class FirebaseRepository {
     }
 
     suspend fun deleteTransaction(transaction: Transaction) {
+        Log.d("DELETE_FIREBASE", "firebaseId = ${transaction.firebaseId}")
+        val id = transaction.firebaseId
 
-        if (transaction.firebaseId.isBlank()) return
+        if (id.isBlank()) {
+            Log.e("FIREBASE_DELETE", "firebaseId vacío")
+            return
+        }
 
-        db.collection("transactions").document(transaction.firebaseId).delete().await()
+        try {
+            db.collection("transactions").document(id).delete().await()
+
+            Log.d("FIREBASE_DELETE", "OK eliminado: $id")
+        } catch (e: Exception) {
+            Log.e("FIREBASE_DELETE", "Error eliminando", e)
+            throw e
+        }
     }
 }

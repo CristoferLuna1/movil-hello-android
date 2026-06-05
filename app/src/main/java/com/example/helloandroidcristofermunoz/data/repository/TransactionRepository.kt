@@ -168,14 +168,35 @@ class TransactionRepository(
 
     suspend fun deleteTransaction(transaction: Transaction) {
 
-        transactionDao.delete(transaction)
-
         try {
 
-            firebaseRepository.deleteTransaction(transaction)
+            Log.d("DELETE_CRISTOFER", "1 - Entró a deleteTransaction")
+
+            transactionDao.deleteByFirebaseId(transaction.firebaseId)
+
+            Log.d("DELETE_CRISTOFER", "2 - Borró de Room")
         } catch (e: Exception) {
 
-            e.printStackTrace()
+            Log.e("DELETE_CRISTOFER", "ERROR ROOM DELETE", e)
+            return
+        }
+        try {
+
+            Log.d("DELETE_CRISTOFER", "3 - Antes de Firebase")
+
+            val firebaseId = transaction.firebaseId
+            Log.d("DELETE_FIREBASE", "firebaseId = $firebaseId")
+            if (firebaseId != null) {
+
+                firebaseRepository.deleteTransaction(transaction)
+
+                Log.d("DELETE_CRISTOFER", "4 - Borró de Firebase")
+            } else {
+                Log.e("DELETE_CRISTOFER", "FirebaseId es null, no se puede borrar")
+            }
+        } catch (e: Exception) {
+
+            Log.e("DELETE_CRISTOFER", "5 - Error borrando en Firebase", e)
         }
     }
     suspend fun delete(transaction: Transaction) {

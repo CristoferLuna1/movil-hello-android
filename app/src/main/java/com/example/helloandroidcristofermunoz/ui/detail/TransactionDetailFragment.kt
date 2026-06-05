@@ -16,11 +16,13 @@ import com.example.helloandroidcristofermunoz.utils.AmountFormatter
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import android.util.Log
 
 class TransactionDetailFragment : Fragment() {
 
     private var _binding: FragmentTransactionDetailBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
 
     private val args: TransactionDetailFragmentArgs by navArgs()
 
@@ -34,9 +36,9 @@ class TransactionDetailFragment : Fragment() {
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale("es", "CL"))
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTransactionDetailBinding.inflate(inflater, container, false)
         return binding.root
@@ -49,35 +51,41 @@ class TransactionDetailFragment : Fragment() {
 
         observeData()
         setupListeners()
+        viewModel.deleteDone.observe(viewLifecycleOwner) {
+            Log.d("DELETE_CRISTOFER", "OBSERVADOR EJECUTADO = $it")
+            if (it == true) {
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+            }
+        }
     }
 
     private fun setupListeners() {
         binding.btnEdit.setOnClickListener {
-            val action = TransactionDetailFragmentDirections
-                .actionTransactionDetailFragmentToAddTransactionFragment(args.transactionId)
+            val action =
+                    TransactionDetailFragmentDirections
+                            .actionTransactionDetailFragmentToAddTransactionFragment(
+                                    args.transactionId
+                            )
             findNavController().navigate(action)
         }
 
-        binding.btnDelete.setOnClickListener {
-            showDeleteConfirmationDialog()
-        }
+        binding.btnDelete.setOnClickListener { showDeleteConfirmationDialog() }
     }
-
     private fun showDeleteConfirmationDialog() {
         AlertDialog.Builder(requireContext())
-            .setTitle("Eliminar transacción")
-            .setMessage("¿Estás seguro de que deseas eliminar esta transacción?")
-            .setPositiveButton("Eliminar") { _, _ ->
-                viewModel.deleteTransaction(args.transactionId)
-                requireActivity().onBackPressed()
-            }
-            .setNegativeButton("Cancelar", null)
-            .show()
+                .setTitle("Eliminar transacción")
+                .setMessage("¿Seguro?")
+                .setPositiveButton("Eliminar") { _, _ ->
+                    viewModel.transaction.value?.let { transaction ->
+                        viewModel.deleteTransaction(transaction)
+                    }
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
     }
 
     private fun observeData() {
         viewModel.transaction.observe(viewLifecycleOwner) { transaction ->
-
             if (transaction != null) {
                 binding.txtTitle.text = transaction.title
                 binding.txtAmount.text = "$${AmountFormatter.format(transaction.amount)}"
@@ -87,20 +95,20 @@ class TransactionDetailFragment : Fragment() {
                 // Mostrar información de deuda mensual si aplica
                 if (transaction.isMonthlyPersistent && transaction.category == "Deudas Mensuales") {
                     binding.layoutDebtInfo.visibility = View.VISIBLE
-                    
+
                     transaction.paymentDay?.let {
                         binding.txtPaymentDay.text = "Día de pago: $it de cada mes"
                     }
-                    
+
                     transaction.endDate?.let {
                         binding.txtEndDate.text = "Fecha fin: ${dateFormat.format(it)}"
-                        
+
                         // Calcular cuotas
                         val startDate = transaction.date
                         val endDate = it
                         val monthsBetween = calculateMonthsBetween(startDate, endDate)
                         val currentMonth = getCurrentInstallment(startDate)
-                        
+
                         binding.txtInstallmentInfo.text = "Cuota $currentMonth de $monthsBetween"
                     }
                 } else {
@@ -113,18 +121,22 @@ class TransactionDetailFragment : Fragment() {
     private fun calculateMonthsBetween(startDate: Long, endDate: Long): Int {
         val start = Calendar.getInstance().apply { timeInMillis = startDate }
         val end = Calendar.getInstance().apply { timeInMillis = endDate }
-        
-        val months = (end.get(Calendar.YEAR) - start.get(Calendar.YEAR)) * 12 +
-                      (end.get(Calendar.MONTH) - start.get(Calendar.MONTH)) + 1
+
+        val months =
+                (end.get(Calendar.YEAR) - start.get(Calendar.YEAR)) * 12 +
+                        (end.get(Calendar.MONTH) - start.get(Calendar.MONTH)) +
+                        1
         return months
     }
 
     private fun getCurrentInstallment(startDate: Long): Int {
         val start = Calendar.getInstance().apply { timeInMillis = startDate }
         val current = Calendar.getInstance()
-        
-        val months = (current.get(Calendar.YEAR) - start.get(Calendar.YEAR)) * 12 +
-                      (current.get(Calendar.MONTH) - start.get(Calendar.MONTH)) + 1
+
+        val months =
+                (current.get(Calendar.YEAR) - start.get(Calendar.YEAR)) * 12 +
+                        (current.get(Calendar.MONTH) - start.get(Calendar.MONTH)) +
+                        1
         return months.coerceAtLeast(1)
     }
 
